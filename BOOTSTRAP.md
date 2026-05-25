@@ -8,6 +8,46 @@
 
 ---
 
+## Pré-requisitos
+
+Antes de começar, certifique-se de ter:
+
+- **Git** ≥ 2.x instalado
+- **curl** ou **wget** (para verificação de versão)
+- Acesso ao [repositório da base](https://github.com/barcelosvinicius/basic-engineering)
+- Uma conta GitHub com permissão para criar repositórios
+
+---
+
+## Passo 0 — Verificação de versão
+
+> **Sempre execute esta verificação antes de usar ou atualizar a base.**
+
+Ao copiar a base para um projeto novo — ou após retornar a um projeto antigo — confirme
+que sua cópia está na versão mais recente:
+
+```bash
+bash check-version.sh
+```
+
+| Resultado | Ação |
+|-----------|------|
+| ✅ `Sua base está atualizada` | Prossiga para o Passo 1 |
+| 🔄 `Atualização disponível` | Baixe o `base-atualizacao.zip` mais recente e siga o procedimento de atualização abaixo |
+| ⚠️ Sem conexão / erro | Prossiga com cautela; verifique a versão manualmente em `BASE_VERSION` |
+
+### Como atualizar
+
+1. Acesse o [repositório da base](https://github.com/barcelosvinicius/basic-engineering) e baixe `base-atualizacao.zip`
+2. Extraia sobre a pasta `.github/base/` do seu projeto (sobrescreve apenas arquivos universais)
+3. Execute `bash check-version.sh` novamente para confirmar
+4. Revise o `CHANGELOG` da base e adapte seus agents/skills se necessário
+
+> **Nota:** Arquivos customizados (`copilot-instructions.md`, `agents/`, `docs/`) nunca são
+> sobrescritos pela atualização — são específicos do seu projeto.
+
+---
+
 ## O que é `.github/base/`
 
 A pasta `base/` contém os **arquivos fundacionais universais** — aqueles que funcionam

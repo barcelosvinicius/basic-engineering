@@ -1,9 +1,18 @@
-﻿{
-    "timestamp":  "2026-05-11T14:46:05.7972686-03:00",
-    "components":  [
-                       "roles",
-                       "skills",
-                       "docs"
-                   ],
-    "version":  "v20260511-144605"
+{
+    "version": "v20260511-144605",
+    "timestamp": "2026-05-11T14:46:05.7972686-03:00",
+    "repository": "https://github.com/barcelosvinicius/basic-engineering",
+    "branch": "main",
+    "check_version_url": "https://raw.githubusercontent.com/barcelosvinicius/basic-engineering/main/BASE_VERSION",
+    "components": [
+        "roles",
+        "skills",
+        "docs"
+    ],
+    "files": {
+        "roles": 13,
+        "skills": 16,
+        "docs_templates": 11
+    },
+    "min_compatible_version": "v20260511-144605"
 }
