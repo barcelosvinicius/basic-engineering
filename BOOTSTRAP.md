@@ -43,7 +43,7 @@ bash check-version.sh
 3. Run `bash check-version.sh` again to confirm
 4. Review the base `CHANGELOG` and adapt your agents/skills if necessary
 
-> **Note:** Customized files (`copilot-instructions.md`, `agents/`, `docs/`) are never
+> **Note:** Customized files (AI context file, `agents/`, `docs/`) are never
 > overwritten by the update — they are specific to your project.
 
 ---
@@ -76,8 +76,8 @@ project → it belongs in `.github/base/`.
 └──────────────────────────┬──────────────────────────────────────┘
                            │ informs
 ┌──────────────────────────▼──────────────────────────────────────┐
-│  LAYER 1 — PROJECT CONTEXT            (.github/)                │
-│  copilot-instructions.md                                         │
+│  LAYER 1 — PROJECT CONTEXT            (.github/ or project root)        │
+│  AI context file — tool-deployed (see Step 2 for filename mapping)      │
 │  "What this project is and its rules" — specific                │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ consults
@@ -107,11 +107,15 @@ project → it belongs in `.github/base/`.
 ```
 engineering-principles.md  (most generic — universal rules)
     ↓ specializes
-copilot-instructions.md    (project context)
+AI context file            (project context — see Step 2 for filename)
     ↓ specializes
 *.agent.md                 (role and responsibilities)
     ↓ specializes
 *.skill.md                 (how to do it — most specific)
+    ↓ specializes [optional]
+.specify/specs/            (feature requirements — WHAT)
+    ↓ specializes
+.specify/tasks/            (atomic task — EACH UNIT OF WORK)
 ```
 
 ---
@@ -136,17 +140,33 @@ Templates to customize (copy from `base/roles/` to `agents/`):
 
 ---
 
-### Step 2 — Create `copilot-instructions.md`
+### Step 2 — Create the AI context file
 
-Copy `base/copilot-instructions.template.md` to `.github/copilot-instructions.md`
-and fill in all sections marked with `<!-- CUSTOMIZE -->`.
+Copy `base/ai-context.template.md` and fill in all sections marked with `<!-- CUSTOMIZE -->`.
 
-This file is read by GitHub Copilot in **every** session of any agent.
-It is the highest-impact point — if it becomes outdated, all agents lose context.
+**This file is the highest-impact point in the system** — if it becomes outdated, all agents
+lose context. Keep it precise and concise (max ~150 lines).
+
+#### Tool deployment — where to place the file
+
+Different AI tools look for the context file in different locations.
+Copy (or symlink) the filled file to the path(s) your tools expect:
+
+| AI Tool | Expected filename / location |
+|---------|------------------------------|
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Claude Code | `CLAUDE.md` (project root) |
+| Cursor | `.cursorrules` (project root) |
+| Windsurf | `.windsurfrules` (project root) |
+| Other / agnostic | any of the above — most tools accept `CLAUDE.md` |
+
+> You may maintain one canonical file (e.g., `docs/ai-context.md`) and
+> symlink or copy it to each tool-specific location. All locations point
+> to the same content.
 
 Mandatory sections:
 ```
-# Copilot Instructions — [Project Name]
+# AI Context File — [Project Name]
 ## About the project       ← 2-3 sentences: what it does, for whom, technologies
 ## Architecture            ← table: Layer | Technology | Port
 ## Repository structure    ← main folder tree
@@ -222,6 +242,7 @@ See the `infra-ci-cd.md` skill for the full rule and workflow template.
 
 **Universal skills (copy from `base/skills/`):**
 - `proc-session-continuity.md` — mandatory session protocol (already copied in Step 1)
+- `proc-sdd.md` — Spec-Driven Development: spec → plan → tasks, EARS syntax, graph traversal
 - `proc-code-review.md` — code review protocol between agents
 - `proc-release-checklist.md` — universal pre-go-live checklist
 - `proc-adr.md` — Architectural Decision Records process
@@ -295,7 +316,65 @@ docs/
 
 ---
 
-### Step 6 — Configure GitHub automation
+### Step 5-A — Set up SDD structure (optional)
+
+Use this step if the project spans more than two weeks, has multiple features
+in parallel, or you have already experienced context drift across AI sessions.
+
+**When to skip:** one-off scripts, prototypes, or short-lived projects
+(see `skills/proc-sdd.md` for the full decision criteria).
+
+#### Create the `.specify/` folder structure
+
+```
+.specify/
+├── specs/    ← one spec per feature — WHAT the system does
+├── plans/    ← execution plan derived from spec — IN WHAT ORDER
+└── tasks/    ← atomic task breakdown — EACH UNIT OF WORK
+```
+
+```bash
+mkdir -p .specify/specs .specify/plans .specify/tasks
+```
+
+#### How SDD artifacts relate to the existing system
+
+| SDD artifact | Replaces / complements | Loaded in session |
+|---|---|---|
+| `.specify/tasks/[task].md` | Replaces full HISTORY.md load for implementation | Every implementation session |
+| `.specify/specs/[feature].md` | Complements requirements docs | When writing or reviewing a task |
+| `.specify/plans/[feature].md` | Complements architecture docs | When planning a feature |
+
+#### Create the first spec
+
+For each feature (or epic), create a spec file:
+
+```bash
+touch .specify/specs/[feature-name].md
+```
+
+The spec must use EARS syntax for requirements. See `skills/proc-sdd.md`
+for the full spec structure and syntax guide.
+
+#### Default session flow with SDD enabled
+
+```
+Session start:
+  1. Read AI context file (this project's rules)
+  2. Read .specify/tasks/[current-task].md (task scope)
+  3. Read .specify/specs/[feature].md (if needed)
+  4. git status (uncommitted changes)
+
+Session end:
+  1. Mark task ✅ in .specify/tasks/[task].md
+  2. Update docs/HISTORY.md (new state + next task)
+  3. Commit: task file + code + HISTORY.md
+```
+
+> See `skills/proc-sdd.md` for the complete SDD methodology, EARS syntax,
+> task decomposition rules, and the context-as-graph model.
+
+---
 
 ```
 .github/
@@ -333,7 +412,7 @@ git commit -m "chore(setup): initialize documentation structure and agents
 - .github/base/: principles, BOOTSTRAP, agent and skill templates
 - .github/agents/: N customized agents for [project]
 - .github/skills/: proc-session-continuity + M domain skills
-- copilot-instructions.md: global project context
+- AI context file deployed to tool-specific location (see BOOTSTRAP Step 2)
 - .github/PULL_REQUEST_TEMPLATE.md + ISSUE_TEMPLATE/
 - .github/workflows/: SCRUM automation
 - docs/: initial structure with INDEX, HISTORY, REQUISITOS"
@@ -348,10 +427,11 @@ git commit -m "chore(setup): initialize documentation structure and agents
 │  UNIVERSAL — copy as-is to any project                  │
 ├─────────────────────────────────────────────────────────┤
 │  .github/base/BOOTSTRAP.md               (this file)    │
-│  .github/base/engineering-principles.md  (incl §A & §B) │
+│  .github/base/engineering-principles.md  (incl §A–§C)  │
+│  .github/base/ai-context.template.md     (AI context)   │
 │  .github/base/roles/*.template.md        (12 templates) │
 │  .github/base/docs/*.template.md         (10 templates) │
-│  .github/base/skills/proc-*.md           (5 proc skills)│
+│  .github/base/skills/proc-*.md           (6 proc skills)│
 │  .github/base/skills/be-*.md             (4 be skills)  │
 │  .github/base/skills/fe-*.md             (2 fe skills)  │
 │  .github/base/skills/qa-*.md             (1 qa skill)   │
@@ -361,12 +441,12 @@ git commit -m "chore(setup): initialize documentation structure and agents
 ┌─────────────────────────────────────────────────────────┐
 │  ADAPT — copy and customize with project data           │
 ├─────────────────────────────────────────────────────────┤
-│  .github/copilot-instructions.md    (from base template)│
-│  .github/agents/*.agent.md          (from templates)    │
+│  AI context file → tool-specific path  (from template)  │
+│  .github/agents/*.agent.md             (from templates) │
 │  .github/PULL_REQUEST_TEMPLATE.md                       │
 │  .github/ISSUE_TEMPLATE/*.yml                           │
 │  docs/INDEX.md                                          │
-│  docs/HISTORY.md                    (start with setup)  │
+│  docs/HISTORY.md                       (start w/ setup) │
 │  docs/structural-analysis.md                            │
 └─────────────────────────────────────────────────────────┘
 
@@ -384,6 +464,14 @@ git commit -m "chore(setup): initialize documentation structure and agents
 │  docs/lessons-learned.md               (start empty)    │
 │  docs/fundamentos/TECNOLOGIAS.md                        │
 │  docs/processo/SCRUM.md                                 │
+└─────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│  OPTIONAL — SDD structure (Step 5-A)                    │
+├─────────────────────────────────────────────────────────┤
+│  .specify/specs/[feature].md  (WHAT)                    │
+│  .specify/plans/[feature].md  (IN WHAT ORDER)           │
+│  .specify/tasks/[task].md     (EACH UNIT OF WORK)       │
 └─────────────────────────────────────────────────────────┘
 ```
 

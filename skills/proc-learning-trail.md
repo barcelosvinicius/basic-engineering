@@ -73,7 +73,7 @@ Each practice in the trail must have:
 List all technologies and patterns in use:
 
 ```bash
-# Technologies — see copilot-instructions.md (Architecture section)
+# Technologies — see AI context file (Architecture section)
 # Patterns — see .github/skills/*.md (one skill = one practice)
 ls .github/skills/
 ```

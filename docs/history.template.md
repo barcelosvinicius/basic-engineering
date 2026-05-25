@@ -82,7 +82,7 @@
 **Owner:** [name]
 **Deliveries:**
 - Base structure created: `.github/base/`, `.github/agents/`, `.github/skills/`
-- `copilot-instructions.md` configured with project context
+- AI context file deployed to tool-specific location (see BOOTSTRAP.md Step 2)
 - Agents instantiated from the base templates
 - `docs/` initialized with folder structure
 

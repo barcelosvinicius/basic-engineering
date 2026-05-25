@@ -18,12 +18,50 @@ synchronized with the code.
 This skill is **universal** — copied from `.github/base/skills/` to all projects
 without modification. It references documents using the project's standard relative paths.
 
-Reference: `engineering-principles.md` §A.3 (Session Briefs) and §A.5 (Expected
-AI Behavior).
+Reference: `engineering-principles.md` §A.3 (Session Briefs), §A.5 (Expected
+AI Behavior), and §Appendix C (Context as Graph — Depth and Breadth).
+
+---
+
+## Context loading strategy
+
+Loading context is a graph traversal problem. Choose the strategy based on
+what the session needs to accomplish:
+
+### Depth-first (default — implementation sessions)
+
+Use when you have a defined task to implement.
+
+```
+AI context file → .specify/tasks/[current-task].md → .specify/specs/[feature].md
+```
+
+**Token cost:** ~200–500 lines.
+**When to use:** any session with a defined task from the `.specify/tasks/` folder.
+
+> If the project does not use SDD (`.specify/`), replace the task file with
+> the HISTORY.md + structural-analysis.md load below.
+
+### Breadth-first (planning and cross-cutting sessions)
+
+Use when navigating across features, writing a spec, or diagnosing a
+multi-module issue.
+
+```
+AI context file → docs/INDEX.md → docs/structural-analysis.md → docs/HISTORY.md
+```
+
+**Token cost:** ~400–800 lines.
+**When to use:** starting a new feature, writing a spec or plan, or diagnosing
+a cross-cutting bug.
+
+> See `engineering-principles.md` §Appendix C for the full context graph model.
 
 ---
 
 ## Mandatory flow — Session start
+
+### Without SDD (`.specify/` not in use)
 
 ```
 1. Read docs/HISTORY.md
@@ -42,8 +80,29 @@ AI Behavior).
    └── Past errors → patterns to avoid
 ```
 
-> **Estimated cost:** ~400 lines of critical context (vs ~8,000+ lines reading everything).
-> Savings of ~60% in tokens per session without losing operational context.
+### With SDD (`.specify/` in use — depth-first)
+
+```
+1. Read .specify/tasks/[current-task].md
+   ├── Task scope → what this session implements
+   ├── Verification → how to know it is done
+   └── Dependencies → predecessor tasks
+
+2. Read .specify/specs/[feature].md (if needed)
+   └── Feature requirements → EARS-syntax constraints
+
+3. Check git status
+   └── Uncommitted modified files → continue or discard
+
+4. Read docs/HISTORY.md only if task context is insufficient
+   └── Use breadth-first only when navigating to a new feature
+```
+
+> **Estimated cost (without SDD):** ~400 lines of critical context
+> (vs ~8,000+ lines reading everything). Savings of ~60% per session.
+>
+> **Estimated cost (with SDD, depth-first):** ~200–500 lines.
+> Savings of ~70–75% per session.
 
 ---
 
@@ -72,6 +131,8 @@ a verifiable goal.
 
 ## Mandatory flow — Session end
 
+### Without SDD
+
 ```
 1. Update docs/structural-analysis.md
    ├── Mark resolved pending items as ✅ with date
@@ -99,6 +160,23 @@ a verifiable goal.
 
 4. Commit with Conventional Commits
    └── Include updated docs in the same commit as the code
+```
+
+### With SDD (`.specify/` in use)
+
+```
+1. Update .specify/tasks/[current-task].md
+   └── Mark task ✅ with date if completed; record blocker if not
+
+2. Update docs/HISTORY.md
+   ├── "Current State" → reflect the new state and next task ID
+   └── "Delivery History" → new entry (same format as above)
+
+3. Record in docs/lessons-learned.md (if applicable)
+   └── Same criteria as above
+
+4. Commit with Conventional Commits
+   └── Include task file + implementation code + HISTORY.md
 ```
 
 ---
@@ -147,6 +225,7 @@ This validation **must be reflected** in:
 | Skill | When to consult |
 |-------|-----------------|
 | `proc-session-continuity` | **This file** — mandatory at the start of every session |
+| `proc-sdd` | Spec-Driven Development — spec → plan → tasks, EARS syntax, graph traversal |
 | `proc-code-review` | When reviewing a PR — who reviews what and how to give feedback |
 | `proc-release-checklist` | Before any production deploy |
 | `proc-adr` | When making a significant architectural decision |
@@ -191,4 +270,4 @@ This validation **must be reflected** in:
 
 *Universal — `.github/base/skills/proc-session-continuity.md`*
 *Copy to `.github/skills/` of each project without modification.*
-*Reference: `engineering-principles.md` §A.3, §A.4, §A.5*
+*Reference: `engineering-principles.md` §A.3, §A.4, §A.5, §Appendix C*

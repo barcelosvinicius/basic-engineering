@@ -40,7 +40,7 @@ Questions to diagnose whether a new skill is needed:
 - "Is this knowledge repeatedly needed or has it been rewritten more than once?"
 - "Is there a project-specific pattern that is not documented?"
 - "Would another agent ask 'how do I do X?' without having anywhere to look?"
-- "Is this 'how to do it' specific enough that it does not belong in `copilot-instructions.md`?"
+- "Is this 'how to do it' specific enough that it does not belong in the AI context file?"
 
 If the answer is **yes** to any of them → create the skill.
 
