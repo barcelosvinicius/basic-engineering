@@ -1,9 +1,20 @@
-# Copilot Instructions — [Project Name]
+# AI Context File — [Project Name]
 
-<!-- CUSTOMIZE: This file is read by GitHub Copilot in EVERY session of any
-agent. It is the highest-impact point in the system — if it becomes outdated, all agents
-lose context. Keep it precise and concise (max ~150 lines).
+<!-- CUSTOMIZE: This file is the single source of project context for any AI
+assistant. It is the highest-impact point in the system — if it becomes
+outdated, all agents lose context. Keep it precise and concise (max ~150 lines).
 Delete this instruction block when the file is filled in. -->
+
+<!-- TOOL DEPLOYMENT: Copy this file to the path expected by your AI tool.
+| AI Tool            | Expected filename / location                     |
+|--------------------|--------------------------------------------------|
+| GitHub Copilot     | `.github/copilot-instructions.md`               |
+| Claude Code        | `CLAUDE.md` (project root)                      |
+| Cursor             | `.cursorrules` (project root)                   |
+| Windsurf           | `.windsurfrules` (project root)                 |
+| Other / agnostic   | any of the above — most tools accept CLAUDE.md  |
+You may maintain one canonical file and symlink or copy to each location.
+Delete this instruction block when the file is deployed. -->
 
 ---
 
@@ -29,17 +40,21 @@ Delete this instruction block when the file is filled in. -->
   [backend-folder]/      — [description]
   [frontend-folder]/     — [description]
   docs/
-    fundamentos/         — engineering-principles.md, TECNOLOGIAS.md
-    especificacao/       — REQUISITOS.md, MELHORIAS.md
-    (docs root)          — architecture.md, diretrizes-tecnicas.md,
+    fundamentos/       — engineering-principles.md, TECNOLOGIAS.md
+    especificacao/     — REQUISITOS.md, MELHORIAS.md
+    (docs root)        — architecture.md, diretrizes-tecnicas.md,
                            structural-analysis.md, lessons-learned.md
-    processo/            — SCRUM.md, PLANO_TESTES.md
-    guias/               — COMO_USAR.md, COMO_USAR_AGENTS.md
-    (root)               — INDEX.md, HISTORY.md, GLOSSARIO.md
+    processo/          — SCRUM.md, PLANO_TESTES.md
+    guias/             — usage guide, agents guide
+    (root)             — INDEX.md, HISTORY.md, GLOSSARIO.md
   .github/
-    agents/              — dev-*, qa-*, mgmt-* agents
-    skills/              — be-*, fe-*, da-*, qa-*, proc-* skills
-    base/                — universal principles and templates
+    agents/            — dev-*, qa-*, mgmt-* agents
+    skills/            — be-*, fe-*, da-*, qa-*, proc-* skills
+    base/              — universal principles and templates
+  .specify/            — SDD artifacts (optional — see proc-sdd.md)
+    specs/             — one spec per feature (WHAT)
+    plans/             — execution plan derived from spec (IN WHAT ORDER)
+    tasks/             — atomic task breakdown (EACH UNIT OF WORK)
 ```
 
 ## Code conventions — Backend
@@ -100,5 +115,11 @@ Delete this instruction block when the file is filled in. -->
 **Mandatory action:** Read and follow `.github/skills/proc-session-continuity.md` in EVERY session — beginning AND end.
 The end-of-session flow (updating `docs/HISTORY.md`, `docs/structural-analysis.md`, and `docs/lessons-learned.md`)
 is mandatory to maintain traceability and reduce token consumption in the next session.
+
+**Context strategy:** Apply depth-first loading by default — load only the current task's
+spec (from `.specify/tasks/` if the project uses SDD) plus this file. Use breadth-first
+(loading `docs/INDEX.md` + `docs/structural-analysis.md`) only when navigating to a new
+feature or diagnosing a cross-cutting issue. See `skills/proc-sdd.md` for the full graph
+traversal model.
 
 > **Consult `docs/HISTORY.md` at the start of every session** — it contains the current state, blockers, and next steps.

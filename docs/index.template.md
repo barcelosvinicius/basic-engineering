@@ -129,7 +129,7 @@
 | Document | Content |
 |----------|---------|
 | `COMO_USAR.md` | Setup and troubleshooting |
-| `COMO_USAR_AGENTS.md` | Copilot agents and skills |
+| `COMO_USAR_AGENTS.md` | AI agents and skills |
 
 ---
 
