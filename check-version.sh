@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# check-version.sh — Verifica se a versão local da base está atualizada
+# check-version.sh — Checks whether the local base version is up to date
 #
-# Uso:
+# Usage:
 #   bash check-version.sh
-#   bash check-version.sh --silent   # sem mensagens, apenas código de saída
+#   bash check-version.sh --silent   # no messages, exit code only
 #
-# Códigos de saída:
-#   0 — versão local está atualizada
-#   1 — versão local está desatualizada (atualização disponível)
-#   2 — não foi possível verificar a versão remota
+# Exit codes:
+#   0 — local version is up to date
+#   1 — local version is outdated (update available)
+#   2 — remote version could not be checked
 
 set -euo pipefail
 
-# ── Configuração ────────────────────────────────────────────────────────────
+# ── Configuration ────────────────────────────────────────────────────────────
 REPO_OWNER="barcelosvinicius"
 REPO_NAME="basic-engineering"
 BRANCH="main"
@@ -20,7 +20,7 @@ REMOTE_VERSION_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}
 LOCAL_VERSION_FILE="$(dirname "$0")/BASE_VERSION"
 SILENT=false
 
-# ── Argumentos ──────────────────────────────────────────────────────────────
+# ── Arguments ────────────────────────────────────────────────────────────────
 for arg in "$@"; do
   case "$arg" in
     --silent|-s) SILENT=true ;;
@@ -31,55 +31,55 @@ log() {
   $SILENT || echo "$*"
 }
 
-# ── Leitura da versão local ──────────────────────────────────────────────────
+# ── Read local version ───────────────────────────────────────────────────────
 if [[ ! -f "$LOCAL_VERSION_FILE" ]]; then
-  log "❌  Arquivo BASE_VERSION não encontrado em: $LOCAL_VERSION_FILE"
-  log "    Certifique-se de executar este script na raiz da base copiada."
+  log "❌  BASE_VERSION file not found at: $LOCAL_VERSION_FILE"
+  log "    Make sure to run this script from the root of the copied base."
   exit 2
 fi
 
 LOCAL_VERSION=$(tr -d '[:space:]' < "$LOCAL_VERSION_FILE")
 
-# ── Leitura da versão remota ─────────────────────────────────────────────────
+# ── Read remote version ──────────────────────────────────────────────────────
 if command -v curl &>/dev/null; then
   REMOTE_VERSION=$(curl -fsSL "$REMOTE_VERSION_URL" 2>/dev/null | tr -d '[:space:]') || true
 elif command -v wget &>/dev/null; then
   REMOTE_VERSION=$(wget -qO- "$REMOTE_VERSION_URL" 2>/dev/null | tr -d '[:space:]') || true
 else
-  log "⚠️  Nem curl nem wget estão disponíveis."
-  log "   Instale curl ou wget para verificar a versão remota."
+  log "⚠️  Neither curl nor wget is available."
+  log "   Install curl or wget to check the remote version."
   exit 2
 fi
 
 if [[ -z "$REMOTE_VERSION" ]]; then
-  log "⚠️  Não foi possível obter a versão remota."
-  log "   Verifique sua conexão com a internet e tente novamente."
+  log "⚠️  Could not fetch the remote version."
+  log "   Check your internet connection and try again."
   exit 2
 fi
 
-# ── Comparação ───────────────────────────────────────────────────────────────
-# O formato é vYYYYMMDD-HHMMSS — comparação lexicográfica funciona corretamente.
+# ── Comparison ───────────────────────────────────────────────────────────────
+# Format is vYYYYMMDD-HHMMSS — lexicographic comparison works correctly.
 
 log ""
 log "┌─────────────────────────────────────────────────┐"
-log "│         basic-engineering — Verificação         │"
+log "│          basic-engineering — Check             │"
 log "└─────────────────────────────────────────────────┘"
-log "  Versão local  : $LOCAL_VERSION"
-log "  Versão remota : $REMOTE_VERSION"
+log "  Local version  : $LOCAL_VERSION"
+log "  Remote version : $REMOTE_VERSION"
 log ""
 
 if [[ "$LOCAL_VERSION" == "$REMOTE_VERSION" ]]; then
-  log "✅  Sua base está atualizada."
+  log "✅  Your base is up to date."
   exit 0
 elif [[ "$LOCAL_VERSION" < "$REMOTE_VERSION" ]]; then
-  log "🔄  Atualização disponível!"
+  log "🔄  Update available!"
   log ""
-  log "  Para atualizar, siga o Passo 0 do BOOTSTRAP.md:"
-  log "  https://github.com/${REPO_OWNER}/${REPO_NAME}#passo-0"
+  log "  To update, follow Step 0 in BOOTSTRAP.md:"
+  log "  https://github.com/${REPO_OWNER}/${REPO_NAME}#step-0"
   log ""
   exit 1
 else
-  log "ℹ️  Versão local ($LOCAL_VERSION) é mais recente que a remota ($REMOTE_VERSION)."
-  log "   Isso pode ocorrer em ambientes de desenvolvimento/preview."
+  log "ℹ️  Local version ($LOCAL_VERSION) is newer than remote ($REMOTE_VERSION)."
+  log "   This can happen in development/preview environments."
   exit 0
 fi

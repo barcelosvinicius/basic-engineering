@@ -1,52 +1,52 @@
 ---
 name: infra-ci-cd
 description: >
-  Estrutura do pipeline de integração e entrega contínua com GitHub Actions — build,
-  testes, auditoria OWASP, Dependabot e Conventional Commits. Usar ao configurar ou
-  evoluir os workflows de CI/CD de qualquer projeto.
+  Structure of the continuous integration and delivery pipeline with GitHub Actions — build,
+  tests, OWASP audit, Dependabot, and Conventional Commits. Use when configuring or
+  evolving the CI/CD workflows of any project.
 ---
 
-# Skill: Pipeline CI/CD e Auditoria de Dependências
+# Skill: CI/CD Pipeline and Dependency Audit
 
-## O que é esta skill
+## What this skill is
 
-Define a estrutura do pipeline de integração e entrega contínua, com foco especial
-na auditoria automática de dependências. Use ao configurar ou evoluir os workflows
-do projeto.
+Defines the structure of the continuous integration and delivery pipeline, with special focus
+on automatic dependency auditing. Use when configuring or evolving the project's
+workflows.
 
 ---
 
-## Estrutura mínima do pipeline
+## Minimum pipeline structure
 
 ```
 lint → build → test-unit → test-integration → security-scan → build-image → deploy
 ```
 
-Cada estágio só executa se o anterior passou. Build quebrado bloqueia tudo.
+Each stage runs only if the previous one passes. A broken build blocks everything.
 
 ---
 
-## Auditoria de dependências (I-06)
+## Dependency audit (I-06)
 
-Esta é a implementação direta do item I-06 da `analise-estrutural.md`.
+This is the direct implementation of item I-06 from `structural-analysis.md`.
 
 ### Backend — Maven (OWASP Dependency Check)
 
 ```yaml
 # .github/workflows/ci.yml
-- name: Auditoria de dependências (backend)
+- name: Dependency audit (backend)
   working-directory: backend
   run: |
     mvn org.owasp:dependency-check-maven:check \
       -DfailBuildOnCVSS=7 \
       -DsuppressionFile=owasp-suppressions.xml \
       --no-transfer-progress
-  # failBuildOnCVSS=7 → bloqueia em CVEs com score ≥ 7 (High/Critical)
-  # Ajustar para 9 no início se houver muitos falsos positivos
+  # failBuildOnCVSS=7 → blocks CVEs with score ≥ 7 (High/Critical)
+  # Set to 9 initially if there are too many false positives
 ```
 
 ```xml
-<!-- pom.xml — adicionar plugin -->
+<!-- pom.xml — add plugin -->
 <plugin>
   <groupId>org.owasp</groupId>
   <artifactId>dependency-check-maven</artifactId>
@@ -60,12 +60,12 @@ Esta é a implementação direta do item I-06 da `analise-estrutural.md`.
 ```
 
 ```xml
-<!-- owasp-suppressions.xml — para falsos positivos documentados -->
+<!-- owasp-suppressions.xml — for documented false positives -->
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <!--
   <suppress>
-    <notes>Falso positivo: CVE-XXXX-YYYY não afeta este uso</notes>
+    <notes>False positive: CVE-XXXX-YYYY does not affect this usage</notes>
     <cve>CVE-XXXX-YYYY</cve>
   </suppress>
   -->
@@ -75,45 +75,45 @@ Esta é a implementação direta do item I-06 da `analise-estrutural.md`.
 ### Frontend — npm audit
 
 ```yaml
-- name: Auditoria de dependências (frontend)
+- name: Dependency audit (frontend)
   working-directory: frontend
   run: |
     npm audit --audit-level=high
-    # --audit-level=high → falha apenas em High e Critical
-    # Usar 'moderate' se quiser ser mais restritivo
+    # --audit-level=high → fails only on High and Critical
+    # Use 'moderate' if you want to be stricter
 ```
 
-**Estratégia de adoção gradual:**
+**Gradual adoption strategy:**
 
-| Fase | Configuração | Objetivo |
-|------|-------------|---------|
-| Semana 1 | `--audit-level=critical` / `failBuildOnCVSS=9` | Sem bloqueio, só visibilidade |
-| Semana 2–4 | `--audit-level=high` / `failBuildOnCVSS=7` | Bloqueia apenas críticos |
-| Estável | `--audit-level=moderate` / `failBuildOnCVSS=5` | Padrão recomendado |
+| Phase | Configuration | Goal |
+|------|---------------|------|
+| Week 1 | `--audit-level=critical` / `failBuildOnCVSS=9` | No blocking, visibility only |
+| Week 2–4 | `--audit-level=high` / `failBuildOnCVSS=7` | Block only critical issues |
+| Stable | `--audit-level=moderate` / `failBuildOnCVSS=5` | Recommended standard |
 
 ---
 
-## Análise estática de segurança (SAST)
+## Static application security testing (SAST)
 
-Complementa o OWASP Dependency Check (que verifica dependências) com análise do próprio código-fonte.
-SAST detecta vulnerabilidades introduzidas pelo desenvolvedor que o SCA não encontra.
+Complements OWASP Dependency Check (which checks dependencies) with analysis of the source code itself.
+SAST detects vulnerabilities introduced by the developer that SCA does not find.
 
-| O que SAST detecta | SpotBugs/find-sec-bugs | Semgrep |
-|-------------------|----------------------|---------|
-| SQL injection por concatenação de strings | ✅ | ✅ |
+| What SAST detects | SpotBugs/find-sec-bugs | Semgrep |
+|-------------------|------------------------|---------|
+| SQL injection through string concatenation | ✅ | ✅ |
 | Path traversal (`new File(input)`) | ✅ | ✅ |
-| Log de dados sensíveis (`log.debug(password)`) | ✅ | ✅ |
-| Deserialização insegura (`ObjectInputStream`) | ✅ | ✅ |
-| Uso de `Random` em vez de `SecureRandom` | ✅ | ✅ |
-| Credencial hardcodada no código | ✅ | ✅ |
-| XSS em template de view | ❌ | ✅ |
-| Token em localStorage (frontend) | ❌ | ✅ |
+| Sensitive data logging (`log.debug(password)`) | ✅ | ✅ |
+| Unsafe deserialization (`ObjectInputStream`) | ✅ | ✅ |
+| Use of `Random` instead of `SecureRandom` | ✅ | ✅ |
+| Hardcoded credential in code | ✅ | ✅ |
+| XSS in view template | ❌ | ✅ |
+| Token in localStorage (frontend) | ❌ | ✅ |
 | eval() / new Function() | ❌ | ✅ |
 
-### Backend Java — SpotBugs + find-sec-bugs
+### Java backend — SpotBugs + find-sec-bugs
 
 ```xml
-<!-- pom.xml — adicionar plugin -->
+<!-- pom.xml — add plugin -->
 <plugin>
   <groupId>com.github.spotbugs</groupId>
   <artifactId>spotbugs-maven-plugin</artifactId>
@@ -140,7 +140,7 @@ SAST detecta vulnerabilidades introduzidas pelo desenvolvedor que o SCA não enc
 ```
 
 ```yaml
-# .github/workflows/ci.yml — adicionar ao job de backend
+# .github/workflows/ci.yml — add to the backend job
 - name: SAST — SpotBugs + find-sec-bugs
   working-directory: [BACKEND_DIR]
   run: |
@@ -149,37 +149,37 @@ SAST detecta vulnerabilidades introduzidas pelo desenvolvedor que o SCA não enc
       --no-transfer-progress
 ```
 
-### Semgrep OSS — SAST sem GitHub Advanced Security
+### Semgrep OSS — SAST without GitHub Advanced Security
 
-Semgrep é open source (LGPL-2.1), gratuito para repositórios públicos e privados,
-sem necessidade de GitHub Advanced Security (GHAS). Funciona por pattern matching
-semântico sobre o código-fonte — sem compilação necessária.
+Semgrep is open source (LGPL-2.1), free for public and private repositories,
+and does not require GitHub Advanced Security (GHAS). It works through semantic
+pattern matching on source code — no compilation required.
 
-**Vantagens sobre CodeQL:**
-- Funciona em repos privados sem GHAS pago
-- Sem build — analisa código-fonte diretamente (execução em segundos)
-- Rulesets da comunidade + regras customizadas em YAML simples
-- `p/owasp-top-ten` cobre A01–A10 nativamente
+**Advantages over CodeQL:**
+- Works in private repos without paid GHAS
+- No build step — analyzes source code directly (runs in seconds)
+- Community rulesets + custom rules in simple YAML
+- `p/owasp-top-ten` covers A01–A10 natively
 
-**Estrutura de regras customizadas recomendada:**
+**Recommended custom rules structure:**
 
 ```
 .semgrep/
   rules/
-    [linguagem-backend]/    # ex: java/, python/, go/
+    [backend-language]/    # e.g.: java/, python/, go/
       no-secret-hardcoded.yml
       no-sensitive-logging.yml
       no-weak-hash.yml
       no-insecure-random.yml
       no-sql-string-concat.yml
-    [linguagem-frontend]/   # ex: typescript/, javascript/
+    [frontend-language]/   # e.g.: typescript/, javascript/
       no-localstorage-auth.yml
       no-console-log-sensitive.yml
       no-innerhtml-xss.yml
       no-eval.yml
 ```
 
-**Workflow GitHub Actions:**
+**GitHub Actions workflow:**
 
 ```yaml
 semgrep-sast:
@@ -192,28 +192,28 @@ semgrep-sast:
   steps:
     - uses: actions/checkout@v4
 
-    - name: Semgrep — Backend (OWASP Top 10 + regras customizadas)
+    - name: Semgrep — Backend (OWASP Top 10 + custom rules)
       run: |
         semgrep scan \
-          --config p/[linguagem] \
+          --config p/[language] \
           --config p/owasp-top-ten \
           --config p/secrets \
-          --config .semgrep/rules/[linguagem-backend] \
+          --config .semgrep/rules/[backend-language] \
           --error \
           --json-output semgrep-backend.json \
           [backend-dir]/
 
-    - name: Semgrep — Frontend (+ regras customizadas)
+    - name: Semgrep — Frontend (+ custom rules)
       run: |
         semgrep scan \
           --config p/typescript \
           --config p/secrets \
-          --config .semgrep/rules/[linguagem-frontend] \
+          --config .semgrep/rules/[frontend-language] \
           --error \
           --json-output semgrep-frontend.json \
           [frontend-src-dir]/
 
-    - name: Upload resultados Semgrep (JSON)
+    - name: Upload Semgrep results (JSON)
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -224,53 +224,53 @@ semgrep-sast:
         retention-days: 7
 ```
 
-**Criar regra customizada:**
+**Create custom rule:**
 
 ```yaml
-# .semgrep/rules/[lang]/minha-regra.yml
+# .semgrep/rules/[lang]/my-rule.yml
 rules:
-  - id: minha-regra
+  - id: my-rule
     pattern-either:
-      - pattern: padrão-inseguro-1(...)
-      - pattern: padrão-inseguro-2(...)
+      - pattern: insecure-pattern-1(...)
+      - pattern: insecure-pattern-2(...)
     message: >
-      Explicação do problema e como corrigir.
-    languages: [java]    # ou typescript, python, go...
-    severity: ERROR      # ou WARNING, INFO
+      Explanation of the problem and how to fix it.
+    languages: [java]    # or typescript, python, go...
+    severity: ERROR      # or WARNING, INFO
     metadata:
       category: security
       owasp: "A0X:2021 - ..."
       cwe: "CWE-XXX: ..."
 ```
 
-**Rulesets da comunidade disponíveis:**
+**Available community rulesets:**
 
-| Ruleset | Cobertura |
-|---------|-----------|
-| `p/java` | Boas práticas Java — NPE, resource leaks, inicialização |
-| `p/javascript` | Boas práticas JS — prototype pollution, XSS DOM |
-| `p/typescript` | Type safety — any abuse, casting inseguro |
-| `p/python` | Boas práticas Python |
-| `p/owasp-top-ten` | OWASP A01–A10 completo (multi-linguagem) |
-| `p/secrets` | API keys, tokens, senhas hardcoded |
-| `p/sql-injection` | SQL injection em múltiplas linguagens |
+| Ruleset | Coverage |
+|---------|----------|
+| `p/java` | Java best practices — NPE, resource leaks, initialization |
+| `p/javascript` | JS best practices — prototype pollution, DOM XSS |
+| `p/typescript` | Type safety — any abuse, unsafe casting |
+| `p/python` | Python best practices |
+| `p/owasp-top-ten` | Full OWASP A01–A10 (multi-language) |
+| `p/secrets` | API keys, tokens, hardcoded passwords |
+| `p/sql-injection` | SQL injection in multiple languages |
 
-**Executar localmente:**
+**Run locally:**
 
 ```bash
-# Instalar
+# Install
 pip install semgrep
 
-# Testar regras customizadas
+# Test custom rules
 semgrep scan --config .semgrep/rules/java backend/
 
-# Testar ruleset da comunidade
+# Test community ruleset
 semgrep scan --config p/owasp-top-ten backend/
 ```
 
 ---
 
-### Dependabot (GitHub) — atualizações automáticas
+### Dependabot (GitHub) — automatic updates
 
 ```yaml
 # .github/dependabot.yml
@@ -304,7 +304,7 @@ updates:
 
 ---
 
-## Pipeline completo (GitHub Actions)
+## Full pipeline (GitHub Actions)
 
 ```yaml
 # .github/workflows/ci.yml
@@ -329,19 +329,19 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build e testes
+      - name: Build and tests
         working-directory: backend
         run: mvn verify --no-transfer-progress
 
-      - name: Auditoria de dependências
+      - name: Dependency audit
         working-directory: backend
         run: |
           mvn org.owasp:dependency-check-maven:check \
             -DfailBuildOnCVSS=7 --no-transfer-progress
-        continue-on-error: false  # muda para true na fase de adoção
+        continue-on-error: false  # change to true during adoption phase
 
-      - name: Relatório de cobertura
-        uses: codecov/codecov-action@v4  # opcional
+      - name: Coverage report
+        uses: codecov/codecov-action@v4  # optional
         with:
           directory: backend/target/site/jacoco
 
@@ -357,51 +357,51 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Instalar dependências
+      - name: Install dependencies
         working-directory: frontend
-        run: npm ci  # ci é mais rápido e determinístico que install
+        run: npm ci  # ci is faster and more deterministic than install
 
       - name: Lint
         working-directory: frontend
         run: npm run lint
 
-      - name: Testes
+      - name: Tests
         working-directory: frontend
         run: npm test -- --watch=false --browsers=ChromeHeadless
 
-      - name: Auditoria de dependências
+      - name: Dependency audit
         working-directory: frontend
         run: npm audit --audit-level=high
 
-      - name: Build de produção
+      - name: Production build
         working-directory: frontend
         run: npm run build -- --configuration production
 ```
 
 ---
 
-## Gates obrigatórios antes de merge
+## Mandatory gates before merge
 
 ```yaml
-# .github/branch-protection.yml (configurar via GitHub Settings)
+# .github/branch-protection.yml (configure via GitHub Settings)
 # Branch: main
 # Rules:
 #   ✅ Require status checks to pass:
 #      - backend (CI Pipeline)
 #      - frontend (CI Pipeline)
-#   ✅ Require pull request reviews: 1 aprovação mínima
+#   ✅ Require pull request reviews: minimum 1 approval
 #   ✅ Dismiss stale reviews on new commits
 #   ✅ Require branches to be up to date
-#   ❌ Allow force pushes: NUNCA em main
+#   ❌ Allow force pushes: NEVER on main
 ```
 
 ---
 
-## Conventional Commits no CI (M-05)
+## Conventional Commits in CI (M-05)
 
 ```yaml
-# Validar mensagens de commit automaticamente
-- name: Validar Conventional Commits
+# Validate commit messages automatically
+- name: Validate Conventional Commits
   uses: wagoid/commitlint-github-action@v5
   with:
     configFile: commitlint.config.js
@@ -423,11 +423,11 @@ module.exports = {
 
 ---
 
-## Testes de acessibilidade no CI (M-07)
+## Accessibility tests in CI (M-07)
 
 ```yaml
-# Adicionar ao job de frontend após build
-- name: Testes de acessibilidade (Lighthouse CI)
+# Add to the frontend job after build
+- name: Accessibility tests (Lighthouse CI)
   run: |
     npm install -g @lhci/cli
     lhci autorun
@@ -455,17 +455,17 @@ module.exports = {
 
 ---
 
-## Erros comuns
+## Common mistakes
 
-| Erro | Causa | Solução |
-|------|-------|---------|
-| Pipeline lento (> 10min) | Cache não configurado | Adicionar `cache: 'maven'` e `cache: 'npm'` |
-| Falsos positivos bloqueando | CVSS muito restritivo no início | Usar `continue-on-error: true` na fase de adoção |
-| `npm install` em vez de `npm ci` | Não determinístico | Sempre `npm ci` no CI |
-| Dependabot abre PRs demais | Muitas dependências | Limitar com `open-pull-requests-limit` |
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| Slow pipeline (> 10min) | Cache not configured | Add `cache: 'maven'` and `cache: 'npm'` |
+| False positives blocking | CVSS too restrictive at the beginning | Use `continue-on-error: true` during the adoption phase |
+| `npm install` instead of `npm ci` | Non-deterministic | Always use `npm ci` in CI |
+| Dependabot opens too many PRs | Too many dependencies | Limit with `open-pull-requests-limit` |
 
 ---
 
 *Skill — `.github/skills/infra-ci-cd.md`*
-*Referência: `principios-engenharia.md` §2.8 (Supply Chain), §10 (CI/CD)*
-*Pendências: I-06 (auditoria), M-05 (conventional commits), M-07 (a11y CI)*
+*Reference: `engineering-principles.md` §2.8 (Supply Chain), §10 (CI/CD)*
+*Pending items: I-06 (audit), M-05 (conventional commits), M-07 (a11y CI)*

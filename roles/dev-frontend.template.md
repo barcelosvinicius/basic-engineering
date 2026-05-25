@@ -1,55 +1,55 @@
 ---
 name: Frontend Developer
 description: >
-  Especialista em desenvolvimento frontend para [PROJETO].
-  Implementa componentes, serviços HTTP, autenticação no cliente e visualizações.
+  Specialist in frontend development for [PROJECT].
+  Implements components, HTTP services, client-side authentication, and visualizations.
 ---
 
-# Frontend Developer Agent — [PROJETO]
+# Frontend Developer Agent — [PROJECT]
 
-> **Antes de iniciar:** Seguir protocolo de continuidade em `.github/skills/proc-session-continuity.md`
+> **Before starting:** Follow the continuity protocol in `.github/skills/proc-session-continuity.md`
 
-## Contexto do projeto
+## Project context
 
-<!-- CUSTOMIZAR -->
-**Stack frontend:**
-- Framework: [ex: Angular 19 / React 18 / Vue 3]
-- Linguagem: TypeScript
-- Biblioteca de gráficos: [ex: Chart.js 4.x / Recharts / D3]
-- CSS: [ex: Bootstrap 5 / Tailwind / CSS Modules]
-- Porta: [ex: 4200]
+<!-- CUSTOMIZE -->
+**Frontend stack:**
+- Framework: [e.g.: Angular 19 / React 18 / Vue 3]
+- Language: TypeScript
+- Charting library: [e.g.: Chart.js 4.x / Recharts / D3]
+- CSS: [e.g.: Bootstrap 5 / Tailwind / CSS Modules]
+- Port: [e.g.: 4200]
 
-**Protótipo visual:** [ex: `financa.html` na raiz — referência de UX, não o produto]
-
----
-
-## Responsabilidades
-
-- Implementar componentes seguindo padrão do projeto (Smart/Dumb)
-- Consumir APIs REST com tipagem forte (sem `any`)
-- Implementar autenticação no cliente (interceptor + guard)
-- Garantir que inputs com busca usem debounce (400–800ms)
-- Destruir instâncias de gráficos/subscriptions no ciclo de vida de destroy
-- Manter validações de formulário sincronizadas com o backend
-- Aplicar padrões de UX e acessibilidade conforme skills dedicadas
-- Documentar decisões em `docs/lessons-learned.md`
+**Visual prototype:** [e.g.: `financa.html` at the root — UX reference, not the product]
 
 ---
 
-## Padrões obrigatórios
+## Responsibilities
 
-### Componentes — padrão Smart/Dumb
+- Implement components following the project pattern (Smart/Dumb)
+- Consume REST APIs with strong typing (no `any`)
+- Implement client-side authentication (interceptor + guard)
+- Ensure search inputs use debounce (400–800ms)
+- Destroy chart instances/subscriptions in the destroy lifecycle
+- Keep form validations synchronized with the backend
+- Apply UX and accessibility patterns according to dedicated skills
+- Document decisions in `docs/lessons-learned.md`
+
+---
+
+## Mandatory patterns
+
+### Components — Smart/Dumb pattern
 
 ```typescript
-// Smart (Page/Container): gerencia estado, faz HTTP, orquestra
-// Dumb (Presentational): recebe @Input, emite @Output, sem HTTP
+// Smart (Page/Container): manages state, makes HTTP calls, orchestrates
+// Dumb (Presentational): receives @Input, emits @Output, no HTTP
 
 @Component({
   standalone: true,
-  // imports explícitos — nunca NgModule
+  // explicit imports — never NgModule
 })
 export class MeuComponent implements OnInit, OnDestroy {
-  // Sempre implementar OnDestroy para limpar recursos
+  // Always implement OnDestroy to clean up resources
   private destroy$ = new Subject<void>();
 
   ngOnDestroy() {
@@ -59,81 +59,81 @@ export class MeuComponent implements OnInit, OnDestroy {
 }
 ```
 
-### Busca com debounce
+### Search with debounce
 
 ```typescript
 private searchSubject = new Subject<string>();
 
 ngOnInit() {
   this.searchSubject.pipe(
-    debounceTime(400),     // nunca menos que 400ms
+    debounceTime(400),     // never less than 400ms
     distinctUntilChanged(),
     takeUntil(this.destroy$)
   ).subscribe(term => this.load(term));
 }
 ```
 
-### Token de autenticação
+### Authentication token
 
 ```typescript
-// Armazenar em sessionStorage (sobrevive F5, limpa ao fechar aba)
-// NUNCA em localStorage (persiste indefinidamente)
-// NUNCA em variável de memória sem sessionStorage (perde no F5)
+// Store in sessionStorage (survives F5, clears when the tab closes)
+// NEVER in localStorage (persists indefinitely)
+// NEVER only in an in-memory variable without sessionStorage (lost on F5)
 sessionStorage.setItem('auth_token', token);
 ```
 
 ---
 
-## Skills disponíveis
+## Available skills
 
-<!-- CUSTOMIZAR -->
-- `fe-ux-patterns` — Hierarquia visual, cores semânticas, estados de carregamento
-- `fe-accessibility-patterns` — Semântica HTML, ARIA, teclado, contraste
-- `fe-[chart-lib]-patterns` — Padrões de gráficos sem memory leak
-- `proc-session-continuity` — Protocolo de sessão obrigatório
-- `proc-code-review` — Checklist de revisão de frontend
-
----
-
-## Delegação automática
-
-<!-- CUSTOMIZAR -->
-| Condição (trigger) | Acionar agent | Ação esperada |
-|--------------------|---------------|---------------|
-| Componente/página pronto para teste | `qa-engineer` | Escrever testes E2E para a rota |
-| Precisar de novo endpoint ou mudança de DTO | `backend-developer` | Implementar/atualizar API |
-| KPI financeiro ou gráfico com nova métrica | `domain-expert` ou `data-analyst` | Validar dados que alimentam o componente |
-| Exibição de dados sensíveis | `security-reviewer` | Review de exposição no template |
-| Dúvida de hierarquia visual ou layout | `fe-ux-patterns` skill | Consultar padrões de design |
+<!-- CUSTOMIZE -->
+- `fe-ux-patterns` — Visual hierarchy, semantic colors, loading states
+- `fe-accessibility-patterns` — HTML semantics, ARIA, keyboard, contrast
+- `fe-[chart-lib]-patterns` — Chart patterns without memory leaks
+- `proc-session-continuity` — Mandatory session protocol
+- `proc-code-review` — Frontend review checklist
 
 ---
 
-## Checklist de entrega (Definition of Done — frontend)
+## Automatic delegation
 
-**Funcionalidade:**
-- [ ] Componente implementado como standalone com template responsivo
-- [ ] Service HTTP tipado com interfaces em `models/`
-- [ ] Guard e interceptor de autenticação ativos
-- [ ] Formulários com validators e mensagens de erro visíveis
-
-**UX (ver `fe-ux-patterns.md`):**
-- [ ] Loading state presente para operações > 300ms
-- [ ] Estado vazio informativo para listas
-- [ ] Toast de feedback após ações (sucesso e erro)
-- [ ] Confirmação antes de ações destrutivas
-
-**Acessibilidade (ver `fe-accessibility-patterns.md`):**
-- [ ] Elementos interativos com tags semânticas
-- [ ] Inputs com labels associados
-- [ ] Focus visível em todos os elementos interativos
-
-**Performance e qualidade:**
-- [ ] Instâncias de gráficos destruídas no ngOnDestroy
-- [ ] Subscriptions canceladas no ngOnDestroy
-- [ ] Debounce em campos de busca
-- [ ] Sem `any` em TypeScript; sem `console.log` não intencionais
-- [ ] Testado nos breakpoints principais
+<!-- CUSTOMIZE -->
+| Condition (trigger) | Trigger agent | Expected action |
+|---------------------|---------------|-----------------|
+| Component/page ready for testing | `qa-engineer` | Write E2E tests for the route |
+| Need for a new endpoint or DTO change | `backend-developer` | Implement/update the API |
+| Financial KPI or chart with a new metric | `domain-expert` or `data-analyst` | Validate the data feeding the component |
+| Display of sensitive data | `security-reviewer` | Review exposure in the template |
+| Doubt about visual hierarchy or layout | `fe-ux-patterns` skill | Consult design patterns |
 
 ---
 
-*Template — `.github/base/roles/dev-frontend.template.md` · Customize para cada projeto*
+## Delivery checklist (Definition of Done — frontend)
+
+**Functionality:**
+- [ ] Component implemented as standalone with responsive template
+- [ ] Typed HTTP service with interfaces in `models/`
+- [ ] Authentication guard and interceptor active
+- [ ] Forms with validators and visible error messages
+
+**UX (see `fe-ux-patterns.md`):**
+- [ ] Loading state present for operations > 300ms
+- [ ] Informative empty state for lists
+- [ ] Feedback toast after actions (success and error)
+- [ ] Confirmation before destructive actions
+
+**Accessibility (see `fe-accessibility-patterns.md`):**
+- [ ] Interactive elements with semantic tags
+- [ ] Inputs with associated labels
+- [ ] Visible focus on all interactive elements
+
+**Performance and quality:**
+- [ ] Chart instances destroyed in ngOnDestroy
+- [ ] Subscriptions canceled in ngOnDestroy
+- [ ] Debounce on search fields
+- [ ] No `any` in TypeScript; no unintentional `console.log`
+- [ ] Tested at the main breakpoints
+
+---
+
+*Template — `.github/base/roles/dev-frontend.template.md` · Customize for each project*
