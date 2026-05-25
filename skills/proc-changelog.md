@@ -1,53 +1,53 @@
 ---
 name: proc-changelog
 description: >
-  Processo para gerar e manter o CHANGELOG.md a partir de commits Conventional Commits.
-  Usar ao preparar uma release, criar release notes, gerar atualizações para usuários
-  ou fechar uma sprint com entregáveis.
+  Process for generating and maintaining CHANGELOG.md from Conventional Commits.
+  Use when preparing a release, creating release notes, generating user-facing updates,
+  or closing a sprint with deliverables.
 ---
 
-# Skill: Geração de Changelog
+# Skill: Changelog Generation
 
-## O que é esta skill
+## What this skill is
 
-Define o processo de manutenção do `CHANGELOG.md` seguindo o padrão
-[Keep a Changelog](https://keepachangelog.com) com Conventional Commits.
-Usar ao preparar releases, criar notas de versão ou documentar mudanças para usuários.
+Defines the process for maintaining `CHANGELOG.md` following the
+[Keep a Changelog](https://keepachangelog.com) standard with Conventional Commits.
+Use when preparing releases, creating release notes, or documenting changes for users.
 
 ---
 
-## Formato do CHANGELOG.md
+## CHANGELOG.md format
 
 ```markdown
 # Changelog
 
-Todas as mudanças notáveis neste projeto estão documentadas aqui.
-Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/)
-Versionamento: [Semantic Versioning](https://semver.org/lang/pt-BR/)
+All notable changes to this project are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+Versioning: [Semantic Versioning](https://semver.org/)
 
-## [Não lançado]
+## [Unreleased]
 
-### Adicionado
-- Funcionalidades novas ainda não em produção
+### Added
+- New features not yet in production
 
 ---
 
 ## [1.2.0] — 2026-04-15
 
-### Adicionado
-- RF-25: Importação de CSV do Nubank com detecção de duplicatas
-- RF-26: Validação de tipo de arquivo por magic bytes
+### Added
+- RF-25: Nubank CSV import with duplicate detection
+- RF-26: File type validation using magic bytes
 
-### Modificado
-- Dashboard agora exibe reserva de emergência em destaque
-- Performance do endpoint /api/v1/transactions melhorada (índice adicionado)
+### Changed
+- Dashboard now highlights the emergency reserve
+- /api/v1/transactions endpoint performance improved (index added)
 
-### Corrigido
-- Bug #47: comprometimento exibia NaN quando receita era zero
-- Timeout em importações de CSV com mais de 500 linhas
+### Fixed
+- Bug #47: commitment showed NaN when income was zero
+- Timeout on CSV imports with more than 500 lines
 
-### Segurança
-- Atualização de JJWT 0.12.3 → 0.12.6 (CVE-2024-XXXX)
+### Security
+- JJWT update 0.12.3 → 0.12.6 (CVE-2024-XXXX)
 
 ---
 
@@ -57,103 +57,103 @@ Versionamento: [Semantic Versioning](https://semver.org/lang/pt-BR/)
 
 ---
 
-## Mapeamento Conventional Commits → seções
+## Conventional Commits → sections mapping
 
-| Tipo de commit | Seção no changelog | Incluir? |
-|---------------|-------------------|---------|
-| `feat:` | **Adicionado** | ✅ Sempre |
-| `fix:` | **Corrigido** | ✅ Sempre |
-| `perf:` | **Modificado** | ✅ Sempre |
-| `refactor:` | **Modificado** | ⚠️ Se afeta comportamento observável |
-| `security:` ou `fix(security):` | **Segurança** | ✅ Sempre |
-| `docs:` | — | ❌ Não incluir |
-| `test:` | — | ❌ Não incluir |
-| `chore:` | — | ❌ Não incluir (exceto deps) |
-| `chore(deps):` ou Dependabot | **Segurança** | ✅ Se CVE corrigido |
-| `ci:` | — | ❌ Não incluir |
+| Commit type | Changelog section | Include? |
+|------------|-------------------|----------|
+| `feat:` | **Added** | ✅ Always |
+| `fix:` | **Fixed** | ✅ Always |
+| `perf:` | **Changed** | ✅ Always |
+| `refactor:` | **Changed** | ⚠️ If it affects observable behavior |
+| `security:` or `fix(security):` | **Security** | ✅ Always |
+| `docs:` | — | ❌ Do not include |
+| `test:` | — | ❌ Do not include |
+| `chore:` | — | ❌ Do not include (except deps) |
+| `chore(deps):` or Dependabot | **Security** | ✅ If a CVE was fixed |
+| `ci:` | — | ❌ Do not include |
 
 ---
 
-## Como gerar changelog de commits git
+## How to generate changelog from git commits
 
 ```bash
-# Ver commits desde a última tag
+# View commits since the last tag
 git log v1.1.0..HEAD --oneline --no-merges
 
-# Formato mais detalhado
+# More detailed format
 git log v1.1.0..HEAD \
   --pretty=format:"- %s (%h)" \
   --no-merges \
   | grep -E "^- (feat|fix|perf|refactor|security)"
 
-# Ver todas as tags existentes
+# View all existing tags
 git tag --sort=-version:refname | head -10
 ```
 
 ---
 
-## Processo de release — passo a passo
+## Release process — step by step
 
 ```
-1. Criar seção [x.y.z] acima de [Não lançado]
-   └── Mover itens de [Não lançado] para a nova seção
+1. Create section [x.y.z] above [Unreleased]
+   └── Move items from [Unreleased] to the new section
 
-2. Filtrar: incluir apenas feat, fix, perf, security
-   └── Traduzir para linguagem de usuário (não técnica)
+2. Filter: include only feat, fix, perf, security
+   └── Translate into user-facing language (not technical)
 
-3. Ordenar dentro de cada seção: impacto → estabilidade → segurança
-   └── Mais impactante para o usuário vem primeiro
+3. Sort within each section: impact → stability → security
+   └── Most impactful to the user comes first
 
-4. Revisar: cada linha deve responder "o que o usuário pode fazer agora?"
-   └── ❌ "refatora TransactionService para usar Strategy pattern"
-   └── ✅ "Categorização de transações agora 30% mais rápida"
+4. Review: each line must answer "what can the user do now?"
+   └── ❌ "refactors TransactionService to use Strategy pattern"
+   └── ✅ "Transaction categorization is now 30% faster"
 
-5. Commitar junto com o código da release
-   └── git commit -m "chore(release): v1.2.0 — changelog e bump de versão"
+5. Commit together with the release code
+   └── git commit -m "chore(release): v1.2.0 — changelog and version bump"
 ```
 
 ---
 
-## Versionamento semântico (SemVer)
+## Semantic versioning (SemVer)
 
 ```
 MAJOR.MINOR.PATCH
 
-MAJOR: quebra compatibilidade (ex: mudar endpoint, remover campo da API)
-MINOR: nova funcionalidade sem quebrar (ex: novo endpoint, novo relatório)
-PATCH: correção de bug ou vulnerabilidade sem nova funcionalidade
+MAJOR: breaks compatibility (e.g.: endpoint change, API field removal)
+MINOR: new feature without breaking changes (e.g.: new endpoint, new report)
+PATCH: bug or vulnerability fix without a new feature
 ```
 
-Para projetos em fase de desenvolvimento ativo (antes de produção estável):
-- Usar `0.x.y` — MINOR para features, PATCH para fixes
-- Promover para `1.0.0` no primeiro deploy estável em produção
+For projects in active development (before stable production):
+- Use `0.x.y` — MINOR for features, PATCH for fixes
+- Promote to `1.0.0` on the first stable production deploy
 
 ---
 
-## Escrita orientada ao usuário
+## User-oriented writing
 
 ```
-❌ Técnico (não incluir no changelog público):
-"Adiciona índice composto (date, user_id) na tabela transactions"
-"Refatora GlobalExceptionHandler para usar ProblemDetail"
+❌ Technical (do not include in the public changelog):
+"Adds composite index (date, user_id) to the transactions table"
+"Refactors GlobalExceptionHandler to use ProblemDetail"
 
-✅ Orientado ao usuário:
-"Carregamento do histórico de transações até 3x mais rápido"
-"Mensagens de erro agora indicam o campo específico com problema"
+✅ User-oriented:
+"Transaction history now loads up to 3x faster"
+"Error messages now indicate the specific field with a problem"
 ```
 
 ---
 
-## Erros comuns
+## Common mistakes
 
-| Erro | Causa | Solução |
-|------|-------|---------|
-| Changelog desatualizado | Não atualizado na hora do merge | Atualizar `[Não lançado]` em cada PR de feat/fix |
-| Itens técnicos demais | Copiar commits sem filtrar | Filtrar para feat, fix, perf, security e traduzir |
-| Sem data nas versões | Data do release não registrada | Sempre incluir data no formato AAAA-MM-DD |
-| Versão duplicada | Erro de numeração | Verificar tags git antes de criar nova seção |
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| Outdated changelog | Not updated at merge time | Update `[Unreleased]` in every feat/fix PR |
+| Too technical items | Copying commits without filtering | Filter to feat, fix, perf, security and translate |
+| Versions without date | Release date not recorded | Always include the date in YYYY-MM-DD format |
+| Duplicate version | Numbering error | Check git tags before creating a new section |
 
 ---
 
 *Skill — `.github/skills/proc-changelog.md`*
-*Referência: [Keep a Changelog](https://keepachangelog.com) · [SemVer](https://semver.org)*
+*Reference: [Keep a Changelog](https://keepachangelog.com) · [SemVer](https://semver.org)*

@@ -1,80 +1,80 @@
-# Skill: [Nome da Skill]
+# Skill: [Skill Name]
 
-> **Template universal** — preencha este arquivo ao criar uma nova skill.
-> Delete esta linha e o bloco de instruções abaixo quando a skill estiver pronta.
+> **Universal template** — fill in this file when creating a new skill.
+> Delete this line and the instruction block below when the skill is ready.
 >
-> **Como decidir o que vai aqui:** A skill responde à pergunta
-> *"Como fazer X neste projeto?"* — não *"Por que fazer X"* (isso é do agent) nem
-> *"O que fazer"* (isso é do REQUISITOS.md). Foco no *como* concreto e reutilizável.
+> **How to decide what goes here:** A skill answers the question
+> *"How do I do X in this project?"* — not *"Why do X"* (that belongs to the agent) or
+> *"What to do"* (that belongs to REQUISITOS.md). Focus on the concrete, reusable *how*.
 >
-> **Prefixo do nome do arquivo:**
-> - `be-` para skills de backend
-> - `fe-` para skills de frontend
-> - `da-` para skills de dados/analytics
-> - `qa-` para skills de qualidade/testes
-> - `proc-` para skills de processo (universais)
-> - `infra-` para skills de infraestrutura
+> **Filename prefix:**
+> - `be-` for backend skills
+> - `fe-` for frontend skills
+> - `da-` for data/analytics skills
+> - `qa-` for quality/testing skills
+> - `proc-` for process skills (universal)
+> - `infra-` for infrastructure skills
 
 ---
 
-## O que é esta skill
+## What this skill is
 
-<!-- Uma frase: qual problema resolve e quando usar -->
-Define [o quê] para [qual contexto]. Use ao [situação de uso].
-
----
-
-## Quando consultar esta skill
-
-<!-- Gatilhos concretos que indicam que esta skill é relevante -->
-- Ao implementar [componente X]
-- Ao modificar [parte Y]
-- Ao escrever [tipo de código Z]
+<!-- One sentence: what problem it solves and when to use it -->
+Defines [what] for [which context]. Use it when [usage situation].
 
 ---
 
-## [Seção principal — ex: Padrão de implementação]
+## When to consult this skill
 
-<!-- Código, exemplos concretos, templates -->
+<!-- Concrete triggers that indicate this skill is relevant -->
+- When implementing [component X]
+- When modifying [part Y]
+- When writing [type of code Z]
 
-```[linguagem]
-// Exemplo concreto do padrão correto
-// ✅ Correto
-[código]
+---
 
-// ❌ Errado — e por quê
-[código]
+## [Main section — e.g.: Implementation pattern]
+
+<!-- Code, concrete examples, templates -->
+
+```[language]
+// Concrete example of the correct pattern
+// ✅ Correct
+[code]
+
+// ❌ Wrong — and why
+[code]
 ```
 
 ---
 
-## [Seção de casos especiais — ex: Edge cases]
+## [Special cases section — e.g.: Edge cases]
 
-<!-- O que fazer quando as coisas fogem do padrão -->
+<!-- What to do when things fall outside the pattern -->
 
-| Situação | O que fazer |
-|----------|-------------|
-| [caso especial 1] | [solução] |
-| [caso especial 2] | [solução] |
-
----
-
-## [Seção de referências — opcional]
-
-<!-- Links para docs, código existente no projeto, outras skills -->
-- Ver também: `[outra-skill.md]`
-- Implementação de referência: `[caminho/para/arquivo.java]`
-- Princípio relacionado: §[N.N] de `principios-engenharia.md`
+| Situation | What to do |
+|-----------|------------|
+| [special case 1] | [solution] |
+| [special case 2] | [solution] |
 
 ---
 
-## Erros comuns e como evitar
+## [References section — optional]
 
-| Erro | Causa | Solução |
-|------|-------|---------|
-| [erro 1] | [causa] | [solução] |
-| [erro 2] | [causa] | [solução] |
+<!-- Links to docs, existing project code, other skills -->
+- See also: `[other-skill.md]`
+- Reference implementation: `[path/to/file.java]`
+- Related principle: §[N.N] of `engineering-principles.md`
 
 ---
 
-*Skill — `.github/skills/[nome-da-skill].md`*
+## Common mistakes and how to avoid them
+
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| [mistake 1] | [cause] | [solution] |
+| [mistake 2] | [cause] | [solution] |
+
+---
+
+*Skill — `.github/skills/[skill-name].md`*

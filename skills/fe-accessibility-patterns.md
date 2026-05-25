@@ -1,132 +1,132 @@
 ---
 name: fe-accessibility-patterns
 description: >
-  Padrões concretos de acessibilidade WCAG 2.1 AA para interfaces web — HTML semântico,
-  atributos ARIA, navegação por teclado e contraste de cores. Usar ao implementar qualquer
-  componente interativo, formulário, modal ou tabela.
+  Concrete WCAG 2.1 AA accessibility patterns for web interfaces — semantic HTML,
+  ARIA attributes, keyboard navigation, and color contrast. Use when implementing any
+  interactive component, form, modal, or table.
 ---
 
-# Skill: Padrões de Acessibilidade (a11y)
+# Skill: Accessibility Patterns (a11y)
 
-## O que é esta skill
+## What this skill is
 
-Implementação operacional de §1.5 do `principios-engenharia.md`. Define padrões
-concretos de acessibilidade para componentes de interface — o que usar, quando usar
-e como testar. Use ao implementar qualquer componente interativo, formulário, modal
-ou tabela.
+Operational implementation of §1.5 of `engineering-principles.md`. It defines
+concrete accessibility patterns for UI components — what to use, when to use it,
+and how to test it. Use when implementing any interactive component, form, modal,
+or table.
 
-> **Princípio:** Acessibilidade não é feature — é qualidade base. Um componente
-> inacessível tem bug, independente de ele "funcionar" visualmente.
+> **Principle:** Accessibility is not a feature — it is baseline quality. An
+> inaccessible component has a bug, even if it "works" visually.
 
 ---
 
-## 1. HTML semântico — a base de tudo
+## 1. Semantic HTML — the foundation of everything
 
 ```html
-<!-- ❌ Errado: div com role — requer trabalho manual desnecessário -->
-<div role="button" onclick="..." tabindex="0">Salvar</div>
+<!-- ❌ Wrong: div with role — requires unnecessary manual work -->
+<div role="button" onclick="..." tabindex="0">Save</div>
 
-<!-- ✅ Correto: elemento nativo carrega comportamento acessível por padrão -->
-<button type="button" onclick="...">Salvar</button>
+<!-- ✅ Correct: native element provides accessible behavior by default -->
+<button type="button" onclick="...">Save</button>
 
-<!-- Elementos nativos e seus benefícios automáticos -->
-<button>    → focusável, Enter/Space ativa, role=button para screen readers
-<a href>    → focusável, Enter ativa, role=link
-<input>     → label associável, aria-required, aria-invalid
-<select>    → keyboard navigation nativo
-<table>     → thead/tbody/th comunicam estrutura para screen readers
-<nav>       → landmark de navegação
-<main>      → landmark de conteúdo principal
-<aside>     → landmark de conteúdo secundário
-<header>    → landmark de cabeçalho
-<footer>    → landmark de rodapé
+<!-- Native elements and their automatic benefits -->
+<button>    → focusable, Enter/Space activates, role=button for screen readers
+<a href>    → focusable, Enter activates, role=link
+<input>     → label can be associated, aria-required, aria-invalid
+<select>    → native keyboard navigation
+<table>     → thead/tbody/th communicate structure to screen readers
+<nav>       → navigation landmark
+<main>      → main content landmark
+<aside>     → secondary content landmark
+<header>    → header landmark
+<footer>    → footer landmark
 ```
 
 ---
 
-## 2. Labels e associações
+## 2. Labels and associations
 
 ```html
-<!-- Sempre associar label ao input -->
+<!-- Always associate a label with the input -->
 
-<!-- ✅ Opção 1: for + id -->
-<label for="amount">Valor</label>
+<!-- ✅ Option 1: for + id -->
+<label for="amount">Amount</label>
 <input id="amount" type="number" />
 
-<!-- ✅ Opção 2: label envolvendo input -->
+<!-- ✅ Option 2: label wrapping the input -->
 <label>
-  Valor
+  Amount
   <input type="number" />
 </label>
 
-<!-- ✅ Opção 3: aria-label (quando label visível não é possível) -->
-<input type="search" aria-label="Buscar transações" />
+<!-- ✅ Option 3: aria-label (when a visible label is not possible) -->
+<input type="search" aria-label="Search transactions" />
 
-<!-- ❌ Nunca: placeholder como substituto de label -->
-<input type="text" placeholder="Descrição" />
-<!-- Problema: desaparece ao digitar, baixo contraste, não lido por alguns SRs -->
+<!-- ❌ Never: placeholder as a label substitute -->
+<input type="text" placeholder="Description" />
+<!-- Problem: disappears while typing, low contrast, not read by some SRs -->
 
-<!-- Campos obrigatórios -->
+<!-- Required fields -->
 <input required aria-required="true" />
-<label>Valor <span aria-hidden="true">*</span></label>
-<!-- aria-hidden no asterisco evita leitura literal pelo screen reader -->
+<label>Amount <span aria-hidden="true">*</span></label>
+<!-- aria-hidden on the asterisk avoids literal reading by the screen reader -->
 
-<!-- Campos com erro -->
+<!-- Fields with error -->
 <input aria-invalid="true" aria-describedby="amount-error" />
-<span id="amount-error" role="alert">Valor deve ser maior que zero</span>
-<!-- role="alert" faz o SR ler automaticamente ao aparecer -->
+<span id="amount-error" role="alert">Amount must be greater than zero</span>
+<!-- role="alert" makes the SR read it automatically when it appears -->
 ```
 
 ---
 
-## 3. Modais e diálogos
+## 3. Modals and dialogs
 
 ```html
-<!-- Estrutura de modal acessível -->
+<!-- Accessible modal structure -->
 <div
   role="dialog"
   aria-modal="true"
   aria-labelledby="modal-title"
   aria-describedby="modal-desc"
 >
-  <h2 id="modal-title">Confirmar exclusão</h2>
-  <p id="modal-desc">Esta ação não pode ser desfeita.</p>
+  <h2 id="modal-title">Confirm deletion</h2>
+  <p id="modal-desc">This action cannot be undone.</p>
 
-  <button>Cancelar</button>
-  <button>Confirmar exclusão</button>
+  <button>Cancel</button>
+  <button>Confirm deletion</button>
 </div>
 
-<!-- Comportamento obrigatório de modal: -->
-<!-- 1. Foco move para o modal ao abrir (preferencialmente para o título ou primeiro elemento) -->
-<!-- 2. Tab cicla APENAS dentro do modal (focus trap) -->
-<!-- 3. Escape fecha o modal -->
-<!-- 4. Foco retorna ao elemento que abriu o modal ao fechar -->
-<!-- 5. Fundo da página fica inerte (aria-hidden="true" no container pai, inert attribute) -->
+<!-- Mandatory modal behavior: -->
+<!-- 1. Focus moves to the modal when opened (preferably to the title or first element) -->
+<!-- 2. Tab cycles ONLY within the modal (focus trap) -->
+<!-- 3. Escape closes the modal -->
+<!-- 4. Focus returns to the element that opened the modal when closed -->
+<!-- 5. Page background becomes inert (aria-hidden="true" on parent container, inert attribute) -->
 ```
 
 ---
 
-## 4. Navegação por teclado
+## 4. Keyboard navigation
 
 ```
-Teclas padrão e seus comportamentos esperados:
-Tab         → próximo elemento focusável
-Shift+Tab   → elemento focusável anterior
-Enter       → ativa botão, segue link, submete formulário
-Space       → ativa botão, seleciona checkbox
-Escape      → fecha modal, cancela dropdown, descarta tooltip
-Setas ↑↓   → navega em listas de opções, menus, tabelas
-Home/End    → primeiro/último item de uma lista
+Standard keys and expected behavior:
+Tab         → next focusable element
+Shift+Tab   → previous focusable element
+Enter       → activates button, follows link, submits form
+Space       → activates button, selects checkbox
+Escape      → closes modal, cancels dropdown, dismisses tooltip
+Arrows ↑↓   → navigates option lists, menus, tables
+Home/End    → first/last item in a list
 
-Garantias de implementação:
-✅ Todos os elementos interativos são alcançáveis via Tab
-✅ Ordem de foco segue a ordem visual (lógica de cima para baixo, esquerda para direita)
-✅ Foco visível (outline ou ring visível — nunca outline: none sem alternativa)
-✅ Skip links para pular navegação repetitiva em páginas longas
+Implementation guarantees:
+✅ All interactive elements reachable via Tab
+✅ Focus order follows visual order (top to bottom, left to right)
+✅ Visible focus (outline or visible ring — never outline: none without replacement)
+✅ Skip links to jump over repetitive navigation on long pages
 ```
 
 ```css
-/* Estilo de foco: nunca remover — substituir por algo melhor */
+/* Focus style: never remove it — replace it with something better */
 
 /* ❌ */
 *:focus { outline: none; }
@@ -141,154 +141,154 @@ Garantias de implementação:
 
 ---
 
-## 5. Tabelas
+## 5. Tables
 
 ```html
-<!-- Tabela simples com headers -->
+<!-- Simple table with headers -->
 <table>
-  <caption>Transações de março de 2026</caption>
+  <caption>Transactions for March 2026</caption>
   <thead>
     <tr>
-      <th scope="col">Data</th>
-      <th scope="col">Descrição</th>
-      <th scope="col">Valor</th>
+      <th scope="col">Date</th>
+      <th scope="col">Description</th>
+      <th scope="col">Amount</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>15/03</td>
-      <td>Mercado</td>
-      <td>R$ 350,00</td>
+      <td>03/15</td>
+      <td>Groceries</td>
+      <td>$350.00</td>
     </tr>
   </tbody>
 </table>
 
-<!-- scope="col" e scope="row" são obrigatórios em tabelas complexas -->
-<!-- caption descreve o propósito da tabela para SRs -->
+<!-- scope="col" and scope="row" are mandatory in complex tables -->
+<!-- caption describes the table purpose for SRs -->
 ```
 
 ---
 
-## 6. Ícones e imagens
+## 6. Icons and images
 
 ```html
-<!-- Ícone decorativo (não acrescenta informação) -->
+<!-- Decorative icon (adds no information) -->
 <svg aria-hidden="true" focusable="false">...</svg>
 
-<!-- Ícone informativo (comunica algo) -->
-<svg aria-label="Alerta" role="img">...</svg>
+<!-- Informative icon (communicates something) -->
+<svg aria-label="Alert" role="img">...</svg>
 
-<!-- Botão com ícone apenas: SEMPRE aria-label -->
-<button aria-label="Excluir transação">
+<!-- Icon-only button: ALWAYS use aria-label -->
+<button aria-label="Delete transaction">
   <svg aria-hidden="true">...</svg>
 </button>
 
-<!-- Imagem informativa -->
-<img src="grafico.png" alt="Gráfico de gastos: Alimentação 35%, Moradia 28%, Outros 37%" />
+<!-- Informative image -->
+<img src="grafico.png" alt="Spending chart: Food 35%, Housing 28%, Others 37%" />
 
-<!-- Imagem decorativa -->
+<!-- Decorative image -->
 <img src="background.png" alt="" />
 ```
 
 ---
 
-## 7. Regiões dinâmicas (live regions)
+## 7. Dynamic regions (live regions)
 
 ```html
-<!-- Para conteúdo que muda sem recarregar a página -->
+<!-- For content that changes without reloading the page -->
 
-<!-- Toast / notificação — SR lê imediatamente ao aparecer -->
+<!-- Toast / notification — SR reads immediately when it appears -->
 <div role="alert" aria-live="assertive">
-  Transação salva com sucesso.
+  Transaction saved successfully.
 </div>
 
-<!-- Status / progresso — SR lê na próxima pausa -->
+<!-- Status / progress — SR reads at the next pause -->
 <div role="status" aria-live="polite">
-  3 de 50 itens carregados...
+  3 of 50 items loaded...
 </div>
 
-<!-- Quando NÃO usar assertive: -->
-<!-- assertive interrompe tudo que o SR está lendo. Usar APENAS para erros críticos. -->
-<!-- Para tudo mais: polite (espera a pausa natural) -->
+<!-- When NOT to use assertive: -->
+<!-- assertive interrupts everything the SR is reading. Use ONLY for critical errors. -->
+<!-- For everything else: polite (waits for the natural pause) -->
 ```
 
 ---
 
-## 8. Contraste de cor — referência rápida
+## 8. Color contrast — quick reference
 
-| Texto | Fundo claro | Fundo escuro | Atingível? |
-|-------|-------------|--------------|------------|
-| Cinza #6b7280 em branco | 4.6:1 | — | ✅ AA |
-| Cinza #9ca3af em branco | 2.5:1 | — | ❌ Falha |
-| Branco em azul #3b82f6 | — | 3.0:1 | ✅ AA (texto grande) |
-| Branco em verde #22c55e | — | 2.2:1 | ❌ Falha |
-| Preto em amarelo #f59e0b | 9.0:1 | — | ✅ AAA |
+| Text | Light background | Dark background | Passes? |
+|------|------------------|-----------------|---------|
+| Gray #6b7280 on white | 4.6:1 | — | ✅ AA |
+| Gray #9ca3af on white | 2.5:1 | — | ❌ Fail |
+| White on blue #3b82f6 | — | 3.0:1 | ✅ AA (large text) |
+| White on green #22c55e | — | 2.2:1 | ❌ Fail |
+| Black on yellow #f59e0b | 9.0:1 | — | ✅ AAA |
 
-**Ferramenta de verificação:** [contrast.tools](https://contrast.tools) ou DevTools > Accessibility
+**Verification tool:** [contrast.tools](https://contrast.tools) or DevTools > Accessibility
 
 ---
 
-## 9. Testes de acessibilidade
+## 9. Accessibility testing
 
-### Automatizados (no pipeline CI)
+### Automated (in the CI pipeline)
 
 ```bash
 # axe-core via Playwright/Cypress
 npx @axe-core/cli http://localhost:4200
-# ou via Lighthouse
+# or via Lighthouse
 npx lighthouse http://localhost:4200 --only-categories=accessibility
 ```
 
-### Manuais obrigatórios (antes de go-live por feature)
+### Required manual checks (before go-live per feature)
 
 ```
-1. Navegação só com teclado:
-   - Tab por todos os elementos interativos
-   - Enter/Space ativam ações
-   - Escape fecha modais e dropdowns
-   - Sem elementos interativos inacessíveis
+1. Keyboard-only navigation:
+   - Tab through all interactive elements
+   - Enter/Space activate actions
+   - Escape closes modals and dropdowns
+   - No inaccessible interactive elements
 
-2. Screen reader (NVDA no Windows / VoiceOver no macOS):
-   - Abrir a tela com SR ativo
-   - Navegar pelos landmarks (H, principais regiões)
-   - Ler um formulário completo
-   - Verificar que erros são anunciados
+2. Screen reader (NVDA on Windows / VoiceOver on macOS):
+   - Open the screen with SR enabled
+   - Navigate through landmarks (H, main regions)
+   - Read a full form
+   - Verify that errors are announced
 
-3. Zoom 200% no browser:
-   - Conteúdo não sobrepõe nem some
-   - Scroll horizontal só em tabelas (não na página inteira)
+3. 200% browser zoom:
+   - Content does not overlap or disappear
+   - Horizontal scroll only on tables (not the whole page)
 ```
 
 ---
 
-## 10. Checklist de acessibilidade (pré-entrega)
+## 10. Accessibility checklist (pre-delivery)
 
-**Semântica:**
-- [ ] Elementos interativos usam tags nativas (`<button>`, `<a>`, `<input>`)
-- [ ] Landmarks presentes (`<main>`, `<nav>`, `<header>`, `<footer>`)
-- [ ] Títulos em hierarquia correta (h1 → h2 → h3, sem pular)
+**Semantics:**
+- [ ] Interactive elements use native tags (`<button>`, `<a>`, `<input>`)
+- [ ] Landmarks present (`<main>`, `<nav>`, `<header>`, `<footer>`)
+- [ ] Headings in the correct hierarchy (h1 → h2 → h3, without skipping)
 
-**Formulários:**
-- [ ] Todo input tem label associado (for+id ou aria-label)
-- [ ] Campos obrigatórios marcados com `required` e `aria-required`
-- [ ] Mensagens de erro com `role="alert"` e `aria-describedby`
+**Forms:**
+- [ ] Every input has an associated label (for+id or aria-label)
+- [ ] Required fields marked with `required` and `aria-required`
+- [ ] Error messages with `role="alert"` and `aria-describedby`
 
-**Interação:**
-- [ ] Todos os elementos interativos focusáveis via Tab
-- [ ] Focus outline visível em todos os estados
-- [ ] Modais têm focus trap e fecham com Escape
-- [ ] Botões de ícone têm `aria-label`
+**Interaction:**
+- [ ] All interactive elements focusable via Tab
+- [ ] Visible focus outline in all states
+- [ ] Modals have focus trap and close with Escape
+- [ ] Icon buttons have `aria-label`
 
-**Conteúdo:**
-- [ ] Contraste de texto ≥ 4.5:1 (normal) ou ≥ 3:1 (grande)
-- [ ] Imagens informativas com `alt` descritivo; decorativas com `alt=""`
-- [ ] Notificações dinâmicas com `role="alert"` ou `aria-live`
+**Content:**
+- [ ] Text contrast ≥ 4.5:1 (normal) or ≥ 3:1 (large)
+- [ ] Informative images with descriptive `alt`; decorative ones with `alt=""`
+- [ ] Dynamic notifications with `role="alert"` or `aria-live`
 
-**Teste:**
-- [ ] axe ou Lighthouse sem erros críticos
-- [ ] Navegação só teclado funcional no fluxo principal
+**Testing:**
+- [ ] axe or Lighthouse without critical errors
+- [ ] Keyboard-only navigation works in the main flow
 
 ---
 
 *Skill — `.github/skills/fe-accessibility-patterns.md`*
-*Referência: `principios-engenharia.md` §1.5 · WCAG 2.1 AA*
+*Reference: `engineering-principles.md` §1.5 · WCAG 2.1 AA*

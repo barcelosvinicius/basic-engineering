@@ -1,160 +1,160 @@
 ---
 name: proc-skill-creator
 description: >
-  Meta-skill que guia a criação de novas skills — processo de descoberta, estrutura
-  obrigatória, critérios de qualidade e checklist de entrega. Usar quando precisar
-  criar uma nova skill de domínio, processo ou infraestrutura para este projeto ou para o base.
+  Meta-skill that guides the creation of new skills — discovery process, mandatory
+  structure, quality criteria, and delivery checklist. Use when you need to
+  create a new domain, process, or infrastructure skill for this project or for the base.
 ---
 
-# Skill: Criação de Novas Skills (Meta-Skill)
+# Skill: Creating New Skills (Meta-Skill)
 
-## O que é esta skill
+## What this skill is
 
-Define o processo de criação e iteração de skills — os documentos de conhecimento técnico
-em `.github/skills/`. Usar quando identificar que falta uma skill de domínio, quando uma
-skill existente precisar de refatoração significativa, ou ao expandir o kit base para novos projetos.
+Defines the process for creating and iterating skills — the technical knowledge documents
+in `.github/skills/`. Use when you identify that a domain skill is missing, when an
+existing skill needs significant refactoring, or when expanding the base kit for new projects.
 
 ---
 
-## Anatomia de uma skill bem feita
+## Anatomy of a well-made skill
 
 ```
 .github/skills/
-└── [prefixo]-[nome].md
-    ├── Frontmatter YAML (name + description) ← obrigatório
-    ├── ## O que é esta skill              ← 1-2 frases: problema resolvido + quando usar
-    ├── ## Quando consultar esta skill     ← gatilhos concretos
-    ├── ## [Seções principais]             ← código, exemplos, padrões — o "como" concreto
-    ├── ## Erros comuns                    ← tabela: Erro | Causa | Solução
-    └── Rodapé com referências            ← outras skills, princípios, docs externos
+└── [prefix]-[name].md
+    ├── YAML frontmatter (name + description) ← mandatory
+    ├── ## What this skill is             ← 1-2 sentences: problem solved + when to use
+    ├── ## When to consult this skill     ← concrete triggers
+    ├── ## [Main sections]                ← code, examples, patterns — the concrete "how"
+    ├── ## Common mistakes                ← table: Mistake | Cause | Solution
+    └── Footer with references            ← other skills, principles, external docs
 ```
 
 ---
 
-## Processo de criação — passo a passo
+## Creation process — step by step
 
-### Passo 1: Identificar a necessidade
+### Step 1: Identify the need
 
-Perguntas para diagnosticar se uma nova skill é necessária:
+Questions to diagnose whether a new skill is needed:
 
-- "Este conhecimento é repetidamente necessário ou foi reescrito mais de uma vez?"
-- "Existe um padrão específico deste projeto que não está documentado?"
-- "Outro agente perguntaria 'como fazer X?' sem ter onde consultar?"
-- "Este 'como fazer' é suficientemente específico para não caber no `copilot-instructions.md`?"
+- "Is this knowledge repeatedly needed or has it been rewritten more than once?"
+- "Is there a project-specific pattern that is not documented?"
+- "Would another agent ask 'how do I do X?' without having anywhere to look?"
+- "Is this 'how to do it' specific enough that it does not belong in `copilot-instructions.md`?"
 
-Se responder **sim** a qualquer uma → criar skill.
+If the answer is **yes** to any of them → create the skill.
 
-### Passo 2: Definir o escopo
+### Step 2: Define the scope
 
-A skill deve responder **exatamente uma** das perguntas:
-- "Como implementar [padrão] neste projeto?"
-- "Como seguir o [processo] neste projeto?"
-- "Como configurar [ferramenta] para este contexto?"
+The skill must answer **exactly one** of these questions:
+- "How do I implement [pattern] in this project?"
+- "How do I follow the [process] in this project?"
+- "How do I configure [tool] for this context?"
 
-❌ Se a skill responde "O que é [conceito]?" → vai em `docs/fundamentos/`
-❌ Se a skill responde "Por que usar [abordagem]?" → vai no ADR ou no agent
+❌ If the skill answers "What is [concept]?" → it belongs in `docs/fundamentos/`
+❌ If the skill answers "Why use [approach]?" → it belongs in the ADR or the agent
 
-### Passo 3: Escolher o prefixo e nome correto
+### Step 3: Choose the correct prefix and name
 
-| Prefixo | Camada | Quando usar |
-|---------|--------|------------|
-| `be-` | Backend | Java/Spring Boot — qualquer skill de servidor |
-| `fe-` | Frontend | Angular/TypeScript — qualquer skill de UI |
-| `da-` | Dados | Analytics, BI, queries de insight |
-| `qa-` | Qualidade | Testes, automação, segurança |
-| `proc-` | Processo | Workflows, protocolos — **skills proc- são universais** |
-| `infra-` | Infraestrutura | CI/CD, Docker, observabilidade |
+| Prefix | Layer | When to use |
+|--------|-------|-------------|
+| `be-` | Backend | Java/Spring Boot — any server skill |
+| `fe-` | Frontend | Angular/TypeScript — any UI skill |
+| `da-` | Data | Analytics, BI, insight queries |
+| `qa-` | Quality | Tests, automation, security |
+| `proc-` | Process | Workflows, protocols — **proc skills are universal** |
+| `infra-` | Infrastructure | CI/CD, Docker, observability |
 
-**Nomeação:** `[prefixo]-[substantivo-hiphenado].md`
+**Naming:** `[prefix]-[hyphenated-noun].md`
 - ✅ `be-caching-patterns.md`, `proc-incident-response.md`, `fe-state-management.md`
-- ❌ `backend-cache.md`, `como-fazer-cache.md`, `cache.md`
+- ❌ `backend-cache.md`, `how-to-cache.md`, `cache.md`
 
-### Passo 4: Decidir onde vai (projeto vs base)
+### Step 4: Decide where it goes (project vs base)
 
-| Critério | Vai em `.github/skills/` (projeto) | Vai em `.github/base/skills/` (base) |
-|----------|-----------------------------------|------------------------------------|
-| Menciona tecnologias específicas | ✅ | ❌ |
-| Menciona entidades do domínio | ✅ | ❌ |
-| Funciona em qualquer projeto similar | ❌ | ✅ |
-| É universal de processo | ❌ | ✅ |
+| Criteria | Goes in `.github/skills/` (project) | Goes in `.github/base/skills/` (base) |
+|----------|-------------------------------------|--------------------------------------|
+| Mentions specific technologies | ✅ | ❌ |
+| Mentions domain entities | ✅ | ❌ |
+| Works in any similar project | ❌ | ✅ |
+| Is a universal process | ❌ | ✅ |
 
-**Regra:** Se a skill cita `TransactionService`, `gestao_db`, ou `Vinicius & Renata` → projeto.
-Se funciona igualmente bem num projeto de e-commerce → base.
+**Rule:** If the skill mentions `TransactionService`, `gestao_db`, or `Vinicius & Renata` → project.
+If it works equally well in an e-commerce project → base.
 
-### Passo 5: Escrever a skill
+### Step 5: Write the skill
 
-Usar o template em `.github/base/roles/skill.template.md` como ponto de partida.
+Use the template in `.github/base/roles/skill.template.md` as a starting point.
 
-**Princípios de escrita:**
-- Linguagem imperativa/infinitiva, não segunda pessoa: "Usar X ao fazer Y" (não "Você deve usar X")
-- Concreto antes de abstrato: código primeiro, explicação depois
-- Exemplos obrigatórios: pelo menos um ✅ correto e um ❌ errado
-- Erros comuns: tabela com pelo menos 2-3 armadilhas reais
-- Autocontida: outra instância do agente deve conseguir seguir sem contexto adicional
+**Writing principles:**
+- Imperative/infinitive language, not second person: "Use X when doing Y" (not "You must use X")
+- Concrete before abstract: code first, explanation after
+- Mandatory examples: at least one ✅ correct and one ❌ wrong
+- Common mistakes: table with at least 2-3 real traps
+- Self-contained: another instance of the agent must be able to follow it without extra context
 
-### Passo 6: Adicionar frontmatter YAML
+### Step 6: Add YAML frontmatter
 
 ```yaml
 ---
-name: [prefixo]-[nome]        ← igual ao nome do arquivo sem .md
+name: [prefix]-[name]        ← same as the filename without .md
 description: >
-  [Uma frase: o que resolve]. [Quando usar — gatilho concreto].
-  [Complemento se necessário — máx 3 frases].
+  [One sentence: what it solves]. [When to use — concrete trigger].
+  [Complement if needed — max 3 sentences].
 ---
 ```
 
-O `description` é lido **antes** de abrir a skill — é o que determina se o agente vai consultá-la.
-Deve ser específico o suficiente para não disparar em contextos errados.
+The `description` is read **before** opening the skill — it is what determines whether the agent will consult it.
+It must be specific enough not to trigger in the wrong contexts.
 
-### Passo 7: Referenciar na proc-session-continuity
+### Step 7: Reference it in proc-session-continuity
 
-Toda skill nova deve ser adicionada à tabela de referência em `proc-session-continuity.md`:
+Every new skill must be added to the reference table in `proc-session-continuity.md`:
 
 ```markdown
-| `[prefixo]-` | [nome] | [Quando consultar — 1 frase] |
+| `[prefix]-` | [name] | [When to consult — 1 sentence] |
 ```
 
 ---
 
-## Checklist de qualidade
+## Quality checklist
 
-Antes de considerar a skill pronta:
+Before considering the skill ready:
 
-- [ ] Frontmatter YAML com `name` e `description` descritivos
-- [ ] Seção "O que é esta skill" com problema + gatilho de uso
-- [ ] Pelo menos um exemplo de código completo e executável
-- [ ] Exemplos com ✅ correto e ❌ errado
-- [ ] Seção "Erros comuns" com tabela Erro | Causa | Solução
-- [ ] Referências a outras skills relacionadas no rodapé
-- [ ] Linguagem imperativa, não segunda pessoa
-- [ ] Adicionada à tabela em `proc-session-continuity.md`
-- [ ] Se universal: adicionada também em `.github/base/skills/`
-
----
-
-## Quando atualizar vs criar nova skill
-
-| Situação | Ação |
-|----------|------|
-| Padrão evoluiu mas é o mesmo domínio | Atualizar skill existente |
-| Nova tecnologia ou biblioteca | Criar nova skill |
-| Skill ficou muito grande (> 300 linhas) | Dividir em 2 skills especializadas |
-| Skill cobre 2 domínios diferentes | Dividir por prefixo |
-| Padrão foi depreciado | Adicionar nota de depreciação + referência à nova skill |
+- [ ] YAML frontmatter with descriptive `name` and `description`
+- [ ] "What this skill is" section with problem + usage trigger
+- [ ] At least one complete and executable code example
+- [ ] Examples with ✅ correct and ❌ wrong
+- [ ] "Common mistakes" section with Mistake | Cause | Solution table
+- [ ] References to related skills in the footer
+- [ ] Imperative language, not second person
+- [ ] Added to the table in `proc-session-continuity.md`
+- [ ] If universal: also added to `.github/base/skills/`
 
 ---
 
-## Erros comuns
+## When to update vs create a new skill
 
-| Erro | Causa | Solução |
-|------|-------|---------|
-| Skill sem frontmatter | Criado antes do padrão YAML | Adicionar bloco `---` com name e description |
-| Description genérico demais | Cópia do título | Descrever o gatilho de uso específico |
-| Skill sem exemplos | Documentação teórica | Adicionar snippet de código executável |
-| Skill em base com nomes de domínio | Confusão base vs projeto | Extrair referências específicas para a versão do projeto |
-| Esqueceu de referenciar em proc-session-continuity | Skill não descoberta | Verificar tabela antes de finalizar |
+| Situation | Action |
+|-----------|--------|
+| Pattern evolved but belongs to the same domain | Update the existing skill |
+| New technology or library | Create a new skill |
+| Skill became too large (> 300 lines) | Split into 2 specialized skills |
+| Skill covers 2 different domains | Split by prefix |
+| Pattern was deprecated | Add deprecation note + reference to the new skill |
+
+---
+
+## Common mistakes
+
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| Skill without frontmatter | Created before the YAML standard | Add `---` block with name and description |
+| Description too generic | Copy of the title | Describe the specific usage trigger |
+| Skill without examples | Theoretical documentation | Add executable code snippet |
+| Skill in base with domain names | Confusion between base and project | Extract specific references into the project version |
+| Forgot to reference it in proc-session-continuity | Skill not discoverable | Check the table before finishing |
 
 ---
 
 *Skill — `.github/skills/proc-skill-creator.md`*
-*Referência: `.github/base/roles/skill.template.md` · `.github/base/BOOTSTRAP.md` §Passo 4*
+*Reference: `.github/base/roles/skill.template.md` · `.github/base/BOOTSTRAP.md` §Step 4*

@@ -1,55 +1,55 @@
-# Lições Aprendidas — [PROJETO]
+# Lessons Learned — [PROJECT]
 
-> Registro de erros, descobertas e decisões técnicas importantes de cada sessão.
-> Formato: **Contexto → Problema → Regra**. Cada entrada é imutável — lições
-> superadas são marcadas como ✅, nunca deletadas.
+> Record of errors, discoveries, and important technical decisions from each session.
+> Format: **Context → Problem → Rule**. Each entry is immutable — outdated lessons
+> are marked with ✅, never deleted.
 >
-> Referência: `principios-engenharia.md` §11.2 (Documentação como Código) e §11.4 (PCS).
+> Reference: `engineering-principles.md` §11.2 (Documentation as Code) and §11.4 (PCS).
 
 ---
 
-## Como usar este arquivo
+## How to use this file
 
-- **Quando registrar:** após qualquer sessão em que um erro foi cometido, uma decisão
-  importante foi tomada, ou um padrão foi descoberto que evitaria retrabalho futuro.
-- **Quando consultar:** no início de cada sessão (via `proc-session-continuity`), antes
-  de aplicar qualquer padrão numa área que já teve problemas antes.
-- **Formato obrigatório por entrada:**
+- **When to record:** after any session in which an error was made, an important
+  decision was taken, or a pattern was discovered that would prevent future rework.
+- **When to consult:** at the start of each session (via `proc-session-continuity`), before
+  applying any pattern in an area that has had issues before.
+- **Required entry format:**
 
 ```
-### [Mês/Ano] Título curto e descritivo
+### [Month/Year] Short descriptive title
 
-**Contexto:** O que estava sendo feito quando o problema foi encontrado.
-**Problema:** O que deu errado ou o que foi descoberto. Ser específico — 
-  incluir sintoma, comportamento observado, e como reproduzir se relevante.
-**Regra:** O que fazer (ou não fazer) no futuro. Incluir exemplo de código
-  correto/incorreto quando aplicável.
-**Referência:** §X.X de `principios-engenharia.md` ou arquivo relacionado.
+**Context:** What was being done when the problem was found.
+**Problem:** What went wrong or what was discovered. Be specific —
+  include the symptom, observed behavior, and how to reproduce if relevant.
+**Rule:** What to do (or not do) in the future. Include a correct/incorrect
+  code example when applicable.
+**Reference:** §X.X of `engineering-principles.md` or a related file.
 ```
 
-- **Agrupamento:** quando o arquivo crescer, agrupar por categoria:
-  `## Backend`, `## Frontend`, `## Banco de Dados`, `## Segurança`, `## Processo`
+- **Grouping:** when the file grows, group by category:
+  `## Backend`, `## Frontend`, `## Database`, `## Security`, `## Process`
 
 ---
 
 <!-- 
-EXEMPLO — remova este bloco e substitua por lições reais do projeto
+EXAMPLE — remove this block and replace it with real project lessons
 
-### [Mês/Ano] Título da lição
+### [Month/Year] Lesson title
 
-**Contexto:** Descrição do que estava sendo implementado.
-**Problema:** O que deu errado, sintoma observado, como reproduzir.
-**Regra:** 
+**Context:** Description of what was being implemented.
+**Problem:** What went wrong, observed symptom, how to reproduce.
+**Rule:** 
 ```
-// ✅ Correto
-[código ou instrução correta]
+// ✅ Correct
+[correct code or instruction]
 
-// ❌ Errado — e por quê
-[código ou instrução incorreta]
+// ❌ Wrong — and why
+[incorrect code or instruction]
 ```
-**Referência:** §X.X de `principios-engenharia.md`
+**Reference:** §X.X of `engineering-principles.md`
 -->
 
 ---
 
-*Última atualização: [AAAA-MM-DD] · Referência: `principios-engenharia.md` §11.2, §11.4*
+*Last updated: [YYYY-MM-DD] · Reference: `engineering-principles.md` §11.2, §11.4*
