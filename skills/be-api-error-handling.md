@@ -1,22 +1,22 @@
 ---
 name: be-api-error-handling
 description: >
-  Define hierarquia de exceções, status HTTP e padrões de response de erro para APIs REST.
-  Usar ao criar GlobalExceptionHandler, adicionar novos tipos de erro ou definir
-  o contrato de resposta de erro da API.
+  Defines exception hierarchy, HTTP statuses, and error response patterns for REST APIs.
+  Use when creating a GlobalExceptionHandler, adding new error types, or defining
+  the API's error response contract.
 ---
 
-# Skill: Tratamento de Erros da API (Universal)
+# Skill: API Error Handling (Universal)
 
-## O que é esta skill
+## What this skill is
 
-Padrões universais de tratamento de erros para APIs REST. Usar ao criar o handler
-centralizado de exceções, ao definir status codes ou ao implementar responses de erro
-consistentes em qualquer projeto com API REST.
+Universal error-handling patterns for REST APIs. Use when creating the centralized
+exception handler, defining status codes, or implementing consistent error responses
+in any project with a REST API.
 
 ---
 
-## Hierarquia de exceções recomendada
+## Recommended exception hierarchy
 
 ```
 RuntimeException (base)
@@ -30,14 +30,14 @@ RuntimeException (base)
 
 ---
 
-## Formato de response de erro (RFC 7807 / ProblemDetail)
+## Error response format (RFC 7807 / ProblemDetail)
 
 ```json
 {
-  "type": "https://api.exemplo.com/errors/resource-not-found",
-  "title": "Recurso não encontrado",
+  "type": "https://api.example.com/errors/resource-not-found",
+  "title": "Resource not found",
   "status": 404,
-  "detail": "Transação com ID 42 não foi encontrada",
+  "detail": "Transaction with ID 42 was not found",
   "instance": "/api/v1/transactions/42",
   "timestamp": "2026-03-15T10:30:00Z"
 }
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND, e.getMessage()
         );
-        detail.setTitle("Recurso não encontrado");
+        detail.setTitle("Resource not found");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(detail);
     }
 
@@ -66,18 +66,18 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = e.getBindingResult().getFieldErrors().stream()
             .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
         ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        detail.setTitle("Dados inválidos");
+        detail.setTitle("Invalid data");
         detail.setProperty("errors", errors);
         return ResponseEntity.badRequest().body(detail);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneric(Exception e) {
-        log.error("Erro inesperado", e);
+        log.error("Unexpected error", e);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-            HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno — tente novamente"
+            HttpStatus.INTERNAL_SERVER_ERROR, "Internal error — please try again"
         );
-        detail.setTitle("Erro interno");
+        detail.setTitle("Internal error");
         return ResponseEntity.internalServerError().body(detail);
     }
 }
@@ -85,28 +85,28 @@ public class GlobalExceptionHandler {
 
 ---
 
-## Mapeamento de exceções para status HTTP
+## Exception-to-HTTP-status mapping
 
-| Exceção | Status | Quando usar |
-|---------|--------|------------|
-| `ResourceNotFoundException` | 404 | Entidade não existe |
-| `UnauthorizedException` | 401 | Sem autenticação |
-| `ForbiddenException` | 403 | Sem permissão |
-| `ConflictException` | 409 | Idempotency key duplicada |
-| `BusinessRuleException` | 422 | Regra de negócio violada |
-| `ValidationException` | 400 | Dados de entrada inválidos |
-
----
-
-## Erros comuns
-
-| Erro | Causa | Solução |
-|------|-------|---------|
-| Stack trace no response | `e.getMessage()` retorna trace | Nunca expor stack trace — logar e retornar mensagem amigável |
-| Status 500 para 404 | Exceção não mapeada | Mapear todas as exceções de negócio no handler |
-| Response sem `Content-Type` | Handler sem `@ResponseBody` | Usar `ResponseEntity<ProblemDetail>` |
+| Exception | Status | When to use |
+|-----------|--------|-------------|
+| `ResourceNotFoundException` | 404 | Entity does not exist |
+| `UnauthorizedException` | 401 | No authentication |
+| `ForbiddenException` | 403 | No permission |
+| `ConflictException` | 409 | Duplicate idempotency key |
+| `BusinessRuleException` | 422 | Business rule violated |
+| `ValidationException` | 400 | Invalid input data |
 
 ---
 
-*Template universal — `.github/base/skills/be-api-error-handling.md`*
-*Adaptar para a hierarquia de exceções específica de cada projeto*
+## Common mistakes
+
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| Stack trace in the response | `e.getMessage()` returns trace | Never expose stack trace — log it and return a friendly message |
+| 500 status for 404 | Exception not mapped | Map all business exceptions in the handler |
+| Response without `Content-Type` | Handler without `@ResponseBody` | Use `ResponseEntity<ProblemDetail>` |
+
+---
+
+*Universal template — `.github/base/skills/be-api-error-handling.md`*
+*Adapt to the project-specific exception hierarchy*

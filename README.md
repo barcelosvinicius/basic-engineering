@@ -1,65 +1,105 @@
 # basic-engineering
 
-> Base universal de documentação, agents e skills para projetos de software com GitHub Copilot.
+> A universal engineering base for AI-assisted software projects — structured to produce robust, efficient, and secure software from day one.
 
-![Versão](https://img.shields.io/badge/versão-v20260511--144605-blue)
+![Version](https://img.shields.io/badge/version-v20260511--144605-blue)
 
-## O que é este repositório?
+## What is this repository?
 
-Este repositório contém a **base fundacional** para qualquer projeto de software que utilize
-GitHub Copilot como assistente de IA. Inclui:
+**basic-engineering** is a foundational framework designed to maximize the value of AI assistants (GitHub Copilot and similar tools) in real-world software projects. It goes beyond templates: it defines *how to think* about software — with depth, rigor, and a long-term view.
 
-- 📋 Templates de agents (roles) para cada papel da equipe
-- 🛠️ Skills universais reutilizáveis (backend, frontend, QA, infra, processo)
-- 📄 Templates de documentação (HISTORICO, CHANGELOG, ADR, onboarding e mais)
-- ⚙️ Princípios de engenharia independentes de tecnologia
+The core belief behind this project is that AI tools are only as good as the context and structure surrounding them. Without clear principles, defined roles, reusable knowledge, and living documentation, AI assistance degrades into noise. This base provides the scaffolding that elevates AI from autocomplete to a genuine engineering partner.
 
-## Como usar
+### What this base delivers
 
-### 1. Verificar pré-requisitos
+- **🏗️ Engineering principles** — technology-agnostic rules that guide every decision: UX, security, data integrity, testing, observability, resilience, and more. Designed to be immutable per project and referenced by every agent and skill.
+- **🤖 AI agent templates (roles)** — 13 ready-to-customize agent definitions covering every team role: backend developer, frontend developer, data analyst, product owner, project manager, domain expert, architect, QA engineer, security reviewer, pentest engineer, DevOps, and SRE. Each agent knows its responsibilities, the project's stack, and how to collaborate.
+- **🛠️ Universal skills** — 16 reusable technical skill documents (backend patterns, frontend UX, CI/CD pipelines, security, testing, process protocols) that agents load on demand. Skills are the "how to do it" layer — concrete, actionable, stack-aware.
+- **📄 Documentation templates** — 11 templates for the full documentation lifecycle: changelog, contributing guide, session history, project index, security policy, learning trail, structural analysis, lessons learned, onboarding, runbook, and ADRs.
+- **🔄 Session continuity protocol** — a mandatory workflow ensuring that every AI session (and every human session) starts with full context and ends with updated documentation. Reduces token waste and eliminates the "lost context" problem across long-running projects.
 
-- Git ≥ 2.x, curl ou wget
-- Conta GitHub
+### Design philosophy
 
-### 2. Copiar a base para seu projeto
+This framework is built on four commitments:
+
+1. **Depth over speed** — forcing a thinking-before-coding discipline that eliminates silent assumptions, reduces rework, and produces better decisions.
+2. **Structured context for AI** — every agent and skill is designed to give AI assistants precisely the context they need to produce reliable, project-consistent outputs.
+3. **Security and quality by default** — engineering principles embed security (OWASP, SAST, dependency scanning), performance, accessibility, and observability as first-class concerns — not afterthoughts.
+4. **Permanent evolution** — the base is versioned and self-updating. As technology advances, principles and skills are updated. Projects built on this base inherit improvements without starting over.
+
+---
+
+## How to use
+
+### 1. Prerequisites
+
+- Git ≥ 2.x, curl or wget
+- A GitHub account
+
+### 2. Copy the base to your project
 
 ```bash
-# Clone este repositório (ou baixe o base-atualizacao.zip)
+# Clone this repository (or download base-atualizacao.zip)
 git clone https://github.com/barcelosvinicius/basic-engineering.git
 
-# Copie a pasta base para seu projeto
-cp -r basic-engineering/.github/base/ meu-projeto/.github/base/
-cp basic-engineering/check-version.sh meu-projeto/check-version.sh
-cp basic-engineering/BASE_VERSION meu-projeto/BASE_VERSION
+# Copy the base to your project
+cp -r basic-engineering/.github/base/ my-project/.github/base/
+cp basic-engineering/check-version.sh my-project/check-version.sh
+cp basic-engineering/BASE_VERSION my-project/BASE_VERSION
 ```
 
-### 3. Verificar versão <a name="passo-0"></a>
+### 3. Check version <a name="step-0"></a>
 
 ```bash
-cd meu-projeto
+cd my-project
 bash check-version.sh
 ```
 
-### 4. Seguir o BOOTSTRAP
+### 4. Follow BOOTSTRAP.md
 
-Leia `BOOTSTRAP.md` e siga os 7 passos para configurar seu projeto completo.
+Read `BOOTSTRAP.md` and follow the 7 steps to set up your complete project.
 
-## Estrutura
+---
+
+## Structure
 
 ```
 basic-engineering/
-├── BOOTSTRAP.md              — Guia completo de setup (leia primeiro)
-├── principios-engenharia.md  — Princípios universais de engenharia
-├── BASE_VERSION              — Versão atual da base
-├── base-manifest.json        — Metadados e URL de verificação de versão
-├── check-version.sh          — Script de verificação de versão
-├── copilot-instructions.template.md — Template para copilot-instructions.md
-├── roles/                    — 13 templates de agents
-├── skills/                   — 16 skills universais
-└── docs/                     — 11 templates de documentação
+├── BOOTSTRAP.md                      — Complete setup guide (read first)
+├── engineering-principles.md         — Universal, technology-agnostic engineering principles
+├── BASE_VERSION                      — Current base version
+├── base-manifest.json                — Metadata and version check URL
+├── check-version.sh                  — Version verification script
+├── copilot-instructions.template.md  — Template for your project's copilot-instructions.md
+├── roles/                            — 13 agent (role) templates
+├── skills/                           — 16 universal skill documents
+└── docs/                             — 11 documentation templates
 ```
 
-## Versão
+---
 
-A versão segue o formato `vYYYYMMDD-HHMMSS`. Consulte `BASE_VERSION` para a versão instalada
-e execute `bash check-version.sh` para verificar se há atualizações disponíveis.
+## The 5-layer system
+
+```
+LAYER 0 — PHILOSOPHICAL FOUNDATION    (engineering-principles.md)
+          "How to think about software" — universal, project-immutable
+
+LAYER 1 — PROJECT CONTEXT             (.github/copilot-instructions.md)
+          "What this project is and its rules" — project-specific
+
+LAYER 2 — SPECIALIZED ROLES           (.github/agents/)
+          "Who does what" — customized from base/roles/ templates
+
+LAYER 3 — TECHNICAL KNOWLEDGE         (.github/skills/)
+          "How to do it" — domain and stack specific
+
+LAYER 4 — LIVING DOCUMENTATION        (docs/)
+          "What was done and what remains" — updated every session
+```
+
+---
+
+## Version
+
+Version format: `vYYYYMMDD-HHMMSS`. Check `BASE_VERSION` for your installed version
+and run `bash check-version.sh` to verify if updates are available.

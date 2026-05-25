@@ -1,64 +1,64 @@
 ---
 name: be-jwt-auth-patterns
 description: >
-  Padrões universais de autenticação JWT com Spring Security — geração de token,
-  filtro de autenticação, blocklist de logout e armazenamento seguro no frontend.
-  Usar ao configurar autenticação em qualquer projeto Spring Boot + frontend.
+  Universal JWT authentication patterns with Spring Security — token generation,
+  authentication filter, logout blocklist, and secure frontend storage.
+  Use when configuring authentication in any Spring Boot + frontend project.
 ---
 
-# Skill: Autenticação JWT (Universal)
+# Skill: JWT Authentication (Universal)
 
-## O que é esta skill
+## What this skill is
 
-Padrões universais de autenticação JWT para qualquer projeto Spring Boot + frontend.
-Usar ao implementar autenticação, configurar Spring Security, ou ao definir onde
-e como armazenar tokens no cliente.
+Universal JWT authentication patterns for any Spring Boot + frontend project.
+Use when implementing authentication, configuring Spring Security, or deciding where
+and how to store tokens on the client.
 
 ---
 
-## Fluxo de autenticação
+## Authentication flow
 
 ```
-[Cliente] → POST /api/auth/login {credenciais}
+[Client] → POST /api/auth/login {credentials}
                ↓
 [AuthService]
-  1. Verificar credenciais (hash da senha)
-  2. Gerar JWT com JTI único (UUID)
-  3. Retornar {token, expiresIn}
+  1. Verify credentials (password hash)
+  2. Generate JWT with unique JTI (UUID)
+  3. Return {token, expiresIn}
                ↓
-[Cliente] → injeta token em cada request: Authorization: Bearer <token>
+[Client] → injects token into each request: Authorization: Bearer <token>
                ↓
-[JwtAuthenticationFilter] (em cada request protegida)
-  1. Extrair token do header
-  2. Validar assinatura e expiração
-  3. Verificar se JTI não está na BlockedToken table
-  4. Setar SecurityContext
+[JwtAuthenticationFilter] (on each protected request)
+  1. Extract token from header
+  2. Validate signature and expiration
+  3. Check whether JTI is not in the BlockedToken table
+  4. Set SecurityContext
 ```
 
 ---
 
-## Configuração segura
+## Secure configuration
 
 ```java
-// Nunca hardcode o secret — usar variável de ambiente
+// Never hardcode the secret — use an environment variable
 @Value("${app.jwt.secret}")
 private String jwtSecret;
 
-// HMAC-SHA256 é suficiente para a maioria dos casos
-// Para requisitos mais altos: RS256 com par de chaves
+// HMAC-SHA256 is sufficient for most cases
+// For higher requirements: RS256 with a key pair
 private SecretKey signingKey() {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
 }
 ```
 
 ```bash
-# Gerar segredo seguro (256 bits)
+# Generate a secure secret (256 bits)
 openssl rand -hex 32
 ```
 
 ---
 
-## Estrutura de tabela para blocklist (logout)
+## Table structure for blocklist (logout)
 
 ```sql
 CREATE TABLE blocked_tokens (
@@ -67,39 +67,39 @@ CREATE TABLE blocked_tokens (
     expires_at TIMESTAMPTZ NOT NULL
 );
 
--- Índice parcial para performance
+-- Partial index for performance
 CREATE INDEX idx_blocked_tokens_active
     ON blocked_tokens(jti) WHERE expires_at > NOW();
 
--- Limpeza automática de tokens expirados
+-- Automatic cleanup of expired tokens
 DELETE FROM blocked_tokens WHERE expires_at < NOW();
 ```
 
 ---
 
-## Armazenamento de token no cliente
+## Client-side token storage
 
-| Opção | Persiste F5? | Persiste fechar aba? | Recomendação |
-|-------|-------------|---------------------|-------------|
-| `sessionStorage` | ✅ Sim | ❌ Não | ✅ Recomendado |
-| `localStorage` | ✅ Sim | ✅ Sim | ❌ Evitar |
-| Memória (var) | ❌ Não | ❌ Não | Para sessões muito curtas |
-| Cookie `HttpOnly` | ✅ Sim | Depende | ✅ Para SSR |
+| Option | Persists after F5? | Persists after tab close? | Recommendation |
+|--------|--------------------|---------------------------|----------------|
+| `sessionStorage` | ✅ Yes | ❌ No | ✅ Recommended |
+| `localStorage` | ✅ Yes | ✅ Yes | ❌ Avoid |
+| Memory (var) | ❌ No | ❌ No | For very short sessions |
+| `HttpOnly` cookie | ✅ Yes | Depends | ✅ For SSR |
 
-**Regra:** Use `sessionStorage` para SPAs onde a sessão deve sobreviver a F5
-mas não ao fechamento da aba. Nunca `localStorage`.
-
----
-
-## Erros comuns
-
-| Erro | Causa | Solução |
-|------|-------|---------|
-| JWT_SECRET em código | Hardcode de segredo | Sempre via variável de ambiente |
-| Token sem expiração | `expiration()` não configurado | Sempre definir expiração (padrão: 24h) |
-| Logout não invalida token | Sem blocklist | Implementar BlockedToken table |
-| Token em localStorage | Risco de XSS | Migrar para sessionStorage ou HttpOnly cookie |
+**Rule:** Use `sessionStorage` for SPAs where the session should survive F5
+but not tab close. Never `localStorage`.
 
 ---
 
-*Template universal — `.github/base/skills/be-jwt-auth-patterns.md`*
+## Common mistakes
+
+| Mistake | Cause | Solution |
+|---------|-------|----------|
+| JWT_SECRET in code | Secret hardcoded | Always use an environment variable |
+| Token without expiration | `expiration()` not configured | Always define expiration (default: 24h) |
+| Logout does not invalidate token | No blocklist | Implement BlockedToken table |
+| Token in localStorage | XSS risk | Move to sessionStorage or HttpOnly cookie |
+
+---
+
+*Universal template — `.github/base/skills/be-jwt-auth-patterns.md`*

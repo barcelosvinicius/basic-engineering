@@ -1,120 +1,120 @@
-# Guia de Onboarding — [PROJETO]
+# Onboarding Guide — [PROJECT]
 
-> **Para novos membros da equipe** — humanos ou agentes IA.
+> **For new team members** — humans or AI agents.
 
-## Boas-vindas
+## Welcome
 
-<!-- CUSTOMIZAR -->
-Bem-vindo ao [PROJETO]! Este guia vai te ajudar a entender o sistema,
-configurar o ambiente e contribuir com qualidade desde o primeiro dia.
-
----
-
-## Em 5 minutos: o que é este projeto
-
-<!-- CUSTOMIZAR — responder as 3 perguntas -->
-**O que faz:** [funcionalidade principal em 1-2 frases]
-**Para quem:** [usuários finais]
-**Por que existe:** [problema que resolve]
+<!-- CUSTOMIZE -->
+Welcome to [PROJECT]! This guide will help you understand the system,
+set up the environment, and contribute with quality from day one.
 
 ---
 
-## Mapa de onde encontrar cada coisa
+## In 5 minutes: what this project is
 
-| Quero saber... | Onde está |
-|----------------|-----------|
-| O que é o projeto | `.github/copilot-instructions.md` |
-| Princípios de engenharia | `.github/base/principios-engenharia.md` |
-| O que está acontecendo agora | `docs/HISTORICO.md` |
-| O que está pendente | `docs/arquitetura/analise-estrutural.md` |
-| Os requisitos | `docs/especificacao/REQUISITOS.md` |
-| A arquitetura técnica | `docs/arquitetura/architecture.md` |
-| Como fazer X no backend | `.github/skills/be-*.md` |
-| Como fazer X no frontend | `.github/skills/fe-*.md` |
-| Decisões arquiteturais | `docs/adr/` |
-| Lições aprendidas | `docs/arquitetura/lessons-learned.md` |
+<!-- CUSTOMIZE — answer these 3 questions -->
+**What it does:** [main functionality in 1-2 sentences]
+**Who it is for:** [end users]
+**Why it exists:** [problem it solves]
 
 ---
 
-## Setup do ambiente
+## Map of where to find everything
 
-<!-- CUSTOMIZAR -->
+| I want to know... | Where it is |
+|-------------------|-------------|
+| What the project is | `.github/copilot-instructions.md` |
+| Engineering principles | `.github/base/engineering-principles.md` |
+| What is happening now | `docs/HISTORY.md` |
+| What is pending | `docs/arquitetura/structural-analysis.md` |
+| The requirements | `docs/especificacao/REQUISITOS.md` |
+| The technical architecture | `docs/arquitetura/architecture.md` |
+| How to do X in the backend | `.github/skills/be-*.md` |
+| How to do X in the frontend | `.github/skills/fe-*.md` |
+| Architectural decisions | `docs/adr/` |
+| Lessons learned | `docs/arquitetura/lessons-learned.md` |
 
-### Pré-requisitos
+---
+
+## Environment setup
+
+<!-- CUSTOMIZE -->
+
+### Prerequisites
 
 ```bash
-# Verificar versões
-[listar comandos de verificação]
+# Check versions
+[list verification commands]
 ```
 
-### Passos
+### Steps
 
 ```bash
 # 1. Clone
 git clone [url]
-cd [projeto]
+cd [project]
 
-# 2. Variáveis de ambiente
+# 2. Environment variables
 cp .env.example .env
-# Editar .env com valores de dev
+# Edit .env with dev values
 
-# 3. Subir stack
-[comando]
+# 3. Start the stack
+[command]
 
-# 4. Verificar saúde
-[comando de health check]
+# 4. Verify health
+[health check command]
 ```
 
 ---
 
-## Primeiro fluxo para entender o sistema
+## First flow to understand the system
 
-<!-- CUSTOMIZAR — listar fluxo manual que dá visão geral do sistema -->
+<!-- CUSTOMIZE — list a manual flow that gives an overview of the system -->
 ```
-1. [passo 1]
-2. [passo 2]
-3. [passo 3]
-```
-
----
-
-## Fluxo de desenvolvimento
-
-```
-1. Escolher uma issue do backlog
-2. Criar branch: git checkout -b feature/ISSUE-NNN-descricao
-3. Implementar (seguindo skills relevantes)
-4. Escrever testes (cobertura ≥ meta)
-5. git commit -m "feat(escopo): descrição"
-6. Abrir PR usando template
-7. Aguardar CI e review
+1. [step 1]
+2. [step 2]
+3. [step 3]
 ```
 
 ---
 
-## Convenções resumidas
+## Development flow
 
-<!-- CUSTOMIZAR com as convenções principais do projeto -->
+```
+1. Choose an issue from the backlog
+2. Create a branch: git checkout -b feature/ISSUE-NNN-description
+3. Implement (following the relevant skills)
+4. Write tests (coverage ≥ target)
+5. git commit -m "feat(scope): description"
+6. Open a PR using the template
+7. Wait for CI and review
+```
 
-| Aspecto | Convenção |
-|---------|-----------|
+---
+
+## Summary conventions
+
+<!-- CUSTOMIZE with the project's main conventions -->
+
+| Aspect | Convention |
+|--------|------------|
 | Commits | Conventional Commits |
 | Branches | `feature/`, `fix/`, `chore/` |
-| Testes | AAA pattern, cobertura ≥ [N]% |
-| [outro] | [convenção] |
+| Tests | AAA pattern, coverage ≥ [N]% |
+| [other] | [convention] |
 
 ---
 
-## Perguntas frequentes
+## Frequently asked questions
 
-<!-- CUSTOMIZAR com as dúvidas mais comuns de quem está começando -->
+<!-- CUSTOMIZE with the most common questions for new contributors -->
 
-**"Onde fica a lógica de negócio?"**
-→ [resposta]
+**"Where is the business logic?"**
+→ [answer]
 
-**"Por que [decisão técnica]?"**
-→ Ver ADR em `docs/adr/`
+**"Why [technical decision]?"**
+→ See the ADR in `docs/adr/`
 
 ---
 
-*Template — `.github/base/docs/onboarding.template.md` · Customize para cada projeto*
+*Template — `.github/base/docs/onboarding.template.md` · Customize for each project*
