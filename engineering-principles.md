@@ -771,8 +771,7 @@ convention, history becomes noise and traceability disappears.
 - **Protected main branch**: `main` (or `master`) does not accept direct push.
   Feature branches with type prefix: `feat/`, `fix/`, `docs/`, `refactor/`,
   `test/`, `chore/`.
-- **AI agent branches**: `copilot/` as a prefix — allows tracking and filtering
-  automated versus human contributions.
+- **AI agent branches**: `ai/` as a generic prefix for automated contributions (e.g., `ai/feat-login`); tool-specific prefixes are also valid (`copilot/` for GitHub Copilot). Using a consistent AI prefix allows tracking and filtering automated versus human contributions.
 - **Conventional Commits**: messages in the format `type(scope): short description`.
   Types: `feat`, `fix`, `docs`, `refactor`, `test`, `ci`, `chore`.
   Example: `feat(transaction): add CSV duplicate detection by hash`.
@@ -894,7 +893,7 @@ To document technical changes, follow the **Problem > Cause > Solution** model:
 
 ## Appendix A — AI-Assisted Documentation Protocol
 
-> This appendix guides AI assistants (Copilot, Claude, etc.) on how to conduct
+> This appendix guides AI assistants (Copilot, Claude, Cursor, Gemini, etc.) on how to conduct
 > the documentary structuring of a project after reading this principles guide.
 > The goal is to generate living, versioned, actionable technical documentation — not
 > bureaucratic artifacts that nobody consults.
@@ -902,7 +901,8 @@ To document technical changes, follow the **Problem > Cause > Solution** model:
 ### A.1 Documentation Onboarding Flow
 
 After reading this file (`engineering-principles.md`) together with any
-project-specific instructions (e.g., `copilot-instructions.md`), the AI must conduct the
+project-specific instructions (see BOOTSTRAP.md for the tool-specific filename — e.g.,
+`copilot-instructions.md`, `CLAUDE.md`, `.cursorrules`), the AI must conduct the
 following flow of questions with the user, **in the order presented**:
 
 ---
@@ -1126,8 +1126,8 @@ When presented with these documents together with a project's code:
    decisions, or lessons.
 7. **Never duplicate** content between documents — reference via relative
    path or section number.
-8. **Consult specialized agents** if the repository has Copilot agents
-   or configured assistants — delegate tasks to the correct domain agent.
+8. **Consult specialized agents** if the repository has configured AI agents —
+   delegate tasks to the correct domain agent.
 9. **Keep comments on key functions** according to §11.2 — document business
    rules, constraints, and design decisions directly in the source code.
 10. **Update `HISTORY.md` at the end** (mandatory action) — record deliveries,
@@ -1206,3 +1206,105 @@ questions automated suggestions, and directs analyses with clarity.
 
 > *"It is not enough to simply follow what the AI brings; it is also necessary to understand it
 > in order to direct decisions and analyses clearly and directly."*
+
+---
+
+## Appendix C — Context as Graph: Depth and Breadth
+
+> This appendix defines how AI assistants (and human contributors) should load
+> project context efficiently. The goal is to maximize output quality while
+> minimizing token consumption — treating context management as an engineering
+> discipline, not an afterthought.
+
+### C.1 The Context Graph Model
+
+A project's documentation forms a directed graph. Each node is a document
+or artifact; each edge is a "this requires that" dependency. Loading context
+is a traversal problem.
+
+```
+engineering-principles.md       ← root: universal rules
+    ↓
+AI context file (LAYER 1)        ← project: what this system is and its rules
+    ↓
+*.agent.md (LAYER 2)             ← role: who is doing this session
+    ↓
+*.skill.md (LAYER 3)             ← method: how to do this specific thing
+    ↓
+.specify/specs/[feature].md      ← scope: what this feature must do
+    ↓
+.specify/tasks/[task].md         ← unit: what this session implements
+```
+
+Each layer is narrower and more specific. Moving up the graph costs tokens
+but reduces ambiguity. Moving down costs fewer tokens but may miss context.
+
+### C.2 Depth-First Traversal (default)
+
+**Purpose:** implement a known, scoped task.
+
+**Load sequence:**
+1. AI context file — project context (always)
+2. `.specify/tasks/[current-task].md` — task scope and verification
+3. `.specify/specs/[feature].md` — feature requirements (if needed)
+4. `git status` — uncommitted state
+
+**Token cost:** minimal (~200–500 lines of critical context).
+**Rule:** This is the default for all implementation sessions. Do not load
+documents outside this scope unless a dependency error requires it.
+
+### C.3 Breadth-First Traversal (situational)
+
+**Purpose:** navigate across features, plan, or diagnose a cross-cutting issue.
+
+**Load sequence:**
+1. AI context file — project context (always)
+2. `docs/INDEX.md` — project map and navigation routes
+3. `docs/structural-analysis.md` — technical state and pending items
+4. `docs/HISTORY.md` — operational state and blockers (if relevant)
+
+**Token cost:** higher (~400–800 lines).
+**Rule:** Use only when starting a new feature, writing a spec or plan,
+or diagnosing a bug that crosses multiple modules.
+
+### C.4 Token Efficiency Rules
+
+| Rule | Rationale |
+|------|-----------|
+| Default to depth-first | Most sessions have a defined task; broad context is noise |
+| Load `engineering-principles.md` rarely | It is immutable; load once per onboarding, not per session |
+| Load role agents only when switching roles | An implementation session does not need the PO agent |
+| Never load the entire project for a single task | Context window is a resource — treat it as one |
+| Prefer reading task spec over reconstructing context | The spec exists so you do not have to re-explain |
+
+### C.5 Relationship with SDD
+
+Spec-Driven Development (see `skills/proc-sdd.md`) is the structural
+practice that makes depth-first traversal possible. Without a task spec
+file, the AI has no well-defined leaf node to target and must instead
+load broad context to infer scope — which is expensive and imprecise.
+
+The graph model and SDD are complementary:
+- **SDD** creates the leaf nodes (task files) that depth-first traversal targets.
+- **The graph model** defines *how* to load those nodes efficiently.
+
+Projects that adopt both practices consistently reduce per-session token
+consumption by 50–70% compared to sessions without structured context,
+while improving output consistency across sessions.
+
+### C.6 Saving Tokens as Responsible Engineering
+
+Token efficiency is not a cost-optimization trick. It is a principle of
+responsible AI use:
+
+- **Quality:** a focused context produces more consistent outputs than a
+  noisy one. The AI's reasoning degrades as the context window fills with
+  irrelevant information.
+- **Cost:** reduced token consumption directly reduces operational costs
+  at any scale.
+- **Sustainability:** in systems used at high volume, unnecessary context
+  loading has a real energy cost.
+
+> *Saving tokens is not about being cheap — it is about being precise.*
+> *Precision in context is precision in output.*
+
