@@ -1,176 +1,176 @@
-# 🚀 BOOTSTRAP — Guia de Início de Projeto
+# 🚀 BOOTSTRAP — Project Kickoff Guide
 
-> **Este é o primeiro arquivo a ler em qualquer projeto novo.**
+> **This is the first file to read in any new project.**
 >
-> Define a estrutura completa do sistema de documentação + agents + skills e a
-> sequência exata de criação. Tudo que está em `.github/base/` pode ser copiado
-> para qualquer projeto de software. O restante é específico de cada projeto.
+> It defines the complete structure of the documentation + agents + skills system and the
+> exact creation sequence. Everything in `.github/base/` can be copied
+> to any software project. The rest is project-specific.
 
 ---
 
-## Pré-requisitos
+## Prerequisites
 
-Antes de começar, certifique-se de ter:
+Before starting, make sure you have:
 
-- **Git** ≥ 2.x instalado
-- **curl** ou **wget** (para verificação de versão)
-- Acesso ao [repositório da base](https://github.com/barcelosvinicius/basic-engineering)
-- Uma conta GitHub com permissão para criar repositórios
+- **Git** ≥ 2.x installed
+- **curl** or **wget** (for version checking)
+- Access to the [base repository](https://github.com/barcelosvinicius/basic-engineering)
+- A GitHub account with permission to create repositories
 
 ---
 
-## Passo 0 — Verificação de versão
+## Step 0 — Version check
 
-> **Sempre execute esta verificação antes de usar ou atualizar a base.**
+> **Always run this check before using or updating the base.**
 
-Ao copiar a base para um projeto novo — ou após retornar a um projeto antigo — confirme
-que sua cópia está na versão mais recente:
+When copying the base to a new project — or after returning to an old project — confirm
+that your copy is on the latest version:
 
 ```bash
 bash check-version.sh
 ```
 
-| Resultado | Ação |
-|-----------|------|
-| ✅ `Sua base está atualizada` | Prossiga para o Passo 1 |
-| 🔄 `Atualização disponível` | Baixe o `base-atualizacao.zip` mais recente e siga o procedimento de atualização abaixo |
-| ⚠️ Sem conexão / erro | Prossiga com cautela; verifique a versão manualmente em `BASE_VERSION` |
+| Result | Action |
+|--------|--------|
+| ✅ `Your base is up to date` | Proceed to Step 1 |
+| 🔄 `Update available` | Download the latest `base-atualizacao.zip` and follow the update procedure below |
+| ⚠️ No connection / error | Proceed with caution; check the version manually in `BASE_VERSION` |
 
-### Como atualizar
+### How to update
 
-1. Acesse o [repositório da base](https://github.com/barcelosvinicius/basic-engineering) e baixe `base-atualizacao.zip`
-2. Extraia sobre a pasta `.github/base/` do seu projeto (sobrescreve apenas arquivos universais)
-3. Execute `bash check-version.sh` novamente para confirmar
-4. Revise o `CHANGELOG` da base e adapte seus agents/skills se necessário
+1. Go to the [base repository](https://github.com/barcelosvinicius/basic-engineering) and download `base-atualizacao.zip`
+2. Extract it over your project's `.github/base/` folder (it overwrites only universal files)
+3. Run `bash check-version.sh` again to confirm
+4. Review the base `CHANGELOG` and adapt your agents/skills if necessary
 
-> **Nota:** Arquivos customizados (`copilot-instructions.md`, `agents/`, `docs/`) nunca são
-> sobrescritos pela atualização — são específicos do seu projeto.
-
----
-
-## O que é `.github/base/`
-
-A pasta `base/` contém os **arquivos fundacionais universais** — aqueles que funcionam
-em qualquer projeto de software, independente de stack, domínio ou tamanho.
-
-| Arquivo / Pasta | Tipo | O que faz |
-|-----------------|------|-----------|
-| `BOOTSTRAP.md` (este) | Universal | Explica a estrutura e a sequência de criação |
-| `principios-engenharia.md` | Universal | Princípios de engenharia independentes de tecnologia |
-| `roles/` | Templates | Esqueletos reutilizáveis para cada papel de agente (9 templates) |
-| `skills/` | Universal | Skills universais copiáveis para qualquer projeto |
-
-**Regra de ouro:** Se um arquivo contém nomes, tecnologias ou decisões de um projeto
-específico → vai em `docs/` ou `.github/agents/` (projeto). Se funciona em qualquer
-projeto → vai em `.github/base/`.
+> **Note:** Customized files (`copilot-instructions.md`, `agents/`, `docs/`) are never
+> overwritten by the update — they are specific to your project.
 
 ---
 
-## As 5 camadas do sistema de documentação
+## What is `.github/base/`
+
+The `base/` folder contains the **universal foundational files** — the ones that work
+in any software project, regardless of stack, domain, or size.
+
+| File / Folder | Type | What it does |
+|---------------|------|--------------|
+| `BOOTSTRAP.md` (this file) | Universal | Explains the structure and creation sequence |
+| `engineering-principles.md` | Universal | Engineering principles independent of technology |
+| `roles/` | Templates | Reusable skeletons for each agent role (9 templates) |
+| `skills/` | Universal | Universal skills that can be copied to any project |
+
+**Golden rule:** If a file contains names, technologies, or decisions from a
+specific project → it belongs in `docs/` or `.github/agents/` (project). If it works in any
+project → it belongs in `.github/base/`.
+
+---
+
+## The 5 layers of the documentation system
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  CAMADA 0 — FUNDAÇÃO FILOSÓFICA          (.github/base/)        │
-│  principios-engenharia.md                                        │
-│  "Como pensar sobre software" — universal, imutável por projeto  │
+│  LAYER 0 — PHILOSOPHICAL FOUNDATION       (.github/base/)       │
+│  engineering-principles.md                                        │
+│  "How to think about software" — universal, immutable per project │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ informa
+                           │ informs
 ┌──────────────────────────▼──────────────────────────────────────┐
-│  CAMADA 1 — CONTEXTO DO PROJETO         (.github/)              │
+│  LAYER 1 — PROJECT CONTEXT            (.github/)                │
 │  copilot-instructions.md                                         │
-│  "O que é este projeto e suas regras" — específico              │
+│  "What this project is and its rules" — specific                │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ consulta
+                           │ consults
 ┌──────────────────────────▼──────────────────────────────────────┐
-│  CAMADA 2 — PAPÉIS ESPECIALIZADOS       (.github/agents/)       │
+│  LAYER 2 — SPECIALIZED ROLES         (.github/agents/)          │
 │  dev-backend.agent.md, qa-engineer.agent.md, ...                │
-│  "Quem faz o quê" — templates em base/roles/, customizados      │
+│  "Who does what" — templates in base/roles/, customized         │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ usa
+                           │ uses
 ┌──────────────────────────▼──────────────────────────────────────┐
-│  CAMADA 3 — CONHECIMENTO TÉCNICO        (.github/skills/)       │
-│  be-pagination.md, fe-ux-patterns.md, proc-session-continuity, ...  │
-│  "Como fazer" — domínio e stack específicos                     │
+│  LAYER 3 — TECHNICAL KNOWLEDGE       (.github/skills/)          │
+│  be-pagination.md, fe-ux-patterns.md, proc-session-continuity, ... │
+│  "How to do it" — domain- and stack-specific                    │
 └──────────────────────────┬──────────────────────────────────────┘
-                           │ atualiza
+                           │ updates
 ┌──────────────────────────▼──────────────────────────────────────┐
-│  CAMADA 4 — DOCUMENTAÇÃO VIVA           (docs/)                 │
-│  HISTORICO.md, analise-estrutural.md, lessons-learned.md, ...  │
-│  "O que foi feito e o que falta" — muda a cada sessão           │
+│  LAYER 4 — LIVING DOCUMENTATION      (docs/)                    │
+│  HISTORY.md, structural-analysis.md, lessons-learned.md, ...   │
+│  "What was done and what remains" — changes every session       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Hierarquia de autoridade (em caso de conflito, prevalece o mais específico)
+## Authority hierarchy (if there is conflict, the most specific prevails)
 
 ```
-principios-engenharia.md   (mais genérico — regras universais)
-    ↓ especializa
-copilot-instructions.md    (contexto do projeto)
-    ↓ especializa
-*.agent.md                 (papel e responsabilidades)
-    ↓ especializa
-*.skill.md                 (como fazer — mais específico)
+engineering-principles.md  (most generic — universal rules)
+    ↓ specializes
+copilot-instructions.md    (project context)
+    ↓ specializes
+*.agent.md                 (role and responsibilities)
+    ↓ specializes
+*.skill.md                 (how to do it — most specific)
 ```
 
 ---
 
-## Sequência de criação — novo projeto do zero
+## Creation sequence — new project from scratch
 
-### Passo 1 — Copiar a base universal
+### Step 1 — Copy the universal base
 
 ```bash
-cp -r .github/base/ novo-projeto/.github/base/
+cp -r .github/base/ new-project/.github/base/
 cp .github/base/skills/proc-session-continuity.md \
-   novo-projeto/.github/skills/proc-session-continuity.md
+   new-project/.github/skills/proc-session-continuity.md
 ```
 
-Arquivos copiados **sem editar**:
-- ✅ `BOOTSTRAP.md` — este arquivo
-- ✅ `principios-engenharia.md` — princípios universais (inclui Apêndice A e B)
-- ✅ `skills/proc-session-continuity.md` — protocolo de sessão universal
+Files copied **without editing**:
+- ✅ `BOOTSTRAP.md` — this file
+- ✅ `engineering-principles.md` — universal principles (includes Appendix A and B)
+- ✅ `skills/proc-session-continuity.md` — universal session protocol
 
-Templates a customizar (copie de `base/roles/` para `agents/`):
-- ⚙️ `roles/*.template.md` → customize e salve como `agents/[prefixo]-[nome].agent.md`
+Templates to customize (copy from `base/roles/` to `agents/`):
+- ⚙️ `roles/*.template.md` → customize and save as `agents/[prefix]-[name].agent.md`
 
 ---
 
-### Passo 2 — Criar `copilot-instructions.md`
+### Step 2 — Create `copilot-instructions.md`
 
-Copie `base/copilot-instructions.template.md` para `.github/copilot-instructions.md`
-e preencha todas as seções marcadas com `<!-- CUSTOMIZAR -->`.
+Copy `base/copilot-instructions.template.md` to `.github/copilot-instructions.md`
+and fill in all sections marked with `<!-- CUSTOMIZE -->`.
 
-Este arquivo é lido pelo GitHub Copilot em **toda** sessão de qualquer agente.
-É o ponto de maior impacto — se desatualizar, todos os agentes perdem contexto.
+This file is read by GitHub Copilot in **every** session of any agent.
+It is the highest-impact point — if it becomes outdated, all agents lose context.
 
-Seções obrigatórias:
+Mandatory sections:
 ```
-# Copilot Instructions — [Nome do Projeto]
-## Sobre o projeto         ← 2-3 frases: o que faz, para quem, tecnologias
-## Arquitetura             ← tabela: Camada | Tecnologia | Porta
-## Estrutura do repositório ← árvore de pastas principais
-## Convenções — Backend    ← padrões da linguagem/framework
-## Convenções — Frontend   ← padrões do framework de UI
-## Segurança               ← autenticação, autorização, segredos
-## Regras de negócio       ← 3-5 regras críticas do domínio
-## O que NÃO fazer         ← anti-patterns proibidos
+# Copilot Instructions — [Project Name]
+## About the project       ← 2-3 sentences: what it does, for whom, technologies
+## Architecture            ← table: Layer | Technology | Port
+## Repository structure    ← main folder tree
+## Conventions — Backend   ← language/framework patterns
+## Conventions — Frontend  ← UI framework patterns
+## Security                ← authentication, authorization, secrets
+## Business rules          ← 3-5 critical domain rules
+## What NOT to do          ← forbidden anti-patterns
 ```
 
 ---
 
-### Passo 3 — Criar os agents
+### Step 3 — Create the agents
 
-Para cada papel necessário, copie o template correto e customize:
+For each required role, copy the correct template and customize it:
 
-| Template base | Renomear para |
+| Base template | Rename to |
 |---|---|
 | `roles/dev-backend.template.md` | `agents/dev-backend-developer.agent.md` |
 | `roles/dev-frontend.template.md` | `agents/dev-frontend-developer.agent.md` |
 | `roles/dev-data-analyst.template.md` | `agents/dev-data-analyst.agent.md` |
 | `roles/mgmt-product-owner.template.md` | `agents/mgmt-product-owner.agent.md` |
 | `roles/mgmt-project-manager.template.md` | `agents/mgmt-project-manager.agent.md` |
-| `roles/mgmt-domain-expert.template.md` | `agents/mgmt-[dominio]-advisor.agent.md` |
+| `roles/mgmt-domain-expert.template.md` | `agents/mgmt-[domain]-advisor.agent.md` |
 | `roles/mgmt-architect.template.md` | `agents/mgmt-architect.agent.md` |
 | `roles/qa-engineer.template.md` | `agents/qa-engineer.agent.md` |
 | `roles/qa-security-reviewer.template.md` | `agents/qa-security-reviewer.agent.md` |
@@ -178,177 +178,177 @@ Para cada papel necessário, copie o template correto e customize:
 | `roles/infra-devops.template.md` | `agents/infra-devops-engineer.agent.md` |
 | `roles/ops-sre.template.md` | `agents/ops-sre.agent.md` |
 
-Cada agent **obrigatoriamente** deve ter:
-- [ ] Frontmatter YAML com `name` e `description`
-- [ ] Seção de tecnologias específicas do projeto
-- [ ] Seção de padrões de código obrigatórios
-- [ ] Protocolo de sessão: referência a `proc-session-continuity`
-- [ ] Seção `## Delegação automática` com tabela de triggers
-- [ ] Checklist de entrega (Definition of Done do papel)
+Each agent **must** have:
+- [ ] YAML frontmatter with `name` and `description`
+- [ ] Project-specific technologies section
+- [ ] Mandatory code patterns section
+- [ ] Session protocol: reference to `proc-session-continuity`
+- [ ] `## Automatic delegation` section with a trigger table
+- [ ] Delivery checklist (Definition of Done for the role)
 
-> **Nota:** Use apenas os agents relevantes para o projeto. Um projeto simples pode
-> não precisar de data-analyst ou pentest-engineer. Instanciar agents sem uso real
-> gera ruído de contexto.
+> **Note:** Use only the agents relevant to the project. A simple project may
+> not need a data analyst or pentest engineer. Instantiating agents without real use
+> creates context noise.
 
 ---
 
-### Passo 4 — Criar as skills e regras SAST
+### Step 4 — Create the skills and SAST rules
 
-Skills são conhecimento técnico reutilizável que os agents consultam sob demanda.
-Use `base/roles/skill.template.md` como ponto de partida para cada nova skill.
+Skills are reusable technical knowledge that agents consult on demand.
+Use `base/roles/skill.template.md` as the starting point for each new skill.
 
-**Criar regras Semgrep customizadas (`.semgrep/rules/`):**
+**Create custom Semgrep rules (`.semgrep/rules/`):**
 
-Além das skills, todo projeto deve ter regras SAST customizadas que refletem
-as convenções e riscos específicos do domínio. Organizadas por linguagem:
+In addition to skills, every project must have custom SAST rules that reflect
+its domain-specific conventions and risks. Organized by language:
 
 ```
 .semgrep/
   rules/
-    [linguagem-backend]/    # ex: java/, python/, go/
-      no-secret-hardcoded.yml    — segredos no código
-      no-sensitive-logging.yml   — log de dados sensíveis
-      no-weak-hash.yml           — hash fraco para senhas
-      no-insecure-random.yml     — PRNG não criptográfico
-      no-sql-string-concat.yml   — SQL injection por concatenação
-    [linguagem-frontend]/   # ex: typescript/
-      no-localstorage-auth.yml   — token em localStorage
-      no-console-log-sensitive.yml — log no console
-      no-innerhtml-xss.yml       — XSS por innerHTML
+    [backend-language]/    # e.g.: java/, python/, go/
+      no-secret-hardcoded.yml    — secrets in code
+      no-sensitive-logging.yml   — sensitive data logging
+      no-weak-hash.yml           — weak password hashing
+      no-insecure-random.yml     — non-cryptographic PRNG
+      no-sql-string-concat.yml   — SQL injection by concatenation
+    [frontend-language]/   # e.g.: typescript/
+      no-localstorage-auth.yml   — token in localStorage
+      no-console-log-sensitive.yml — console logging
+      no-innerhtml-xss.yml       — XSS by innerHTML
       no-eval.yml                — eval() / new Function()
 ```
 
-Consulte a skill `infra-ci-cd.md` para o template de regra e workflow completo.
+See the `infra-ci-cd.md` skill for the full rule and workflow template.
 
-**Skills universais (copiar de `base/skills/`):**
-- `proc-session-continuity.md` — protocolo obrigatório de sessão (já copiado no Passo 1)
-- `proc-code-review.md` — protocolo de revisão de código entre agentes
-- `proc-release-checklist.md` — checklist pré-go-live universal
-- `proc-adr.md` — processo de Architectural Decision Records
-- `proc-changelog.md` — geração de CHANGELOG com Keep a Changelog + SemVer
-- `proc-skill-creator.md` — meta-skill para criação de novas skills
-- `proc-learning-trail.md` — trilha de estudos para documentar práticas adotadas
-- `fe-ux-patterns.md` — hierarquia visual, cores, estados de carregamento, formulários
-- `fe-accessibility-patterns.md` — HTML semântico, ARIA, teclado, contraste WCAG
-- `be-pagination-patterns.md` — paginação offset e cursor, Spring Boot + Angular
-- `be-api-versioning.md` — estratégia `/v1/`, ciclo de vida, migração sem breaking change
-- `be-api-error-handling.md` — hierarquia de exceções, status HTTP, ProblemDetail
-- `be-jwt-auth-patterns.md` — JWT, blocklist de tokens, sessionStorage
-- `be-flyway-migrations.md` — migrations com Flyway, nomenclatura, idempotência
-- `qa-test-data-builders.md` — TestFixtures, builder pattern, padrão AAA
-- `infra-ci-cd.md` — pipeline CI/CD com Semgrep SAST, OWASP Dependency Check, Dependabot, Conventional Commits
+**Universal skills (copy from `base/skills/`):**
+- `proc-session-continuity.md` — mandatory session protocol (already copied in Step 1)
+- `proc-code-review.md` — code review protocol between agents
+- `proc-release-checklist.md` — universal pre-go-live checklist
+- `proc-adr.md` — Architectural Decision Records process
+- `proc-changelog.md` — CHANGELOG generation with Keep a Changelog + SemVer
+- `proc-skill-creator.md` — meta-skill for creating new skills
+- `proc-learning-trail.md` — learning trail for documenting adopted practices
+- `fe-ux-patterns.md` — visual hierarchy, colors, loading states, forms
+- `fe-accessibility-patterns.md` — semantic HTML, ARIA, keyboard, WCAG contrast
+- `be-pagination-patterns.md` — offset and cursor pagination, Spring Boot + Angular
+- `be-api-versioning.md` — `/v1/` strategy, lifecycle, migration without breaking change
+- `be-api-error-handling.md` — exception hierarchy, HTTP statuses, ProblemDetail
+- `be-jwt-auth-patterns.md` — JWT, token blocklist, sessionStorage
+- `be-flyway-migrations.md` — Flyway migrations, naming, idempotency
+- `qa-test-data-builders.md` — TestFixtures, builder pattern, AAA pattern
+- `infra-ci-cd.md` — CI/CD pipeline with Semgrep SAST, OWASP Dependency Check, Dependabot, Conventional Commits
 
-**Skills a criar do zero (específicas do projeto):**
+**Skills to create from scratch (project-specific):**
 
-| Prefixo | Camada | Exemplos comuns |
-|---------|--------|-----------------|
+| Prefix | Layer | Common examples |
+|--------|-------|-----------------|
 | `be-` | Backend | jwt-auth, csv-import, migrations, error-handling, calculations |
 | `fe-` | Frontend | chart-patterns, state-management, form-patterns |
-| `da-` | Dados | analytics, reporting, insight-detection |
-| `qa-` | Qualidade | test-builders, e2e-patterns, security-checklist |
-| `infra-` | Infraestrutura | ci-cd, deploy, observability |
-| `proc-` | Processo | session-continuity, code-review, release-checklist |
+| `da-` | Data | analytics, reporting, insight-detection |
+| `qa-` | Quality | test-builders, e2e-patterns, security-checklist |
+| `infra-` | Infrastructure | ci-cd, deploy, observability |
+| `proc-` | Process | session-continuity, code-review, release-checklist |
 
-Cada skill deve responder à pergunta: **"Como fazer X neste projeto?"**
-Não deve conter decisões de alto nível (isso é do agent) — apenas o "como" concreto.
+Each skill must answer the question: **"How do I do X in this project?"**
+It must not contain high-level decisions (that belongs to the agent) — only the concrete "how".
 
 ---
 
-### Passo 5 — Inicializar a documentação viva
+### Step 5 — Initialize the living documentation
 
-Crie os arquivos em `docs/` usando os templates abaixo como ponto de partida:
+Create the files in `docs/` using the templates below as a starting point:
 
 ```
 docs/
-├── INDICE.md              ← adaptar template de base/docs/INDICE.template.md
-├── HISTORICO.md           ← adaptar template de base/docs/HISTORICO.template.md
-├── GLOSSARIO.md           ← iniciar vazio, preencher conforme o projeto cresce
-├── CHANGELOG.md           ← adaptar base/docs/CHANGELOG.template.md
-├── analise-estrutural.md  ← adaptar base/docs/analise-estrutural.template.md
-├── architecture.md        ← mapa de camadas, entidades, fluxos, endpoints
-├── diretrizes-tecnicas.md ← convenções de código deste projeto
-├── lessons-learned.md     ← adaptar base/docs/lessons-learned.template.md
+├── INDEX.md               ← adapt the template from base/docs/index.template.md
+├── HISTORY.md             ← adapt the template from base/docs/history.template.md
+├── GLOSSARIO.md           ← start empty, fill in as the project grows
+├── CHANGELOG.md           ← adapt base/docs/changelog.template.md
+├── structural-analysis.md ← adapt base/docs/structural-analysis.template.md
+├── architecture.md        ← map of layers, entities, flows, endpoints
+├── diretrizes-tecnicas.md ← code conventions for this project
+├── lessons-learned.md     ← adapt base/docs/lessons-learned.template.md
 ├── fundamentos/
-│   └── TECNOLOGIAS.md     ← justificar as escolhas de stack
+│   └── TECNOLOGIAS.md     ← justify the stack choices
 ├── especificacao/
-│   └── REQUISITOS.md      ← RF e RNF do projeto (enumerar RF-01, RF-02...)
+│   └── REQUISITOS.md      ← project FRs and NFRs (enumerate RF-01, RF-02...)
 ├── adr/
-│   ├── adr-template.md    ← usar skill proc-adr.md para criar cada ADR
-│   └── ADR-001-[titulo].md ← primeira decisão arquitetural do projeto
+│   ├── adr-template.md    ← use the proc-adr.md skill to create each ADR
+│   └── ADR-001-[title].md ← the project's first architectural decision
 └── processo/
-    ├── SCRUM.md (ou equivalente)
-    ├── TRILHA_ESTUDOS.md   ← adaptar base/docs/TRILHA_ESTUDOS.template.md
-    └── runbooks/           ← adaptar base/docs/runbook.template.md para cada operação
-        └── [operacao].md
+    ├── SCRUM.md (or equivalent)
+    ├── LEARNING-TRAIL.md  ← adapt base/docs/learning-trail.template.md
+    └── runbooks/          ← adapt base/docs/runbook.template.md for each operation
+        └── [operation].md
 ```
 
-**Frequência de atualização de cada documento:**
+**Update frequency for each document:**
 
-| Documento | Quando atualizar |
-|-----------|-----------------|
-| `HISTORICO.md` | Início e final de **cada** sessão (obrigatório) |
-| `analise-estrutural.md` | Quando pendências mudam de status |
-| `lessons-learned.md` | Após sessão com erro ou descoberta relevante |
-| `architecture.md` | Quando há mudanças estruturais (novos módulos, endpoints) |
-| `diretrizes-tecnicas.md` | Quando novas convenções são decididas |
-| `principios-engenharia.md` | Raramente — decisão da equipe, não por sessão |
+| Document | When to update |
+|----------|----------------|
+| `HISTORY.md` | At the beginning and end of **every** session (mandatory) |
+| `structural-analysis.md` | When pending items change status |
+| `lessons-learned.md` | After a session with an error or relevant discovery |
+| `architecture.md` | When there are structural changes (new modules, endpoints) |
+| `diretrizes-tecnicas.md` | When new conventions are decided |
+| `engineering-principles.md` | Rarely — team decision, not per session |
 
 ---
 
-### Passo 6 — Configurar automação GitHub
+### Step 6 — Configure GitHub automation
 
 ```
 .github/
-├── PULL_REQUEST_TEMPLATE.md          ← checklist de PR padrão
+├── PULL_REQUEST_TEMPLATE.md          ← standard PR checklist
 ├── ISSUE_TEMPLATE/
-│   ├── user-story.yml               ← template de user story com seletor de agent
-│   ├── bug-report.yml               ← template de bug com severidade e seletor
-│   ├── task.yml                     ← template de tarefa técnica
-│   ├── epic.yml                     ← agrupamento de user stories com objetivo de negócio
-│   ├── technical-debt.yml           ← registro de dívida técnica com severidade
-│   └── spike.yml                    ← investigação técnica com timebox
+│   ├── user-story.yml               ← user story template with agent selector
+│   ├── bug-report.yml               ← bug template with severity and selector
+│   ├── task.yml                     ← technical task template
+│   ├── epic.yml                     ← group of user stories with business objective
+│   ├── technical-debt.yml           ← technical debt record with severity
+│   └── spike.yml                    ← technical investigation with timebox
 └── workflows/
-    ├── scrum-issue-tracker.yml      ← atualiza labels automaticamente
-    ├── scrum-pr-tracker.yml         ← sincroniza status PR ↔ issue
-    ├── scrum-labels-setup.yml       ← cria todas as labels SCRUM (executar uma vez)
-    ├── scrum-milestone-sprint.yml   ← gerencia sprints via milestones
-    ├── scrum-sprint-report.yml      ← relatório diário automático às 9h
-    └── ci-quality-gate.yml          ← quality gate: build, test, cobertura, segurança
+    ├── scrum-issue-tracker.yml      ← updates labels automatically
+    ├── scrum-pr-tracker.yml         ← syncs PR status ↔ issue
+    ├── scrum-labels-setup.yml       ← creates all SCRUM labels (run once)
+    ├── scrum-milestone-sprint.yml   ← manages sprints via milestones
+    ├── scrum-sprint-report.yml      ← automatic daily report at 9am
+    └── ci-quality-gate.yml          ← quality gate: build, test, coverage, security
 ```
 
-Labels SCRUM criadas automaticamente pelo `scrum-labels-setup.yml`:
+SCRUM labels created automatically by `scrum-labels-setup.yml`:
 - Status: `backlog`, `sprint-backlog`, `in-progress`, `review`, `done`, `blocked`
-- Tipo: `user-story`, `bug`, `task`, `epic`, `spike`, `chore`
-- Prioridade: `critical`, `high`, `medium`, `low`
-- Pontos: `1`, `2`, `3`, `5`, `8`, `13`
+- Type: `user-story`, `bug`, `task`, `epic`, `spike`, `chore`
+- Priority: `critical`, `high`, `medium`, `low`
+- Points: `1`, `2`, `3`, `5`, `8`, `13`
 
 ---
 
-### Passo 7 — Primeiro commit
+### Step 7 — First commit
 
 ```bash
 git add .github/ docs/
-git commit -m "chore(setup): inicializar estrutura de documentacao e agents
+git commit -m "chore(setup): initialize documentation structure and agents
 
-- .github/base/: principios, BOOTSTRAP, templates de agents e skills
-- .github/agents/: N agents customizados para [projeto]
-- .github/skills/: proc-session-continuity + M skills do domínio
-- copilot-instructions.md: contexto global do projeto
+- .github/base/: principles, BOOTSTRAP, agent and skill templates
+- .github/agents/: N customized agents for [project]
+- .github/skills/: proc-session-continuity + M domain skills
+- copilot-instructions.md: global project context
 - .github/PULL_REQUEST_TEMPLATE.md + ISSUE_TEMPLATE/
-- .github/workflows/: automação SCRUM
-- docs/: estrutura inicial com INDICE, HISTORICO, REQUISITOS"
+- .github/workflows/: SCRUM automation
+- docs/: initial structure with INDEX, HISTORY, REQUISITOS"
 ```
 
 ---
 
-## Diagrama completo — o que copiar vs o que criar
+## Complete diagram — what to copy vs what to create
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  UNIVERSAIS — copie como estão para qualquer projeto    │
+│  UNIVERSAL — copy as-is to any project                  │
 ├─────────────────────────────────────────────────────────┤
-│  .github/base/BOOTSTRAP.md               (este arquivo) │
-│  .github/base/principios-engenharia.md   (incl §A e §B) │
+│  .github/base/BOOTSTRAP.md               (this file)    │
+│  .github/base/engineering-principles.md  (incl §A & §B) │
 │  .github/base/roles/*.template.md        (12 templates) │
 │  .github/base/docs/*.template.md         (10 templates) │
 │  .github/base/skills/proc-*.md           (5 proc skills)│
@@ -359,29 +359,29 @@ git commit -m "chore(setup): inicializar estrutura de documentacao e agents
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│  ADAPTAR — copie e customize com dados do projeto       │
+│  ADAPT — copy and customize with project data           │
 ├─────────────────────────────────────────────────────────┤
-│  .github/copilot-instructions.md    (de template base)  │
-│  .github/agents/*.agent.md          (de templates)      │
+│  .github/copilot-instructions.md    (from base template)│
+│  .github/agents/*.agent.md          (from templates)    │
 │  .github/PULL_REQUEST_TEMPLATE.md                       │
 │  .github/ISSUE_TEMPLATE/*.yml                           │
-│  docs/INDICE.md                                         │
-│  docs/HISTORICO.md                  (iniciar com setup) │
-│  docs/analise-estrutural.md                             │
+│  docs/INDEX.md                                          │
+│  docs/HISTORY.md                    (start with setup)  │
+│  docs/structural-analysis.md                            │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│  CRIAR DO ZERO — específicos do projeto                 │
+│  CREATE FROM SCRATCH — project-specific                 │
 ├─────────────────────────────────────────────────────────┤
 │  .semgrep/rules/                                        │
-│    [lang-backend]/*.yml   (regras SAST customizadas)    │
-│    [lang-frontend]/*.yml  (regras SAST customizadas)    │
+│    [lang-backend]/*.yml   (custom SAST rules)           │
+│    [lang-frontend]/*.yml  (custom SAST rules)           │
 │  .github/skills/be-*.md, fe-*.md, da-*.md, qa-*.md     │
 │  .github/workflows/*.yml                                │
 │  docs/especificacao/REQUISITOS.md                       │
 │  docs/architecture.md                                   │
 │  docs/diretrizes-tecnicas.md                            │
-│  docs/lessons-learned.md               (iniciar vazio)  │
+│  docs/lessons-learned.md               (start empty)    │
 │  docs/fundamentos/TECNOLOGIAS.md                        │
 │  docs/processo/SCRUM.md                                 │
 └─────────────────────────────────────────────────────────┘
@@ -389,46 +389,46 @@ git commit -m "chore(setup): inicializar estrutura de documentacao e agents
 
 ---
 
-## Prefixos e convenções de nomenclatura
+## Prefixes and naming conventions
 
 ### Agents (`.github/agents/`)
 
-| Prefixo | Domínio | Papéis |
-|---------|---------|--------|
-| `dev-` | Desenvolvimento | backend, frontend, mobile, data-analyst |
-| `qa-` | Qualidade | engineer, security-reviewer, pentest-engineer |
-| `mgmt-` | Gestão | product-owner, project-manager, domain-expert/advisor |
-| `infra-` | Infraestrutura | devops, platform, sre |
+| Prefix | Domain | Roles |
+|--------|--------|-------|
+| `dev-` | Development | backend, frontend, mobile, data-analyst |
+| `qa-` | Quality | engineer, security-reviewer, pentest-engineer |
+| `mgmt-` | Management | product-owner, project-manager, domain-expert/advisor |
+| `infra-` | Infrastructure | devops, platform, sre |
 
 ### Skills (`.github/skills/`)
 
-| Prefixo | Camada | Domínio |
-|---------|--------|---------|
-| `be-` | Backend | qualquer skill de servidor |
-| `fe-` | Frontend | qualquer skill de UI |
-| `da-` | Dados | analytics, BI, ML |
-| `qa-` | Qualidade | testes, automação, segurança |
-| `proc-` | Processo | workflows, protocolos — universais começam com `proc-` |
-| `infra-` | Infraestrutura | CI/CD, deploy, observability |
+| Prefix | Layer | Domain |
+|--------|-------|--------|
+| `be-` | Backend | any server skill |
+| `fe-` | Frontend | any UI skill |
+| `da-` | Data | analytics, BI, ML |
+| `qa-` | Quality | tests, automation, security |
+| `proc-` | Process | workflows, protocols — universal ones start with `proc-` |
+| `infra-` | Infrastructure | CI/CD, deploy, observability |
 
 ---
 
-## O protocolo de continuidade de sessão
+## The session continuity protocol
 
-> Esta é a peça mais crítica do sistema. Sem ela, cada sessão de IA começa do zero.
+> This is the most critical piece of the system. Without it, every AI session starts from zero.
 
-Toda sessão (humana ou de IA) deve seguir o protocolo definido em
-`.github/skills/proc-session-continuity.md`. O fluxo essencial:
+Every session (human or AI) must follow the protocol defined in
+`.github/skills/proc-session-continuity.md`. The essential flow:
 
-**Início:** `HISTORICO.md` → `analise-estrutural.md` → `git status` → `lessons-learned.md`
+**Start:** `HISTORY.md` → `structural-analysis.md` → `git status` → `lessons-learned.md`
 
-**Final:** `analise-estrutural.md` (marcar ✅) → `HISTORICO.md` (novo estado) →
-`lessons-learned.md` (se houve lição) → commit com docs + código juntos
+**End:** `structural-analysis.md` (mark ✅) → `HISTORY.md` (new state) →
+`lessons-learned.md` (if there was a lesson) → commit docs + code together
 
-> **Regra de ouro:** Toda sessão que altera código funcional DEVE atualizar
-> `analise-estrutural.md` e/ou `HISTORICO.md` no mesmo commit. Documentação
-> nunca fica mais de 1 commit atrás do código.
+> **Golden rule:** Every session that changes functional code MUST update
+> `structural-analysis.md` and/or `HISTORY.md` in the same commit. Documentation
+> must never be more than 1 commit behind the code.
 
 ---
 
-*`.github/base/` · Universal · Copie para qualquer projeto*
+*`.github/base/` · Universal · Copy to any project*

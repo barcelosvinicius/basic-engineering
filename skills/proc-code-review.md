@@ -1,148 +1,148 @@
 ---
 name: proc-code-review
 description: >
-  Protocolo estruturado de revisão de código entre agentes e humanos — checklist por
-  camada, critérios de aprovação/rejeição e responsabilidade por agente. Usar ao revisar
-  um PR ou ao implementar um gate de qualidade antes de merge.
+  Structured code review protocol between agents and humans — per-layer checklist,
+  approval/rejection criteria, and responsibility by agent. Use when reviewing
+  a PR or implementing a quality gate before merge.
 ---
 
-# Skill: Protocolo de Revisão de Código
+# Skill: Code Review Protocol
 
-## O que é esta skill
+## What this skill is
 
-Define o protocolo estruturado de revisão de código entre agentes e humanos.
-Use ao revisar um PR, ao solicitar revisão de outro agente, ou ao implementar
-um gate de qualidade antes de merge.
+Defines the structured protocol for code review between agents and humans.
+Use when reviewing a PR, requesting review from another agent, or implementing
+a quality gate before merge.
 
-> **Princípio:** Code review não é auditoria de estilo. É o momento de capturar
-> o que o autor não consegue ver por estar muito próximo do código.
-
----
-
-## Responsabilidade por tipo de mudança
-
-| Tipo de mudança | Revisor primário | Revisor adicional |
-|----------------|-----------------|-------------------|
-| Novo endpoint ou DTO | `backend-developer` | `security-reviewer` |
-| Mudança em autenticação/autorização | `security-reviewer` | `qa-engineer` |
-| Novo componente de interface | `frontend-developer` | QA (se houver E2E) |
-| Mudança em cálculo de negócio | `backend-developer` | `domain-expert` |
-| Query JPQL/SQL complexa | `backend-developer` | `data-analyst` |
-| Migration de banco | `backend-developer` | PM (confirmar janela) |
-| Upload ou processamento de arquivo | `security-reviewer` | `backend-developer` |
-| Feature completa (backend + frontend) | `project-manager` coordena | Todos os anteriores |
+> **Principle:** Code review is not style auditing. It is the moment to catch
+> what the author cannot see because they are too close to the code.
 
 ---
 
-## O que revisar — por camada
+## Responsibility by change type
+
+| Change type | Primary reviewer | Additional reviewer |
+|------------|------------------|---------------------|
+| New endpoint or DTO | `backend-developer` | `security-reviewer` |
+| Change in authentication/authorization | `security-reviewer` | `qa-engineer` |
+| New UI component | `frontend-developer` | QA (if there is E2E) |
+| Change in business calculation | `backend-developer` | `domain-expert` |
+| Complex JPQL/SQL query | `backend-developer` | `data-analyst` |
+| Database migration | `backend-developer` | PM (confirm window) |
+| Upload or file processing | `security-reviewer` | `backend-developer` |
+| Full feature (backend + frontend) | `project-manager` coordinates | All of the above |
+
+---
+
+## What to review — by layer
 
 ### Backend
 
-**Correção:**
-- [ ] A lógica implementada corresponde ao requisito (RF-XX)?
-- [ ] Casos de borda tratados (nulo, vazio, valor zero, overflow)?
-- [ ] Transações de banco corretas (readOnly em leituras, rollback em falhas)?
-- [ ] N+1 evitado (queries em batch, sem loop de selects)?
+**Correctness:**
+- [ ] Does the implemented logic match the requirement (RF-XX)?
+- [ ] Are edge cases handled (null, empty, zero value, overflow)?
+- [ ] Are database transactions correct (readOnly on reads, rollback on failures)?
+- [ ] Is N+1 avoided (batch queries, no select loops)?
 
-**Segurança:**
-- [ ] Endpoint novo mapeado no SecurityConfig (público ou protegido)?
-- [ ] Autorização verificada no servidor, não apenas no cliente?
-- [ ] Input validado antes de uso (Bean Validation, sanitização)?
-- [ ] Entidade JPA não retornada diretamente (usar DTO)?
-- [ ] Segredos fora do código?
+**Security:**
+- [ ] Is the new endpoint mapped in SecurityConfig (public or protected)?
+- [ ] Is authorization checked on the server, not only on the client?
+- [ ] Is input validated before use (Bean Validation, sanitization)?
+- [ ] Is the JPA entity not returned directly (use DTO)?
+- [ ] Are secrets out of the code?
 
-**Qualidade:**
-- [ ] Injeção por construtor (não `@Autowired` em campo)?
-- [ ] Exceções customizadas lançadas (não exceções genéricas)?
-- [ ] Testes unitários cobrindo o novo comportamento?
-- [ ] Migration Flyway criada se schema foi alterado?
+**Quality:**
+- [ ] Constructor injection used (not field `@Autowired`)?
+- [ ] Are custom exceptions thrown (not generic exceptions)?
+- [ ] Do unit tests cover the new behavior?
+- [ ] Was a Flyway migration created if the schema changed?
 
 ### Frontend
 
-**Correção:**
-- [ ] Componente consome a API corretamente (tipagem, tratamento de erro)?
-- [ ] Estado de loading presente para operações assíncronas?
-- [ ] Estado vazio tratado para listas?
+**Correctness:**
+- [ ] Does the component consume the API correctly (typing, error handling)?
+- [ ] Is a loading state present for async operations?
+- [ ] Is the empty state handled for lists?
 
-**UX (ver `fe-ux-patterns.md`):**
-- [ ] Feedback visual após ações (toast, disable de botão)?
-- [ ] Confirmação antes de ações destrutivas?
-- [ ] Hierarquia visual clara (o que é mais importante está em destaque)?
+**UX (see `fe-ux-patterns.md`):**
+- [ ] Visual feedback after actions (toast, button disable)?
+- [ ] Confirmation before destructive actions?
+- [ ] Clear visual hierarchy (is the most important thing highlighted)?
 
-**Acessibilidade (ver `fe-accessibility-patterns.md`):**
-- [ ] Elements interativos com tags semânticas?
-- [ ] Inputs com labels associados?
-- [ ] Focus visível em todos os elementos interativos?
+**Accessibility (see `fe-accessibility-patterns.md`):**
+- [ ] Interactive elements with semantic tags?
+- [ ] Inputs with associated labels?
+- [ ] Visible focus on all interactive elements?
 
 **Performance:**
-- [ ] Instâncias de gráficos destruídas no OnDestroy?
-- [ ] Subscriptions canceladas no OnDestroy?
-- [ ] Debounce em campos de busca?
+- [ ] Chart instances destroyed in OnDestroy?
+- [ ] Subscriptions canceled in OnDestroy?
+- [ ] Debounce on search fields?
 
-### Geral
+### General
 
-- [ ] Nenhum `console.log` / `println` de dados sensíveis?
-- [ ] Nomenclatura consistente com o restante do sistema?
-- [ ] PR referencia a issue com `Closes #N`?
-- [ ] Docs atualizados se houve decisão arquitetural?
-
----
-
-## Como dar feedback de revisão
-
-### Tom e estrutura
-
-```
-❌ "Isso está errado."
-
-✅ "Este método pode gerar N+1 quando `transactions` tem muitos registros.
-   Considerar usar @Query com JOIN FETCH ou busca em batch.
-   Ref: principios-engenharia.md §4.3"
-```
-
-**Categorias de comentário:**
-- `[BLOQUEANTE]` — não pode mergear sem resolver
-- `[SUGESTÃO]` — melhoria, não obrigatória para este PR
-- `[PERGUNTA]` — entender a intenção antes de julgar
-- `[ELOGIO]` — reconhecer boas práticas encontradas
-
-### O que NÃO é responsabilidade do review
-
-- Estilo de código coberto por linter (deixar para automação)
-- Preferências pessoais sem justificativa técnica
-- Nitpicks em código que será refatorado no próximo sprint
+- [ ] No `console.log` / `println` of sensitive data?
+- [ ] Naming consistent with the rest of the system?
+- [ ] Does the PR reference an issue with `Closes #N`?
+- [ ] Were docs updated if there was an architectural decision?
 
 ---
 
-## Protocolo de delegação entre agentes
+## How to give review feedback
 
-Quando um agente identificar algo fora de sua área durante revisão:
+### Tone and structure
 
 ```
-backend-developer revisa PR → encontra componente Angular com XSS potential
-→ Acionar security-reviewer: "Linha 42 de transaction-list.component.html
-  usa innerHTML sem sanitização. Ver OWASP A03."
+❌ "This is wrong."
 
-security-reviewer revisa PR → encontra cálculo de comprometimento incorreto
-→ Acionar domain-expert: "Fórmula em DashboardService.calcComprometimento()
-  divide gastos por receita_bruta. Confirmar se deve ser receita_liquida."
+✅ "This method may generate N+1 when `transactions` has many records.
+   Consider using @Query with JOIN FETCH or a batch fetch.
+   Ref: engineering-principles.md §4.3"
+```
+
+**Comment categories:**
+- `[BLOCKING]` — cannot merge without resolving
+- `[SUGGESTION]` — improvement, not mandatory for this PR
+- `[QUESTION]` — understand the intent before judging
+- `[PRAISE]` — acknowledge good practices found
+
+### What is NOT review responsibility
+
+- Code style covered by linter (leave it to automation)
+- Personal preferences without technical justification
+- Nitpicks in code that will be refactored next sprint
+
+---
+
+## Delegation protocol between agents
+
+When an agent identifies something outside its area during review:
+
+```
+backend-developer reviews PR → finds Angular component with XSS potential
+→ Trigger security-reviewer: "Line 42 of transaction-list.component.html
+  uses innerHTML without sanitization. See OWASP A03."
+
+security-reviewer reviews PR → finds incorrect commitment calculation
+→ Trigger domain-expert: "Formula in DashboardService.calcComprometimento()
+  divides expenses by gross_income. Confirm whether it should be net_income."
 ```
 
 ---
 
-## Gates automáticos antes de merge
+## Automatic gates before merge
 
 ```yaml
-# O que deve estar verde antes de qualquer merge:
-- Build: sem erros de compilação
-- Testes: todos passando (cobertura ≥ meta do projeto)
-- Linter: sem erros (warnings toleráveis)
-- Análise estática: sem issues críticos
-- Security scan: sem CVEs críticos/altos não mitigados
-- 1 aprovação humana: obrigatório (agentes não aprovam para merge)
+# What must be green before any merge:
+- Build: no compilation errors
+- Tests: all passing (coverage ≥ project target)
+- Linter: no errors (warnings tolerated)
+- Static analysis: no critical issues
+- Security scan: no unmitigated critical/high CVEs
+- 1 human approval: mandatory (agents do not approve merge)
 ```
 
 ---
 
 *Skill — `.github/skills/proc-code-review.md`*
-*Referência: `principios-engenharia.md` §10.2 (Proteção de Branch), §11.3 (Checklist)*
+*Reference: `engineering-principles.md` §10.2 (Branch Protection), §11.3 (Checklist)*

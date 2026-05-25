@@ -1,135 +1,135 @@
 ---
 name: proc-release-checklist
 description: >
-  Protocolo de validação pré-go-live universal — segurança, testes, banco de dados,
-  observabilidade e plano de rollback. Usar obrigatoriamente antes de qualquer entrega
-  em produção, primeiro deploy ou release com mudanças de schema.
+  Universal pre-go-live validation protocol — security, tests, database,
+  observability, and rollback plan. Mandatory before any production delivery,
+  first deploy, or release with schema changes.
 ---
 
-# Skill: Checklist de Release (Pré-Go-Live)
+# Skill: Release Checklist (Pre-Go-Live)
 
-## O que é esta skill
+## What this skill is
 
-Protocolo de validação antes de qualquer entrega em produção — primeiro deploy ou
-nova versão significativa. Universal: adaptar as seções ao contexto do projeto.
+Validation protocol before any production delivery — first deploy or
+significant new version. Universal: adapt the sections to the project's context.
 
-> **Princípio:** Um checklist de release não é burocracia. É a última linha de
-> defesa antes que um problema chegue ao usuário real.
-
----
-
-## Quando usar
-
-- Primeiro deploy em produção de um projeto
-- Release com mudanças de schema de banco
-- Release com mudanças em autenticação ou segurança
-- Release com novos endpoints expostos publicamente
-- Qualquer release após período de inatividade > 2 semanas
-
-Para releases incrementais pequenos (hotfix, ajuste visual), um subconjunto das
-seções abaixo é suficiente.
+> **Principle:** A release checklist is not bureaucracy. It is the last line of
+> defense before a problem reaches a real user.
 
 ---
 
-## 1. Segurança — obrigatório antes de qualquer release público
+## When to use it
 
-- [ ] **Senhas com hash seguro**: Argon2id ou bcrypt com parâmetros adequados
-- [ ] **JWT/tokens**: expiração configurada, revogação implementada, secret forte (≥ 256 bits)
-- [ ] **Variáveis de ambiente**: todos os segredos em env, nenhum hardcoded no código
-- [ ] **Headers HTTP**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options configurados
-- [ ] **CORS**: origens explícitas configuradas (sem wildcard `*` em APIs com credenciais)
-- [ ] **Rate limiting**: endpoints de autenticação e endpoints públicos protegidos
-- [ ] **Upload de arquivos**: validação de magic bytes ativa antes de processamento
-- [ ] **SQL**: confirmação de queries parametrizadas (sem concatenação de input)
-- [ ] **Auditoria de dependências**: sem CVEs críticos ou altos abertos (`npm audit`, `mvn dependency-check`)
-- [ ] **Pentest mínimo**: IDOR testado, brute force testado, token pós-logout testado
+- First production deploy of a project
+- Release with database schema changes
+- Release with authentication or security changes
+- Release with newly exposed public endpoints
+- Any release after an inactivity period > 2 weeks
+
+For small incremental releases (hotfix, visual adjustment), a subset of the
+sections below is enough.
 
 ---
 
-## 2. Banco de dados
+## 1. Security — mandatory before any public release
 
-- [ ] **Migrations versionadas**: todas as alterações de schema estão em migrations Flyway/Liquibase
-- [ ] **Backup validado**: backup recente testado (restore verificado, não apenas snapshot)
-- [ ] **Índices criados**: queries do dashboard/relatórios verificadas com EXPLAIN
-- [ ] **Rollback planejado**: estratégia de rollback documentada se a migration for destrutiva
-- [ ] **RLS / isolamento**: se sistema multi-usuário, isolamento de dados validado
+- [ ] **Passwords hashed securely**: Argon2id or bcrypt with proper parameters
+- [ ] **JWT/tokens**: expiration configured, revocation implemented, strong secret (≥ 256 bits)
+- [ ] **Environment variables**: all secrets in env, nothing hardcoded in code
+- [ ] **HTTP headers**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options configured
+- [ ] **CORS**: explicit origins configured (no wildcard `*` on credentialed APIs)
+- [ ] **Rate limiting**: authentication endpoints and public endpoints protected
+- [ ] **File upload**: magic-bytes validation active before processing
+- [ ] **SQL**: confirmation of parameterized queries (no input concatenation)
+- [ ] **Dependency audit**: no open critical or high CVEs (`npm audit`, `mvn dependency-check`)
+- [ ] **Minimum pentest**: IDOR tested, brute force tested, post-logout token tested
+
+---
+
+## 2. Database
+
+- [ ] **Versioned migrations**: all schema changes are in Flyway/Liquibase migrations
+- [ ] **Validated backup**: recent backup tested (restore verified, not just snapshot)
+- [ ] **Indexes created**: dashboard/report queries checked with EXPLAIN
+- [ ] **Rollback planned**: rollback strategy documented if the migration is destructive
+- [ ] **RLS / isolation**: if multi-user system, data isolation validated
 
 ---
 
 ## 3. Backend / API
 
-- [ ] **Health check**: endpoint `/health` ou equivalente funcionando e monitorado
-- [ ] **Variáveis obrigatórias**: inicialização falha claramente se variável obrigatória falta
-- [ ] **Timeouts**: chamadas externas com timeout explícito configurado
-- [ ] **Tratamento de erros**: GlobalExceptionHandler não expõe stack trace ao cliente
-- [ ] **Logs**: estruturado, sem PII, sem segredos; correlation ID por request
-- [ ] **Paginação**: endpoints de lista não retornam todos os registros sem paginação
+- [ ] **Health check**: `/health` endpoint or equivalent working and monitored
+- [ ] **Required variables**: startup fails clearly if a required variable is missing
+- [ ] **Timeouts**: external calls with explicit timeout configured
+- [ ] **Error handling**: GlobalExceptionHandler does not expose stack trace to the client
+- [ ] **Logs**: structured, without PII or secrets; correlation ID per request
+- [ ] **Pagination**: list endpoints do not return all records without pagination
 
 ---
 
 ## 4. Frontend
 
-- [ ] **Variáveis de ambiente**: URLs de API não hardcodadas; arquivo de env configurado
-- [ ] **Build de produção**: build com minificação e tree-shaking ativo
-- [ ] **Lazy loading**: bundle inicial não carrega todos os módulos
-- [ ] **Erros de console**: zero erros no console em fluxo normal de uso
-- [ ] **Fluxo sem JS**: página de fallback ou mensagem adequada se JS desabilitado
-- [ ] **Acessibilidade**: axe/Lighthouse sem erros críticos nos fluxos principais
+- [ ] **Environment variables**: API URLs not hardcoded; env file configured
+- [ ] **Production build**: build with minification and tree-shaking enabled
+- [ ] **Lazy loading**: initial bundle does not load all modules
+- [ ] **Console errors**: zero errors in the console during normal usage flow
+- [ ] **No-JS flow**: fallback page or proper message if JS is disabled
+- [ ] **Accessibility**: axe/Lighthouse with no critical errors in the main flows
 
 ---
 
-## 5. Observabilidade
+## 5. Observability
 
-- [ ] **Alertas configurados**: alerta para taxa de erro acima do baseline
-- [ ] **Dashboard de métricas**: latência, taxa de erro, throughput visíveis
-- [ ] **Runbook**: documento descrevendo o que fazer se o sistema ficar indisponível
-- [ ] **Contato de plantão**: quem acionar se houver incidente fora do horário comercial
-
----
-
-## 6. Processo
-
-- [ ] **REQUISITOS.md**: RFs implementados neste release marcados como ✅
-- [ ] **analise-estrutural.md**: pendências novas descobertas durante o release registradas
-- [ ] **HISTORICO.md**: entrada de release criada com o que foi entregue e decisões tomadas
-- [ ] **Documentação de usuário**: COMO_USAR.md atualizado com novas funcionalidades (se aplicável)
-- [ ] **Janela de manutenção**: usuários notificados se houver downtime esperado
-- [ ] **Plano de rollback**: procedimento documentado caso o release precise ser revertido
+- [ ] **Alerts configured**: alert for error rate above baseline
+- [ ] **Metrics dashboard**: latency, error rate, throughput visible
+- [ ] **Runbook**: document describing what to do if the system becomes unavailable
+- [ ] **On-call contact**: who to contact if there is an incident outside business hours
 
 ---
 
-## 7. Validação pós-deploy (primeiros 30 minutos)
+## 6. Process
+
+- [ ] **REQUISITOS.md**: FRs implemented in this release marked as ✅
+- [ ] **structural-analysis.md**: new pending items discovered during the release recorded
+- [ ] **HISTORY.md**: release entry created with what was delivered and decisions made
+- [ ] **User documentation**: COMO_USAR.md updated with new functionality (if applicable)
+- [ ] **Maintenance window**: users notified if downtime is expected
+- [ ] **Rollback plan**: documented procedure if the release needs to be reverted
+
+---
+
+## 7. Post-deploy validation (first 30 minutes)
 
 ```
-□ Aplicação responde (health check verde)
-□ Login funciona
-□ Fluxo crítico principal (ex: criar transação, importar CSV) funciona
-□ Logs sem erros críticos inesperados
-□ Métricas de latência dentro do baseline
-□ Nenhum usuário reportou problema nos primeiros acessos
+□ Application responds (health check green)
+□ Login works
+□ Main critical flow (e.g.: create transaction, import CSV) works
+□ Logs with no unexpected critical errors
+□ Latency metrics within baseline
+□ No user reported a problem in the first accesses
 ```
 
 ---
 
-## Formato de registro do release
+## Release record format
 
-Adicionar ao `HISTORICO.md`:
+Add to `HISTORY.md`:
 
 ```markdown
-### [AAAA-MM-DD] Release [versão ou descrição]
+### [YYYY-MM-DD] Release [version or description]
 
-**Responsável:** [nome]
-**Entregas:**
-- [RF-XX] [descrição da feature]
-- [fix] [descrição do bug corrigido]
+**Owner:** [name]
+**Deliveries:**
+- [RF-XX] [feature description]
+- [fix] [bug fix description]
 
-**Checklist de release:** ✅ Completo | ⚠️ Pendências: [listar]
-**Decisões:** [decisões tomadas durante o release]
-**Próximos passos:** [o que monitorar nas próximas horas/dias]
-**Bloqueios:** Nenhum
+**Release checklist:** ✅ Complete | ⚠️ Pending items: [list]
+**Decisions:** [decisions made during the release]
+**Next steps:** [what to monitor in the next hours/days]
+**Blockers:** None
 ```
 
 ---
 
 *Skill — `.github/skills/proc-release-checklist.md`*
-*Referência: `principios-engenharia.md` §2 (Segurança), §9 (Observabilidade), §10 (CI/CD)*
+*Reference: `engineering-principles.md` §2 (Security), §9 (Observability), §10 (CI/CD)*

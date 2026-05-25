@@ -1,85 +1,85 @@
-# Runbook: [Nome da Operação]
+# Runbook: [Operation Name]
 
-> **Nível de autorização:** [todos / tech lead / devops]
-> **Impacto:** [nenhum / usuários afetados / sistema indisponível]
-> **Duração estimada:** [X minutos]
-
----
-
-## Quando usar este runbook
-
-<!-- Descrever quando este runbook é necessário -->
-- [cenário 1]
-- [cenário 2]
+> **Authorization level:** [everyone / tech lead / devops]
+> **Impact:** [none / users affected / system unavailable]
+> **Estimated duration:** [X minutes]
 
 ---
 
-## Pré-requisitos
+## When to use this runbook
 
-<!-- Ferramentas e acessos necessários -->
-- [ ] Acesso ao servidor / ambiente
-- [ ] [ferramenta] instalada
-- [ ] Variáveis de ambiente configuradas
+<!-- Describe when this runbook is needed -->
+- [scenario 1]
+- [scenario 2]
 
 ---
 
-## Passos
+## Prerequisites
 
-### 1. Verificar estado atual
+<!-- Required tools and access -->
+- [ ] Access to the server / environment
+- [ ] [tool] installed
+- [ ] Environment variables configured
+
+---
+
+## Steps
+
+### 1. Check current state
 
 ```bash
-# Comandos de diagnóstico
-[comando]
+# Diagnostic commands
+[command]
 ```
 
-**Saída esperada:**
+**Expected output:**
 ```
-[output esperado]
+[expected output]
 ```
 
-**Se saída diferente:** [o que fazer]
+**If output differs:** [what to do]
 
 ---
 
-### 2. [Nome do passo]
+### 2. [Step name]
 
 ```bash
-[comando]
+[command]
 ```
 
-⚠️ **Atenção:** [avisos importantes antes de executar]
+⚠️ **Attention:** [important warnings before executing]
 
 ---
 
-### 3. Verificar resultado
+### 3. Verify result
 
 ```bash
-# Confirmar que operação foi bem-sucedida
-[comando de verificação]
+# Confirm the operation succeeded
+[verification command]
 ```
 
-**Critério de sucesso:** [o que confirma que funcionou]
+**Success criteria:** [what confirms it worked]
 
 ---
 
 ## Rollback
 
-Se algo der errado:
+If something goes wrong:
 
 ```bash
-# Desfazer a operação
-[comando de rollback]
+# Undo the operation
+[rollback command]
 ```
 
 ---
 
-## Pós-execução
+## Post-execution
 
-- [ ] Registrar operação em `docs/processo/operacoes.md` (data, quem, motivo)
-- [ ] Notificar time se operação teve impacto para usuários
-- [ ] Atualizar este runbook se procedimento mudou
+- [ ] Record the operation in `docs/processo/operacoes.md` (date, who, reason)
+- [ ] Notify the team if the operation affected users
+- [ ] Update this runbook if the procedure changed
 
 ---
 
-*Runbook — `docs/processo/runbooks/[nome].md`*
-*Última atualização: [data]*
+*Runbook — `docs/processo/runbooks/[name].md`*
+*Last updated: [date]*

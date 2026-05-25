@@ -1,42 +1,42 @@
 ---
 name: qa-test-data-builders
 description: >
-  Padrões universais para criar dados de teste consistentes com o Builder pattern.
-  Usar ao escrever testes unitários e de integração — centraliza builders em TestFixtures
-  para evitar repetição e tornar os testes legíveis com padrão AAA.
+  Universal patterns for creating consistent test data with the Builder pattern.
+  Use when writing unit and integration tests — centralize builders in TestFixtures
+  to avoid repetition and make tests readable with the AAA pattern.
 ---
 
-# Skill: Builders de Dados de Teste (Universal)
+# Skill: Test Data Builders (Universal)
 
-## O que é esta skill
+## What this skill is
 
-Padrões para criar dados de teste consistentes e reutilizáveis usando o Builder pattern.
-Usar ao escrever testes unitários ou de integração — evita repetição e torna os testes
-legíveis com padrão AAA (Arrange, Act, Assert).
+Patterns for creating consistent and reusable test data using the Builder pattern.
+Use when writing unit or integration tests — it avoids repetition and makes tests
+readable with the AAA pattern (Arrange, Act, Assert).
 
 ---
 
-## Princípio: TestFixtures centralizados
+## Principle: centralized TestFixtures
 
-Em vez de construir objetos do zero em cada teste, centralizar em uma classe de fixtures:
+Instead of building objects from scratch in every test, centralize them in a fixture class:
 
 ```java
 // src/test/java/com/exemplo/TestFixtures.java
 public final class TestFixtures {
-    private TestFixtures() {}  // não instanciável
+    private TestFixtures() {}  // non-instantiable
 
-    // ✅ Fixture com dados realistas e determinísticos
+    // ✅ Fixture with realistic and deterministic data
     public static User umUsuario() {
         return User.builder()
             .id(1L)
-            .name("Usuário de Teste")
-            .email("usuario@test.com")
+            .name("Test User")
+            .email("user@test.com")
             .password("$hash$fake")
             .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))
             .build();
     }
 
-    // Variação: fixture com campo específico alterado
+    // Variation: fixture with a specific field changed
     public static User umUsuarioComEmail(String email) {
         return umUsuario().toBuilder()
             .email(email)
@@ -47,7 +47,7 @@ public final class TestFixtures {
 
 ---
 
-## Uso nos testes — padrão AAA
+## Usage in tests — AAA pattern
 
 ```java
 @ExtendWith(MockitoExtension.class)
@@ -57,8 +57,8 @@ class UserServiceTest {
     @InjectMocks private UserService userService;
 
     @Test
-    void findById_usuarioExistente_retornaDTO() {
-        // Arrange — usar TestFixtures
+    void findById_existingUser_returnsDTO() {
+        // Arrange — use TestFixtures
         User user = TestFixtures.umUsuario();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -66,7 +66,7 @@ class UserServiceTest {
         UserResponse response = userService.findById(1L);
 
         // Assert
-        assertThat(response.email()).isEqualTo("usuario@test.com");
+        assertThat(response.email()).isEqualTo("user@test.com");
         assertThat(response.id()).isEqualTo(1L);
     }
 }
@@ -74,49 +74,49 @@ class UserServiceTest {
 
 ---
 
-## Convenções de nomenclatura
+## Naming conventions
 
 ```java
-// Padrão: metodoDeTeste_cenario_resultadoEsperado
-@Test void create_dadosValidos_retorna201() { ... }
-@Test void create_emailDuplicado_lancaConflictException() { ... }
-@Test void findById_idInexistente_lancaNotFoundException() { ... }
-@Test void delete_recursoDeOutroUsuario_lancaForbiddenException() { ... }
+// Pattern: testMethod_scenario_expectedResult
+@Test void create_validData_returns201() { ... }
+@Test void create_duplicateEmail_throwsConflictException() { ... }
+@Test void findById_nonExistingId_throwsNotFoundException() { ... }
+@Test void delete_anotherUsersResource_throwsForbiddenException() { ... }
 
-// Fixtures em português: "um/uma" + entidade (legibilidade em PT-BR)
+// Fixtures in Portuguese: "um/uma" + entity (PT-BR readability)
 public static User umUsuario() { ... }
 public static Order umPedido() { ... }
 ```
 
 ---
 
-## Regras para testes confiáveis
+## Rules for reliable tests
 
 ```java
-// ✅ Dados determinísticos (não dependem de now() ou random())
-.createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))  // data fixa
+// ✅ Deterministic data (does not depend on now() or random())
+.createdAt(LocalDateTime.of(2026, 1, 1, 0, 0))  // fixed date
 
-// ✅ Para BigDecimal: isEqualByComparingTo (não isEqualTo)
+// ✅ For BigDecimal: isEqualByComparingTo (not isEqualTo)
 assertThat(result.amount()).isEqualByComparingTo("100.00");
 
-// ❌ Nunca Thread.sleep() em testes
-// ✅ Usar Clock.fixed() para controlar tempo
+// ❌ Never Thread.sleep() in tests
+// ✅ Use Clock.fixed() to control time
 
-// ✅ Um assert principal por teste
-// (facilita identificar qual assertion falhou)
+// ✅ One main assert per test
+// (makes it easier to identify which assertion failed)
 ```
 
 ---
 
-## Checklist para novos testes
+## Checklist for new tests
 
-- [ ] Usa TestFixtures em vez de construir objetos inline
-- [ ] Segue o padrão AAA: Arrange / Act / Assert
-- [ ] Usa o padrão de nomenclatura `metodo_cenario_resultado`
-- [ ] Cobre o happy path + pelo menos 1 caso de erro
-- [ ] Não usa `Thread.sleep()` — dados determinísticos
-- [ ] `verify()` para confirmar que repositories não foram chamados desnecessariamente
+- [ ] Uses TestFixtures instead of building objects inline
+- [ ] Follows the AAA pattern: Arrange / Act / Assert
+- [ ] Uses the naming pattern `method_scenario_result`
+- [ ] Covers the happy path + at least 1 error case
+- [ ] Does not use `Thread.sleep()` — deterministic data
+- [ ] Uses `verify()` to confirm repositories were not called unnecessarily
 
 ---
 
-*Template universal — `.github/base/skills/qa-test-data-builders.md`*
+*Universal template — `.github/base/skills/qa-test-data-builders.md`*

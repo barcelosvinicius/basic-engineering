@@ -1,77 +1,77 @@
-# ADR-[NNN] — [Título da Decisão]
+# ADR-[NNN] — [Decision Title]
 
-> **Architecture Decision Record** — registro imutável de uma decisão arquitetural.
-> Uma vez criado, este documento nunca é editado. Decisões superadas geram um novo
-> ADR que referencia este, com status `Superado por ADR-NNN`.
+> **Architecture Decision Record** — immutable record of an architectural decision.
+> Once created, this document is never edited. Superseded decisions generate a new
+> ADR that references this one, with status `Superseded by ADR-NNN`.
 >
-> Referência: `principios-engenharia.md` §11.2 (Documentação como Código)
+> Reference: `engineering-principles.md` §11.2 (Documentation as Code)
 
-**Data:** AAAA-MM-DD
-**Status:** Proposta | Aceita | Superada | Depreciada
-**Autores:** [nomes ou agentes]
-
----
-
-## Contexto
-
-<!--
-Descreva o problema ou necessidade que motivou esta decisão.
-Seja objetivo: o que estava acontecendo, qual era a restrição ou oportunidade.
-Não inclua a solução ainda — apenas o cenário que exigiu uma escolha.
--->
+**Date:** YYYY-MM-DD
+**Status:** Proposed | Accepted | Superseded | Deprecated
+**Authors:** [names or agents]
 
 ---
 
-## Decisão
+## Context
 
 <!--
-A decisão tomada, descrita de forma afirmativa e direta.
-Exemplo: "Usaremos Argon2id para hash de senhas."
-Não justifique aqui — justificativa vem nas consequências.
+Describe the problem or need that motivated this decision.
+Be objective: what was happening, what the constraint or opportunity was.
+Do not include the solution yet — only the scenario that required a choice.
 -->
 
 ---
 
-## Alternativas consideradas
+## Decision
 
 <!--
-Liste as opções que foram avaliadas antes desta decisão.
-Para cada alternativa, explique brevemente por que foi descartada.
-
-| Alternativa | Por que descartada |
-|-------------|-------------------|
-| [opção A]   | [motivo] |
-| [opção B]   | [motivo] |
+The decision taken, described directly and affirmatively.
+Example: "We will use Argon2id for password hashing."
+Do not justify it here — justification belongs in the consequences section.
 -->
 
 ---
 
-## Consequências
+## Alternatives considered
 
-### Positivas
 <!--
-O que melhora com esta decisão. Seja específico.
--->
+List the options evaluated before this decision.
+For each alternative, briefly explain why it was discarded.
 
-### Negativas / Trade-offs
-<!--
-O que piora ou o custo desta decisão. Seja honesto.
-ADRs sem trade-offs não são confiáveis.
--->
-
-### Riscos
-<!--
-O que pode dar errado. O que precisamos monitorar.
+| Alternative | Why it was discarded |
+|-------------|----------------------|
+| [option A]  | [reason] |
+| [option B]  | [reason] |
 -->
 
 ---
 
-## Referências
+## Consequences
 
+### Positive
 <!--
-Links, documentação, issues, PRs ou outros ADRs relacionados.
+What improves with this decision. Be specific.
+-->
+
+### Negative / Trade-offs
+<!--
+What gets worse or what this decision costs. Be honest.
+ADRs without trade-offs are not trustworthy.
+-->
+
+### Risks
+<!--
+What could go wrong. What we need to monitor.
 -->
 
 ---
 
-*ADR-[NNN] · [PROJETO] · [AAAA-MM-DD]*
+## References
+
+<!--
+Links, documentation, issues, PRs, or other related ADRs.
+-->
+
+---
+
+*ADR-[NNN] · [PROJECT] · [YYYY-MM-DD]*

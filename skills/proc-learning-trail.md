@@ -1,136 +1,136 @@
 ---
 name: proc-learning-trail
 description: >
-  Meta-processo para criar e manter a Trilha de Estudos do projeto — documento que registra
-  todas as práticas técnicas adotadas, o porquê de cada uma e recursos de aprofundamento
-  para a equipe. Usar ao adotar uma nova prática, tecnologia ou padrão no projeto.
+  Meta-process to create and maintain the project's Learning Trail — a document that records
+  all adopted technical practices, why each one exists, and learning resources
+  for the team. Use when adopting a new practice, technology, or pattern in the project.
 ---
 
-# Skill: Trilha de Estudos (Learning Trail)
+# Skill: Learning Trail
 
-## O que é esta skill
+## What this skill is
 
-Define como criar e manter o documento `docs/processo/TRILHA_ESTUDOS.md` — o registro
-vivo das práticas técnicas adotadas no projeto, com contexto de decisão e recursos de
-estudo para a equipe.
+Defines how to create and maintain the `docs/processo/LEARNING-TRAIL.md` document — the living
+record of the technical practices adopted in the project, with decision context and learning
+resources for the team.
 
-> **Princípio:** Um projeto bem documentado ensina sua própria equipe. A trilha de
-> estudos transforma decisões técnicas em conhecimento transferível — não apenas
-> para o projeto, mas para a carreira de cada membro da equipe.
-
----
-
-## Por que criar uma trilha de estudos
-
-A trilha serve a dois propósitos simultâneos:
-
-1. **Onboarding:** Novos membros entendem *por que* o projeto usa X, não apenas *que* usa X
-2. **Evolução da equipe:** O time acompanha a curva de adoção de cada prática e sabe onde se aprofundar
+> **Principle:** A well-documented project teaches its own team. The learning trail
+> turns technical decisions into transferable knowledge — not only
+> for the project, but for each team member's career.
 
 ---
 
-## Quando atualizar a trilha
+## Why create a learning trail
 
-| Evento | Ação |
-|--------|------|
-| Nova tecnologia adicionada ao stack | Adicionar entrada na trilha com contexto de decisão |
-| Novo padrão de código decidido | Documentar na trilha com link para skill correspondente |
-| ADR aprovado | Extrair a prática resultante e adicionar na trilha |
-| Postmortem concluído | Adicionar prática de prevenção na trilha |
-| Nova skill criada | Vincular à trilha na seção correspondente |
+The trail serves two purposes at the same time:
+
+1. **Onboarding:** New members understand *why* the project uses X, not just *that* it uses X
+2. **Team evolution:** The team tracks the adoption curve of each practice and knows where to go deeper
 
 ---
 
-## Estrutura de cada entrada
+## When to update the trail
 
-Cada prática na trilha deve ter:
+| Event | Action |
+|-------|--------|
+| New technology added to the stack | Add an entry to the trail with decision context |
+| New code pattern decided | Document it in the trail with a link to the corresponding skill |
+| ADR approved | Extract the resulting practice and add it to the trail |
+| Postmortem completed | Add the prevention practice to the trail |
+| New skill created | Link it in the corresponding trail section |
+
+---
+
+## Structure of each entry
+
+Each practice in the trail must have:
 
 ```markdown
-### [Nome da Prática]
+### [Practice Name]
 
-**O que é:** 1-2 frases descrevendo a prática.
+**What it is:** 1-2 sentences describing the practice.
 
-**Por que adotamos:** Contexto de decisão — problema que resolve, alternativas consideradas.
+**Why we adopted it:** Decision context — problem it solves, alternatives considered.
 
-**Onde está no código:**
-- Arquivo/pacote principal: `[caminho]`
-- Skill de referência: `[nome-da-skill.md]`
+**Where it is in the code:**
+- Main file/package: `[path]`
+- Reference skill: `[skill-name.md]`
 
-**Como aprender:**
-- Documentação oficial: [link]
-- Guia interno: [skill ou doc do projeto]
-- Exemplo no projeto: [arquivo com bom exemplo de uso]
+**How to learn it:**
+- Official documentation: [link]
+- Internal guide: [skill or project doc]
+- Example in the project: [file with a good usage example]
 
-**Nível recomendado para nova entrada:** 🟢 Básico / 🟡 Intermediário / 🔴 Avançado
+**Recommended level for new entry:** 🟢 Basic / 🟡 Intermediate / 🔴 Advanced
 ```
 
 ---
 
-## Passo a passo: criar a trilha do zero
+## Step by step: create the trail from scratch
 
-### Passo 1: Inventariar as práticas existentes
+### Step 1: Inventory existing practices
 
-Liste todas as tecnologias e padrões em uso:
+List all technologies and patterns in use:
 
 ```bash
-# Tecnologias — ver copilot-instructions.md (seção Arquitetura)
-# Padrões — ver .github/skills/*.md (uma skill = uma prática)
+# Technologies — see copilot-instructions.md (Architecture section)
+# Patterns — see .github/skills/*.md (one skill = one practice)
 ls .github/skills/
 ```
 
-### Passo 2: Agrupar por camada
+### Step 2: Group by layer
 
-Organize as práticas nas seções do template:
-- **Processo** — como a equipe trabalha (SCRUM, ADRs, sessions)
-- **Backend** — stack, padrões de código, segurança
-- **Frontend** — stack, componentes, estado
-- **Qualidade** — testes, CI/CD, cobertura
-- **Infraestrutura** — deploy, observabilidade, containers
+Organize the practices into the template sections:
+- **Process** — how the team works (SCRUM, ADRs, sessions)
+- **Backend** — stack, code patterns, security
+- **Frontend** — stack, components, state
+- **Quality** — tests, CI/CD, coverage
+- **Infrastructure** — deploy, observability, containers
 
-### Passo 3: Preencher o template
+### Step 3: Fill in the template
 
-Use `base/docs/TRILHA_ESTUDOS.template.md` como ponto de partida.
-Adapte ao projeto seguindo a estrutura de cada entrada descrita acima.
+Use `base/docs/learning-trail.template.md` as a starting point.
+Adapt it to the project following the entry structure described above.
 
-### Passo 4: Vincular skill → trilha
+### Step 4: Link skill → trail
 
-Ao criar uma nova skill, adicione na trilha:
+When creating a new skill, add it to the trail:
 
 ```markdown
-### [Nome da Skill]
-**Skill de referência:** `[nome-da-skill.md]`
+### [Skill Name]
+**Reference skill:** `[skill-name.md]`
 ```
 
-E na skill criada, adicione no rodapé:
+And in the created skill, add to the footer:
 ```markdown
-*Trilha de estudos: `docs/processo/TRILHA_ESTUDOS.md` → seção [Nome da Seção]*
+*Learning trail: `docs/processo/LEARNING-TRAIL.md` → section [Section Name]*
 ```
 
 ---
 
-## Manutenção contínua
+## Continuous maintenance
 
-A trilha é atualizada por qualquer agente ao final de uma sessão que:
-- Adota uma nova prática ou padrão
-- Cria uma nova skill
-- Aprova um ADR com impacto de código
-- Resolve um incidente com lição aprendida
+The trail is updated by any agent at the end of a session that:
+- Adopts a new practice or pattern
+- Creates a new skill
+- Approves an ADR with code impact
+- Resolves an incident with a lesson learned
 
-**Frequência mínima:** Uma revisão por sprint (verificar se novas práticas foram adotadas
-e não documentadas).
+**Minimum frequency:** One review per sprint (check whether new practices were adopted
+and not documented).
 
 ---
 
-## Checklist ao adicionar nova prática na trilha
+## Checklist when adding a new practice to the trail
 
-- [ ] Entrada criada com todos os campos obrigatórios (o que é, por que, onde, como aprender)
-- [ ] Skill correspondente criada/atualizada com link de volta à trilha
-- [ ] Nível de dificuldade definido (🟢 / 🟡 / 🔴)
-- [ ] Exemplo de uso no projeto referenciado
-- [ ] `proc-session-continuity` atualizado se nova skill foi criada
+- [ ] Entry created with all required fields (what it is, why, where, how to learn)
+- [ ] Corresponding skill created/updated with a link back to the trail
+- [ ] Difficulty level defined (🟢 / 🟡 / 🔴)
+- [ ] Example of use in the project referenced
+- [ ] `proc-session-continuity` updated if a new skill was created
 
 ---
 
 *Universal — `.github/base/skills/proc-learning-trail.md`*
-*Copiar para `.github/skills/` de cada projeto sem modificação.*
-*Template da trilha: `.github/base/docs/TRILHA_ESTUDOS.template.md`*
+*Copy to `.github/skills/` of each project without modification.*
+*Trail template: `.github/base/docs/learning-trail.template.md`*

@@ -1,104 +1,104 @@
-# Copilot Instructions — [Nome do Projeto]
+# Copilot Instructions — [Project Name]
 
-<!-- CUSTOMIZAR: Este arquivo é lido pelo GitHub Copilot em TODA sessão de qualquer
-agente. É o ponto de maior impacto do sistema — se desatualizar, todos os agentes
-perdem contexto. Mantenha-o preciso e conciso (máx ~150 linhas).
-Delete este bloco de instruções quando o arquivo estiver preenchido. -->
+<!-- CUSTOMIZE: This file is read by GitHub Copilot in EVERY session of any
+agent. It is the highest-impact point in the system — if it becomes outdated, all agents
+lose context. Keep it precise and concise (max ~150 lines).
+Delete this instruction block when the file is filled in. -->
 
 ---
 
-## Sobre o projeto
+## About the project
 
-<!-- CUSTOMIZAR: 2-3 frases: o que faz, para quem, contexto de uso -->
-[Descrição do projeto em 2-3 frases.]
+<!-- CUSTOMIZE: 2-3 sentences: what it does, for whom, usage context -->
+[Project description in 2-3 sentences.]
 
-## Arquitetura
+## Architecture
 
-| Camada | Tecnologia | Porta |
+| Layer | Technology | Port |
 |--------|-----------|-------|
-| Frontend | [ex: Angular 19 + TypeScript] | [ex: 4200] |
-| Backend | [ex: Java 17 + Spring Boot 3.2] | [ex: 8080] |
-| Banco | [ex: PostgreSQL 14+] | [ex: 5432] |
+| Frontend | [e.g.: Angular 19 + TypeScript] | [e.g.: 4200] |
+| Backend | [e.g.: Java 17 + Spring Boot 3.2] | [e.g.: 8080] |
+| Database | [e.g.: PostgreSQL 14+] | [e.g.: 5432] |
 
-<!-- CUSTOMIZAR: adicione ou remova camadas conforme a stack do projeto -->
+<!-- CUSTOMIZE: add or remove layers according to the project's stack -->
 
-## Estrutura do repositório
+## Repository structure
 
 ```
-[raiz do repositório]/
-  [pasta-backend]/      — [descrição]
-  [pasta-frontend]/     — [descrição]
+[repository root]/
+  [backend-folder]/      — [description]
+  [frontend-folder]/     — [description]
   docs/
-    fundamentos/        — principios-engenharia.md, TECNOLOGIAS.md
-    especificacao/      — REQUISITOS.md, MELHORIAS.md
-    (raiz docs)         — architecture.md, diretrizes-tecnicas.md,
-                          analise-estrutural.md, lessons-learned.md
-    processo/           — SCRUM.md, PLANO_TESTES.md
-    guias/              — COMO_USAR.md, COMO_USAR_AGENTS.md
-    (raiz)              — INDICE.md, HISTORICO.md, GLOSSARIO.md
+    fundamentos/         — engineering-principles.md, TECNOLOGIAS.md
+    especificacao/       — REQUISITOS.md, MELHORIAS.md
+    (docs root)          — architecture.md, diretrizes-tecnicas.md,
+                           structural-analysis.md, lessons-learned.md
+    processo/            — SCRUM.md, PLANO_TESTES.md
+    guias/               — COMO_USAR.md, COMO_USAR_AGENTS.md
+    (root)               — INDEX.md, HISTORY.md, GLOSSARIO.md
   .github/
-    agents/             — dev-*, qa-*, mgmt-* agents
-    skills/             — be-*, fe-*, da-*, qa-*, proc-* skills
-    base/               — principios e templates universais
+    agents/              — dev-*, qa-*, mgmt-* agents
+    skills/              — be-*, fe-*, da-*, qa-*, proc-* skills
+    base/                — universal principles and templates
 ```
 
-## Convenções de código — Backend
+## Code conventions — Backend
 
-<!-- CUSTOMIZAR: adapte à linguagem e framework do projeto -->
-- **[Entidades/Modelos]**: [convenção]
-- **[Services/Controllers]**: [convenção de injeção de dependência]
-- **[Objetos de transferência (DTOs)]**: [regra: nunca expor entidade diretamente]
-- **[Transações/Operações]**: [convenção]
-- **[Testes]**: [framework] + [ferramenta de mock]; pacote espelho em [caminho]
+<!-- CUSTOMIZE: adapt to the project's language and framework -->
+- **[Entities/Models]**: [convention]
+- **[Services/Controllers]**: [dependency injection convention]
+- **[Transfer objects (DTOs)]**: [rule: never expose the entity directly]
+- **[Transactions/Operations]**: [convention]
+- **[Tests]**: [framework] + [mocking tool]; mirror package in [path]
 
-## Convenções de código — Frontend
+## Code conventions — Frontend
 
-<!-- CUSTOMIZAR -->
-- [Framework]: [convenção de componentes]
-- [Autenticação no cliente]: [como armazena token, interceptor, guard]
-- [Comunicação HTTP]: [como tipar, como tratar erros]
-- [Formulários]: [reactive vs template-driven]
-- [Testes]: [framework]
+<!-- CUSTOMIZE -->
+- [Framework]: [component convention]
+- [Client authentication]: [how token is stored, interceptor, guard]
+- [HTTP communication]: [how to type, how to handle errors]
+- [Forms]: [reactive vs template-driven]
+- [Tests]: [framework]
 
-## Segurança
+## Security
 
-<!-- CUSTOMIZAR -->
-- **Senhas**: [algoritmo de hash] — [parâmetros]
-- **Autenticação**: [padrão — ex: JWT HS256 com expiração]
-- **Logout**: [como revogar tokens]
-- **Upload**: [validação de tipo de arquivo]
-- **Isolamento de dados**: [como garantir que usuário X não vê dados de Y]
-- **CORS**: [origens permitidas]
+<!-- CUSTOMIZE -->
+- **Passwords**: [hash algorithm] — [parameters]
+- **Authentication**: [pattern — e.g.: JWT HS256 with expiration]
+- **Logout**: [how tokens are revoked]
+- **Upload**: [file type validation]
+- **Data isolation**: [how to ensure user X does not see user Y's data]
+- **CORS**: [allowed origins]
 
-## Regras de negócio principais
+## Main business rules
 
-<!-- CUSTOMIZAR: 3-5 regras críticas do domínio que todo agente deve conhecer -->
-1. **[Regra 1]**: [definição + quando se aplica]
-2. **[Regra 2]**: [definição + quando se aplica]
-3. **[Regra 3]**: [definição + quando se aplica]
-<!-- adicione mais conforme necessário -->
+<!-- CUSTOMIZE: 3-5 critical domain rules every agent must know -->
+1. **[Rule 1]**: [definition + when it applies]
+2. **[Rule 2]**: [definition + when it applies]
+3. **[Rule 3]**: [definition + when it applies]
+<!-- add more as needed -->
 
-## Processo SCRUM
+## SCRUM process
 
-- Sprints de [N] semanas; milestones = sprints
+- [N]-week sprints; milestones = sprints
 - Labels: `type:`, `priority:`, `status:`, `points:`
 - Story Points: Fibonacci (1, 2, 3, 5, 8, 13)
-- Definition of Done: código + code review + testes ≥ [N]% cobertura + docs
-- Requisitos funcionais: RF-01 a RF-[N] em `docs/especificacao/REQUISITOS.md`
+- Definition of Done: code + code review + tests ≥ [N]% coverage + docs
+- Functional requirements: RF-01 to RF-[N] in `docs/especificacao/REQUISITOS.md`
 
-## O que NÃO fazer
+## What NOT to do
 
-<!-- CUSTOMIZAR: anti-patterns proibidos neste projeto -->
-- [Anti-pattern 1] — [motivo]
-- [Anti-pattern 2] — [motivo]
-- [Anti-pattern 3] — [motivo]
-- Nunca commitar segredos (senhas, chaves, tokens) no código
-- Nunca criar lógica de negócio em [camada errada]
+<!-- CUSTOMIZE: anti-patterns forbidden in this project -->
+- [Anti-pattern 1] — [reason]
+- [Anti-pattern 2] — [reason]
+- [Anti-pattern 3] — [reason]
+- Never commit secrets (passwords, keys, tokens) into the code
+- Never create business logic in the [wrong layer]
 
-## Continuidade de sessão
+## Session continuity
 
-**Ação obrigatória:** Ler e seguir `.github/skills/proc-session-continuity.md` em TODA sessão — início E fim.
-O fluxo de fim de sessão (atualizar `docs/HISTORICO.md`, `docs/analise-estrutural.md` e `docs/lessons-learned.md`)
-é obrigatório para manter rastreabilidade e reduzir consumo de tokens na próxima sessão.
+**Mandatory action:** Read and follow `.github/skills/proc-session-continuity.md` in EVERY session — beginning AND end.
+The end-of-session flow (updating `docs/HISTORY.md`, `docs/structural-analysis.md`, and `docs/lessons-learned.md`)
+is mandatory to maintain traceability and reduce token consumption in the next session.
 
-> **Consultar `docs/HISTORICO.md` no início de cada sessão** — contém estado atual, bloqueios e próximos passos.
+> **Consult `docs/HISTORY.md` at the start of every session** — it contains the current state, blockers, and next steps.
