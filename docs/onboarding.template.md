@@ -78,6 +78,39 @@ cp .env.example .env
 
 ---
 
+## Architectural tour — ordered by dependency
+
+> **Read the code in this order** — each module only makes sense after the one
+> before it, because it depends on it.
+
+<!-- CUSTOMIZE — list modules ordered from least to most dependent.
+     Inspired by the Understand-Anything dependency-ordered tour approach:
+     start with shared primitives, end with orchestrators. -->
+
+| Order | Module / Package | Layer | What to read first |
+|-------|-----------------|-------|--------------------|
+| 1 | `[shared / common / domain model]` | domain | Entities and value objects — the vocabulary of the system |
+| 2 | `[repositories / data access]` | data | How data is persisted and retrieved |
+| 3 | `[domain services]` | service | Business rules that span multiple entities |
+| 4 | `[application services / use cases]` | service | Orchestration of domain objects — the "what happens when" |
+| 5 | `[API layer / controllers]` | api | How the outside world triggers use cases |
+| 6 | `[UI / frontend components]` | ui | How the user sees and triggers the flows |
+| 7 | `[infrastructure / adapters]` | infra | External integrations (queues, email, storage, etc.) |
+
+> Re-run `skills/proc-structural-analysis.md` to regenerate this order
+> whenever the module structure changes significantly.
+
+### Key entry point files
+
+<!-- CUSTOMIZE — list 3–5 files a new developer should read on day 1 -->
+| File | Why it matters |
+|------|----------------|
+| `[main entry point]` | Application bootstrap — shows all wired components |
+| `[core entity]` | Central aggregate — everything else orbits around it |
+| `[primary use case]` | Most-executed flow — good proxy for the whole system |
+
+---
+
 ## Development flow
 
 ```

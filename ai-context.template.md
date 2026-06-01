@@ -110,6 +110,17 @@ Delete this instruction block when the file is deployed. -->
 - Never commit secrets (passwords, keys, tokens) into the code
 - Never create business logic in the [wrong layer]
 
+## Architecture gotchas
+
+<!-- CUSTOMIZE: non-obvious things every AI agent must know before touching the code.
+     Based on the CLAUDE.md "Gotchas" pattern from Understand-Anything. -->
+
+- **[Gotcha 1]:** [e.g., "Module X uses WASM instead of native bindings — never replace with the native library on ARM64"]
+- **[Gotcha 2]:** [e.g., "Dashboard must only import from core's browser-safe subpath exports — importing the main entry point pulls in Node.js modules"]
+- **[Gotcha 3]:** [e.g., "The `model` field must be omitted from agent frontmatter — setting it to `inherit` causes ProviderModelNotFoundError on non-Claude platforms"]
+- **[Gotcha 4]:** [e.g., "Flyway migrations are ordered lexicographically — always use the V{timestamp}__ prefix format, never sequential numbers"]
+<!-- Add one line per genuine footgun. Remove examples above. -->
+
 ## Session continuity
 
 **Mandatory action:** Read and follow `.github/skills/proc-session-continuity.md` in EVERY session — beginning AND end.
