@@ -4,6 +4,7 @@
     "repository": "https://github.com/barcelosvinicius/basic-engineering",
     "branch": "main",
     "check_version_url": "https://raw.githubusercontent.com/barcelosvinicius/basic-engineering/main/BASE_VERSION",
+    "npm_package": "@barcelosvinicius/basic-engineering",
     "components": [
         "roles",
         "skills",
@@ -11,7 +12,7 @@
     ],
     "files": {
         "roles": 13,
-        "skills": 16,
+        "skills": 20,
         "docs_templates": 11
     },
     "min_compatible_version": "v20260511-144605"

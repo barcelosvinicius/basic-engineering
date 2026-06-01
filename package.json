@@ -1,0 +1,41 @@
+{
+  "name": "@barcelosvinicius/basic-engineering",
+  "version": "1.0.0",
+  "description": "Universal engineering base for AI-assisted software projects — structured skills, roles, templates, and principles.",
+  "license": "MIT",
+  "author": "barcelosvinicius",
+  "homepage": "https://github.com/barcelosvinicius/basic-engineering",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/barcelosvinicius/basic-engineering.git"
+  },
+  "keywords": [
+    "engineering",
+    "ai",
+    "copilot",
+    "claude",
+    "cursor",
+    "skills",
+    "templates",
+    "documentation"
+  ],
+  "bin": {
+    "be": "./bin/be.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "skills/",
+    "roles/",
+    "docs/",
+    "ai-context.template.md",
+    "engineering-principles.md",
+    "BOOTSTRAP.md",
+    "BASE_VERSION",
+    "base-manifest.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "commonjs"
+}

@@ -12,36 +12,46 @@
 
 Before starting, make sure you have:
 
-- **Git** ≥ 2.x installed
-- **curl** or **wget** (for version checking)
+- **Node.js** ≥ 18 (for `npx` install — recommended)  
+  *or* **Git** ≥ 2.x + **curl/wget** (for manual copy)
 - Access to the [base repository](https://github.com/barcelosvinicius/basic-engineering)
 - A GitHub account with permission to create repositories
 
 ---
 
-## Step 0 — Version check
+## Step 0 — Install or update the base
 
-> **Always run this check before using or updating the base.**
-
-When copying the base to a new project — or after returning to an old project — confirm
-that your copy is on the latest version:
+### Option A — npm (recommended, Node.js ≥ 18)
 
 ```bash
-bash check-version.sh
+# Install or update basic-engineering in the current project
+npx @barcelosvinicius/basic-engineering install
+
+# Check whether an update is available
+npx @barcelosvinicius/basic-engineering check
+```
+
+The CLI automatically detects your installed version and decides what to do:
+
+| Scenario | CLI action |
+|----------|-----------|
+| No base found | Fresh install — copies all files to `.github/base/` |
+| Installed version < package | Update — overwrites universal files only; customisations preserved |
+| Versions match | Skip — nothing to do (`--force` to reinstall) |
+| Installed version > package | Warning only — no changes made |
+
+### Option B — Shell (no Node.js required)
+
+```bash
+# After copying the base manually, check and update via shell:
+bash .github/base/check-version.sh
 ```
 
 | Result | Action |
 |--------|--------|
 | ✅ `Your base is up to date` | Proceed to Step 1 |
-| 🔄 `Update available` | Download the latest `base-atualizacao.zip` and follow the update procedure below |
-| ⚠️ No connection / error | Proceed with caution; check the version manually in `BASE_VERSION` |
-
-### How to update
-
-1. Go to the [base repository](https://github.com/barcelosvinicius/basic-engineering) and download `base-atualizacao.zip`
-2. Extract it over your project's `.github/base/` folder (it overwrites only universal files)
-3. Run `bash check-version.sh` again to confirm
-4. Review the base `CHANGELOG` and adapt your agents/skills if necessary
+| 🔄 `Update available` | Run `npx @barcelosvinicius/basic-engineering update` (or re-download manually) |
+| ⚠️ No connection / error | Proceed with caution; check `BASE_VERSION` manually |
 
 > **Note:** Customized files (AI context file, `agents/`, `docs/`) are never
 > overwritten by the update — they are specific to your project.
