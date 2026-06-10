@@ -1,0 +1,30 @@
+{
+  "_comment": [
+    "RECOMMENDED MCP SERVERS — this file is NOT loaded automatically.",
+    "The be plugin deliberately ships no auto-started MCP servers: every",
+    "server adds processes, permissions, and tool-schema tokens to your",
+    "context. Review each entry, keep only what the project needs, and copy",
+    "the result to your project's .mcp.json (project root).",
+    "Docs: https://docs.claude.com/en/docs/claude-code/mcp"
+  ],
+  "mcpServers": {
+    "github": {
+      "_comment": "PR/issue workflows used by proc-code-review and the sprint protocol. Requires a GitHub PAT.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}"
+      }
+    },
+    "context7": {
+      "_comment": "Up-to-date library documentation on demand — pairs well with proc-dependency-management.",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "postgres": {
+      "_comment": "Read-only database inspection — pairs with be-db-migrations and dev-data-analyst. Point at a DEV database, never production.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${DEV_DATABASE_URL}"]
+    }
+  }
+}

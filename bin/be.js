@@ -14,6 +14,7 @@
  *   --dry-run   Show what would happen without writing files
  *   --force     Reinstall even if versions match
  *   --silent    Suppress output (useful for scripts)
+ *   --claude    Print the native Claude Code plugin instructions instead of copying
  */
 
 const path = require('path');
@@ -27,6 +28,7 @@ const command = args.find(a => !a.startsWith('--')) || 'install';
 const dryRun  = args.includes('--dry-run');
 const force   = args.includes('--force');
 const silent  = args.includes('--silent');
+const claude  = args.includes('--claude');
 
 // Target dir: first non-flag, non-command argument, or cwd
 const positional = args.filter(a => !a.startsWith('--') && a !== command);
@@ -84,6 +86,19 @@ switch (command) {
 
   case 'install':
   case 'update': {
+    if (claude) {
+      console.log('');
+      console.log('Claude Code users get the base natively as a plugin — no file copies:');
+      console.log('');
+      console.log('  /plugin marketplace add barcelosvinicius/basic-engineering');
+      console.log('  /plugin install be@basic-engineering');
+      console.log('');
+      console.log('Then run /be:bootstrap inside your project.');
+      console.log('Update later with: /plugin update be@basic-engineering');
+      console.log('');
+      process.exit(0);
+    }
+
     if (!fs.existsSync(targetDir)) {
       console.error(`❌  Target directory does not exist: ${targetDir}`);
       process.exit(2);
@@ -112,5 +127,6 @@ switch (command) {
     console.error('  --dry-run       Show what would happen without writing files');
     console.error('  --force         Reinstall even if versions already match');
     console.error('  --silent        Suppress output');
+    console.error('  --claude        Print Claude Code plugin install instructions');
     process.exit(2);
 }

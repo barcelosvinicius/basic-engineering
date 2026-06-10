@@ -1,18 +1,24 @@
 {
-    "version": "v20260511-144605",
-    "timestamp": "2026-05-11T14:46:05.7972686-03:00",
+    "version": "v20260610-000000",
+    "timestamp": "2026-06-10T00:00:00Z",
     "repository": "https://github.com/barcelosvinicius/basic-engineering",
     "branch": "main",
     "check_version_url": "https://raw.githubusercontent.com/barcelosvinicius/basic-engineering/main/BASE_VERSION",
     "npm_package": "@barcelosvinicius/basic-engineering",
+    "semver": "2.0.0",
+    "plugin_path": "plugins/be",
+    "marketplace": "barcelosvinicius/basic-engineering",
     "components": [
-        "roles",
         "skills",
-        "docs"
+        "agents",
+        "commands",
+        "hooks",
+        "templates/docs"
     ],
     "files": {
-        "roles": 13,
-        "skills": 20,
+        "skills": 25,
+        "agents": 12,
+        "commands": 7,
         "docs_templates": 11
     },
     "min_compatible_version": "v20260511-144605"
