@@ -1,0 +1,21 @@
+{
+  "name": "be",
+  "description": "Engineering base: 25 skills (process, backend, frontend, QA, security, ops), 12 specialized agents, session-continuity automation, ADR/SDD/release workflows.",
+  "version": "2.0.0",
+  "author": {
+    "name": "barcelosvinicius",
+    "url": "https://github.com/barcelosvinicius"
+  },
+  "homepage": "https://github.com/barcelosvinicius/basic-engineering",
+  "repository": "https://github.com/barcelosvinicius/basic-engineering",
+  "license": "MIT",
+  "keywords": [
+    "engineering",
+    "process",
+    "session-continuity",
+    "adr",
+    "sdd",
+    "code-review",
+    "security"
+  ]
+}

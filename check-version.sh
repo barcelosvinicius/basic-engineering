@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # check-version.sh — Checks whether the local base version is up to date
 #
+# DEPRECATED since 2.0: prefer `npx @barcelosvinicius/basic-engineering check`
+# (works on Windows too). Kept only for installed bases that reference it.
+#
 # Usage:
 #   bash check-version.sh
 #   bash check-version.sh --silent   # no messages, exit code only

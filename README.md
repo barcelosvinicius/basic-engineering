@@ -1,152 +1,113 @@
 # basic-engineering
 
-> A universal engineering base for AI-assisted software projects — structured to produce robust, efficient, and secure software from day one.
+> A universal engineering base for AI-assisted software projects — delivered
+> as a **Claude Code plugin** (skills, agents, commands, hooks) and as an
+> **npm installer** for Copilot, Cursor, and any other AI tool.
 
-![Version](https://img.shields.io/badge/version-v20260511--144605-blue)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ## What is this repository?
 
-**basic-engineering** is a foundational framework designed to maximize the value of any AI assistant (GitHub Copilot, Claude, Cursor, Gemini, and others) in real-world software projects. It goes beyond templates: it defines *how to think* about software — with depth, rigor, and a long-term view.
+**basic-engineering** is a foundational framework designed to maximize the
+value of any AI assistant in real-world software projects. AI tools are only
+as good as the context and structure surrounding them — without clear
+principles, defined roles, reusable knowledge, and living documentation, AI
+assistance degrades into noise. This base provides the scaffolding that
+elevates AI from autocomplete to a genuine engineering partner.
 
-The core belief behind this project is that AI tools are only as good as the context and structure surrounding them. Without clear principles, defined roles, reusable knowledge, and living documentation, AI assistance degrades into noise. This base provides the scaffolding that elevates AI from autocomplete to a genuine engineering partner.
+## Quickstart
 
-### What this base delivers
+### Claude Code (recommended)
 
-- **🏗️ Engineering principles** — technology-agnostic rules that guide every decision: UX, security, data integrity, testing, observability, resilience, and more. Designed to be immutable per project and referenced by every agent and skill.
-- **🤖 AI agent templates (roles)** — 13 ready-to-customize agent definitions covering every team role: backend developer, frontend developer, data analyst, product owner, project manager, domain expert, architect, QA engineer, security reviewer, pentest engineer, DevOps, and SRE. Each agent knows its responsibilities, the project's stack, and how to collaborate.
-- **🛠️ Universal skills** — 20 reusable technical skill documents (backend patterns, frontend UX, CI/CD pipelines, security, testing, process protocols — including structural analysis, domain mapping, and impact analysis) that agents load on demand. Skills are the "how to do it" layer — concrete, actionable, stack-aware.
-- **📄 Documentation templates** — 11 templates for the full documentation lifecycle: changelog, contributing guide, session history, project index, security policy, learning trail, structural analysis, lessons learned, onboarding, runbook, and ADRs.
-- **🔄 Session continuity protocol** — a mandatory workflow ensuring that every AI session (and every human session) starts with full context and ends with updated documentation. Reduces token waste and eliminates the "lost context" problem across long-running projects.
-- **📐 Spec-Driven Development (SDD)** — optional methodology for projects that outgrow vibe coding. Defines a `spec → plan → tasks` hierarchy with EARS-syntax requirements so every AI session gets precise, minimal, and verifiable context. See `skills/proc-sdd.md`.
+```
+/plugin marketplace add barcelosvinicius/basic-engineering
+/plugin install be@basic-engineering
+```
 
-### Design philosophy
+Then, in your project: `/be:bootstrap`. Done — 25 skills, 12 agents, 7
+commands, and the session-continuity hook are active. Update later with
+`/plugin update be@basic-engineering`.
 
-This framework is built on five commitments:
-
-1. **Depth over speed** — forcing a thinking-before-coding discipline that eliminates silent assumptions, reduces rework, and produces better decisions.
-2. **Structured context for AI** — every agent and skill is designed to give AI assistants precisely the context they need to produce reliable, project-consistent outputs.
-3. **Security and quality by default** — engineering principles embed security (OWASP, SAST, dependency scanning), performance, accessibility, and observability as first-class concerns — not afterthoughts.
-4. **Permanent evolution** — the base is versioned and self-updating. As technology advances, principles and skills are updated. Projects built on this base inherit improvements without starting over.
-5. **Token efficiency as engineering discipline** — context is treated as a graph: depth-first loading for implementation sessions (load only the current task's spec), breadth-first only when navigating across features. Saving tokens is not a workaround — it is part of responsible and scalable AI use.
-
----
-
-## How to use
-
-### Option A — npm install (recommended)
-
-> **Prerequisites:** Node.js ≥ 18
+### Other tools (Copilot, Cursor, Windsurf, …)
 
 ```bash
-# Install into the current project
-cd my-project
-npx @barcelosvinicius/basic-engineering install
-
-# Or install into a specific directory
-npx @barcelosvinicius/basic-engineering install ./my-project
+npx @barcelosvinicius/basic-engineering install   # copies the base to .github/base/
+npx @barcelosvinicius/basic-engineering check     # check for updates
 ```
 
-The installer automatically:
-- Detects whether basic-engineering is already present
-- Compares the installed version against the package version
-- Performs a **fresh install** if no base is found
-- Performs an **update** (universal files only — customisations preserved) if the installed version is older
-- **Skips** if versions already match (use `--force` to reinstall anyway)
+Then follow `.github/base/BOOTSTRAP.md`. The content is identical — plain
+markdown readable by any tool.
 
-#### Check and update later
+> `check-version.sh` is **deprecated** — use `be check` instead.
+
+## What this base delivers
+
+| Component | Count | What it is |
+|-----------|-------|------------|
+| **Skills** | 25 | Reusable technical knowledge in Agent Skills format (`skills/<name>/SKILL.md` + on-demand resources): process protocols (session continuity, SDD, ADR, code review, code documentation, impact/structural/domain analysis, dependency management), backend patterns (errors, versioning, migrations, auth, pagination), frontend (UX, accessibility), security (secrets), operations (observability), CI/CD, testing |
+| **Agents** | 12 | Ready-to-use specialized subagents — dev (backend, frontend, data), mgmt (PO, PM, domain expert, architect), qa (engineer, security reviewer, pentest), infra (devops), ops (SRE). They work **without customization**: each reads the project's conventions from `CLAUDE.md` and `docs/` at runtime. Analyst/security agents are tool-restricted to read-only |
+| **Commands** | 7 | `/be:session-start`, `/be:session-end`, `/be:adr`, `/be:impact`, `/be:release-check`, `/be:structural-analysis`, `/be:bootstrap` |
+| **Hooks** | 1 | SessionStart — injects `docs/HISTORY.md` Current State / Next Steps automatically (silent when the file doesn't exist) |
+| **Doc templates** | 11 | Changelog, contributing, history, index, security policy, learning trail, structural analysis, lessons learned, onboarding, runbook, ADR |
+| **Principles** | 1 | `engineering-principles.md` — technology-agnostic rules for UX, security, coupling, testing, observability, resilience, plus the AI documentation protocol |
+
+### MCP
+
+The plugin deliberately ships **no auto-started MCP servers** — every server
+adds processes, permissions, and context tokens. `plugins/be/mcp.recommended.json`
+is a reviewed-by-you starting point (GitHub, docs server, read-only DB) to
+copy into your project's `.mcp.json`.
+
+## Design philosophy
+
+1. **Depth over speed** — thinking-before-coding discipline that eliminates
+   silent assumptions and rework.
+2. **Structured context for AI** — agents and skills give assistants
+   precisely the context they need, when they need it.
+3. **Security and quality by default** — OWASP, SAST, dependency scanning,
+   accessibility, and observability as first-class concerns.
+4. **Permanent evolution** — versioned and self-updating; projects inherit
+   improvements without starting over.
+5. **Token efficiency as engineering discipline** — progressive disclosure
+   everywhere: skill descriptions load first, bodies on trigger, resources on
+   demand; sessions load context depth-first (see the `proc-sdd` skill).
+
+## Repository layout
+
+```
+.claude-plugin/marketplace.json   ← plugin marketplace manifest
+plugins/be/                       ← the canonical content (one source of truth)
+  ├── .claude-plugin/plugin.json
+  ├── skills/<name>/SKILL.md      ← 25 skills + resources
+  ├── agents/*.md                 ← 12 subagents
+  ├── commands/*.md               ← 7 slash commands
+  ├── hooks/                      ← SessionStart hook
+  ├── templates/docs/             ← 11 documentation templates
+  ├── BOOTSTRAP.md                ← project kickoff guide
+  ├── engineering-principles.md
+  ├── ai-context.template.md      ← CLAUDE.md template
+  └── mcp.recommended.json
+bin/be.js · lib/installer.js      ← npm CLI for non-Claude tools
+scripts/validate.js · test/       ← structural validation + installer tests
+```
+
+## Versioning
+
+- **Semver** (`2.0.0`) in `package.json`, `plugin.json`, and
+  `marketplace.json` — always identical.
+- **`BASE_VERSION`** (`vYYYYMMDD-HHMMSS`) drives the npm installer's
+  update detection in target projects.
+- Changes are tracked in [CHANGELOG.md](CHANGELOG.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Before opening a PR:
 
 ```bash
-# Check whether an update is available
-npx @barcelosvinicius/basic-engineering check
-
-# Update (same as install — detects version automatically)
-npx @barcelosvinicius/basic-engineering update
+npm run validate && npm test
 ```
 
-#### CLI flags
+## License
 
-| Flag | Effect |
-|------|--------|
-| `--dry-run` | Show what would happen without writing any files |
-| `--force` | Reinstall even if versions already match |
-| `--silent` | Suppress output (useful in scripts) |
-
----
-
-### Option B — Manual copy (git)
-
-> **Prerequisites:** Git ≥ 2.x, curl or wget
-
-```bash
-# Clone this repository (or download base-atualizacao.zip)
-git clone https://github.com/barcelosvinicius/basic-engineering.git
-
-# Copy the base to your project
-cp -r basic-engineering/.github/base/ my-project/.github/base/
-cp basic-engineering/check-version.sh my-project/check-version.sh
-cp basic-engineering/BASE_VERSION my-project/BASE_VERSION
-```
-
-Check the version afterwards:
-
-```bash
-cd my-project
-bash check-version.sh
-```
-
-### Follow BOOTSTRAP.md
-
-Read `.github/base/BOOTSTRAP.md` and follow the 7 steps to set up your complete project.
-
----
-
-## Structure
-
-```
-basic-engineering/
-├── bin/
-│   └── be.js                         — CLI entry point (install / update / check)
-├── lib/
-│   └── installer.js                  — Core install/update logic with version detection
-├── package.json                      — npm package manifest
-├── BOOTSTRAP.md                      — Complete setup guide (read first)
-├── engineering-principles.md         — Universal, technology-agnostic engineering principles
-├── BASE_VERSION                      — Current base version
-├── base-manifest.json                — Metadata and version check URL
-├── check-version.sh                  — Shell-based version verification (no Node required)
-├── ai-context.template.md            — Template for your project's AI context file
-├── roles/                            — 13 agent (role) templates
-├── skills/                           — 20 universal skill documents
-└── docs/                             — 11 documentation templates
-```
-
----
-
-## The 5-layer system
-
-```
-LAYER 0 — PHILOSOPHICAL FOUNDATION    (engineering-principles.md)
-          "How to think about software" — universal, project-immutable
-
-LAYER 1 — PROJECT CONTEXT             (.github/ or project root)
-          AI context file — project-specific, tool-deployed per BOOTSTRAP.md
-
-LAYER 2 — SPECIALIZED ROLES           (.github/agents/)
-          "Who does what" — customized from base/roles/ templates
-
-LAYER 3 — TECHNICAL KNOWLEDGE         (.github/skills/)
-          "How to do it" — domain and stack specific
-
-LAYER 4 — LIVING DOCUMENTATION        (docs/)
-          "What was done and what remains" — updated every session
-
-LAYER 5 — SPEC-DRIVEN ARTIFACTS       (.specify/)  [optional]
-          "What each feature must do" — specs, plans, tasks per feature
-```
-
----
-
-## Version
-
-Version format: `vYYYYMMDD-HHMMSS`. Check `BASE_VERSION` for your installed version
-and run `bash check-version.sh` to verify if updates are available.
+[MIT](LICENSE)
