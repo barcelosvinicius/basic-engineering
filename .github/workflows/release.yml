@@ -1,0 +1,44 @@
+name: release
+
+# Publishes @barcelosvinicius/basic-engineering to npm via OIDC Trusted Publishing
+# (no token/secret). Channel A — the Claude Code plugin/marketplace — updates on
+# its own from `main`; this workflow covers Channel B, the npm installer.
+#
+# One-time setup on npmjs.com: the package -> Settings -> Trusted Publisher ->
+# GitHub Actions, repository barcelosvinicius/basic-engineering, workflow
+# release.yml, environment left empty.
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for npm Trusted Publishing (OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm (trusted publishing needs npm >= 11.5.1)
+        run: npm install -g npm@latest
+      - name: Verify package.json version matches the tag
+        if: github.ref_type == 'tag'
+        run: |
+          PKG="$(node -p "require('./package.json').version")"
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "package.json=$PKG tag=$TAG"
+          test "$PKG" = "$TAG"
+      - name: Validate + test
+        run: |
+          node scripts/validate.js
+          node --test
+      - name: Publish to npm (OIDC, public, with provenance)
+        run: npm publish
