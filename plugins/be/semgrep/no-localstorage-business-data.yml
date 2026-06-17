@@ -1,0 +1,26 @@
+# Flags business data persisted to localStorage. Complements the auth-focused
+# rules in the `infra-ci-cd` skill: those cover token/auth; this covers ANY
+# business data (it does not survive across devices, is not "live", and bypasses
+# the backend). Persist business data on the server instead.
+#
+# Strategy: flag localStorage.setItem EXCEPT keys that are clearly UI-only
+# (theme, language, layout flags). Tune the allowlist regex per project.
+#
+# Run: semgrep --config no-localstorage-business-data.yml <frontend-src>
+rules:
+  - id: no-localstorage-business-data
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >
+      Business data must not be stored in localStorage — it does not survive
+      across devices, is not "live", and bypasses the backend. Persist it on
+      the server. UI-only keys (theme, language, layout flags) belong in this
+      rule's allowlist; tokens/auth are covered by the no-localstorage-auth rule.
+    patterns:
+      - pattern-either:
+          - pattern: localStorage.setItem($KEY, ...)
+          - pattern: window.localStorage.setItem($KEY, ...)
+      # Allowlist: do NOT flag keys that are clearly UI state. Adjust per project.
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: '^(?!.*(theme|tema|locale|idioma|lang|sidebar|layout|collapsed|consent|cookie|ui[-_]|pref)).*$'
