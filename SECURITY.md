@@ -25,4 +25,4 @@ acknowledgement within 7 days.
   documented template the user must copy and review consciously — review any MCP server
   before enabling it.
 - The installer never deletes user files and never writes outside the target's
-  `.github/base/` directory.
+  `.be/` directory.

@@ -5,7 +5,7 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 1. **Claude Code plugin** — marketplace manifest at `.claude-plugin/marketplace.json`,
    plugin at `plugins/be/` (skills, agents, commands, hooks).
 2. **npm installer** — `bin/be.js` + `lib/installer.js` copy `plugins/be/` content into
-   a target project's `.github/base/` for Copilot/Cursor/other tools.
+   a target project's `.be/` for Copilot/Cursor/other tools.
 
 ## Structure
 
@@ -23,7 +23,7 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 - Skill frontmatter: `name` == directory name; `description` leads with the trigger
   condition ("Use when…"). Keep SKILL.md ≤ ~150 lines; long examples go in sibling
   resource files.
-- Never hardcode tool-specific paths (`.github/base/...`) inside skills/agents —
+- Never hardcode tool-specific paths (`.be/...`) inside skills/agents —
   reference skills by name.
 - Versions must stay in sync: `package.json`, `plugins/be/.claude-plugin/plugin.json`,
   `.claude-plugin/marketplace.json` (semver) + `BASE_VERSION` (`vYYYYMMDD-HHMMSS`).
