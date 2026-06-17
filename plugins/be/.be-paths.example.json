@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "OPTIONAL per-project path map. Copy to `.be-paths.json` at your project root.",
+    "It lets be commands and hooks work with YOUR doc names — English or",
+    "Portuguese — instead of assuming the defaults. Any missing key falls back to",
+    "the English default, then to a common Portuguese name. Delete keys you don't",
+    "remap. Paths are relative to the project root."
+  ],
+  "history": "docs/HISTORICO.md",
+  "structural": "docs/arquitetura/analise-estrutural.md",
+  "lessons": "docs/arquitetura/lessons-learned.md",
+  "requirements": "docs/especificacao/REQUISITOS.md",
+  "pending": "docs/especificacao/pendencias.md",
+  "adr": "docs/adr",
+  "changelog": "CHANGELOG.md",
+  "glossary": "docs/GLOSSARIO.md"
+}
