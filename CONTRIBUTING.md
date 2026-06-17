@@ -25,7 +25,7 @@ and a Claude Code plugin marketplace — contributions must keep both delivery c
    - Stack-agnostic principles in `SKILL.md`; framework examples in resources.
 3. **Agents** live in `plugins/be/agents/<name>.md` and must work without
    customization — they read project conventions from `CLAUDE.md` and `docs/` at runtime.
-4. **Never hardcode tool-specific paths** (e.g., `.github/base/...`) inside skills or
+4. **Never hardcode tool-specific paths** (e.g., `.be/...`) inside skills or
    agents — reference other skills by name instead.
 
 ## Before opening a PR

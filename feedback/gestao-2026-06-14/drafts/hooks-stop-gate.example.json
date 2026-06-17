@@ -1,0 +1,27 @@
+{
+  "_comment": "RASCUNHO (achados #2 e #4) — exemplo de como estender plugins/be/hooks/hooks.json com um gate no fim do turno. NÃO é para colar direto: o plugin já tem SessionStart; este bloco MESCLA um Stop. O script quality-gate.js precisa ser criado em hooks/scripts/.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-start.js\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/quality-gate.js\"" }
+        ]
+      }
+    ]
+  },
+  "_quality_gate_js_outline": [
+    "O que o quality-gate.js deveria fazer (leve, não-bloqueante por padrão):",
+    "1. git diff --name-only: houve mudança em código funcional (src/**, backend/**, frontend/**)?",
+    "2. Se sim e HISTORICO/analise-estrutural NÃO mudaram no diff -> imprimir lembrete: 'rode /be:session-end'.",
+    "3. grep rápido dos anti-padrões de maior risco no diff (ex.: localStorage.setItem de dado de negócio; JWT_SECRET hardcoded; console.log de dado sensível).",
+    "4. Se existir semgrep no PATH e .semgrep/rules/ -> rodar semgrep --error nos arquivos do diff (gate de segurança real no loop).",
+    "5. Mensagens curtas e acionáveis. Bloquear (exit !=0) só os 2-3 itens REALMENTE críticos (ex.: segredo hardcoded); o resto é aviso."
+  ]
+}

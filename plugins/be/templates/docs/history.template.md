@@ -81,7 +81,7 @@
 
 **Owner:** [name]
 **Deliveries:**
-- Engineering base set up (Claude Code plugin `be`, or `.github/base/` via the npm installer)
+- Engineering base set up (Claude Code plugin `be`, or `.be/` via the npm installer)
 - AI context file deployed (`CLAUDE.md`; mirrors for other tools — see BOOTSTRAP.md Step 2)
 - `docs/` initialized with folder structure
 

@@ -95,6 +95,21 @@ Reflect the answer in `docs/HISTORY.md` and `docs/structural-analysis.md`.
 > `structural-analysis.md` and/or `HISTORY.md` in the same commit.**
 > Documentation must never be more than 1 commit behind the code.
 
+## Two memories — keep the boundary clean
+
+`be` and the AI harness each persist state; do not blur them:
+
+- **`be` living docs (`docs/`)** = the *project's* state and decisions — what
+  was built, what's pending, what was decided and why. Versioned with the code,
+  shared by the whole team. This is the source of truth a session loads.
+- **The harness's own memory** (e.g. Claude Code's `CLAUDE.md` + memory files)
+  = *how to work here* — the user's preferences, recurring feedback, tool and
+  workflow conventions. Personal/assistant-scoped, not project history.
+
+Rule of thumb: a fact another developer needs → `docs/`; a preference about how
+the AI should work → harness memory. Session start reads **both**; never record
+a project decision only in harness memory — it would vanish for the team.
+
 ## See also
 
 - [resources.md](resources.md) — reference tables of available agents, skills,

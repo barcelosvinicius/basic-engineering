@@ -41,11 +41,11 @@ npx @barcelosvinicius/basic-engineering install   # install or update
 npx @barcelosvinicius/basic-engineering check     # check for updates
 ```
 
-The CLI copies the canonical content to `.github/base/` in your project:
+The CLI copies the canonical content to `.be/` in your project:
 
 | Scenario | CLI action |
 |----------|-----------|
-| No base found | Fresh install — copies everything to `.github/base/` |
+| No base found | Fresh install — copies everything to `.be/` |
 | Installed version < package | Update — overwrites universal files; your customizations are preserved |
 | Versions match | Skip (`--force` to reinstall) |
 | Installed version > package | Warning only — no changes |
@@ -64,11 +64,15 @@ in any software project, regardless of stack, domain, or size:
 | `BOOTSTRAP.md` (this file) | Structure and creation sequence |
 | `engineering-principles.md` | Engineering principles independent of technology |
 | `ai-context.template.md` | Template for the project's AI context file |
-| `skills/` | 25 universal skills (`<name>/SKILL.md` + resources) |
-| `agents/` | 12 ready-to-use specialized agents |
+| `BE-GUIDE.md` | Generated catalog of every command/agent/skill + live guardrails (`/be:help` shows it; written to the project root on bootstrap) |
+| `skills/` | 28 universal skills (`<name>/SKILL.md` + resources) |
+| `semgrep/` | Bundled starter SAST rules (`/be:check` + `infra-ci-cd`) |
+| `config/` | Data files: `stack-mappings.json` (per-stack build/test/lint commands) + `install-profiles.json` |
+| `agents/` | 15 ready-to-use specialized agents (each declares a `model` + prompt-defense baseline) |
 | `commands/` | Task recipes (Claude Code slash commands; readable as checklists by any tool) |
 | `templates/docs/` | 11 documentation templates |
 | `mcp.recommended.json` | Reviewed-by-you starting point for MCP servers (Claude Code) |
+| `.be-paths.example.json` | Optional EN/PT path map — copy to `.be-paths.json` so commands/hooks find your doc names (e.g. `HISTORICO.md`) |
 
 **Golden rule:** if a file contains names, technologies, or decisions from a
 specific project → it belongs in the project (`docs/`, project skills/agents).
@@ -108,7 +112,7 @@ engineering-principles.md → AI context file → agent → skill
 
 ### Step 1 — Get the base *(Channel B only)*
 
-Run the installer (Step 0-B). It populates `.github/base/` with everything.
+Run the installer (Step 0-B). It populates `.be/` with everything.
 
 ### Step 2 — Create the AI context file *(both channels; `/be:bootstrap` automates it on A)*
 
@@ -133,7 +137,7 @@ If the team also uses other tools, mirror the same content to:
 
 ### Step 3 — Agents *(Channel B only; Claude Code gets them from the plugin)*
 
-The base agents in `.github/base/agents/` work **without customization** —
+The base agents in `.be/agents/` work **without customization** —
 they read the project's stack and conventions from `CLAUDE.md` and `docs/`
 at runtime. Point your tool at them (e.g., Copilot custom agents in
 `.github/agents/` can reference or copy these files).
@@ -143,7 +147,7 @@ the same frontmatter pattern (`name`, `description` with a delegation
 trigger). Use only agents the project really needs — unused agents are
 context noise.
 
-### Step 4 — Skills and SAST rules *(Channel B: point your tool at `.github/base/skills/`)*
+### Step 4 — Skills and SAST rules *(Channel B: point your tool at `.be/skills/`)*
 
 Universal skills ship with the base — each one is a folder
 `skills/<name>/SKILL.md` with optional resource files. Create
@@ -240,7 +244,7 @@ git commit -m "chore(setup): initialize documentation structure and engineering 
 | Prefix | Domain | Roles |
 |--------|--------|-------|
 | `dev-` | Development | backend, frontend, data-analyst |
-| `qa-` | Quality | engineer, security-reviewer, pentest-engineer |
+| `qa-` | Quality | engineer, security-reviewer, pentest-engineer, silent-failure-hunter, release-sanitizer, pr-test-analyzer |
 | `mgmt-` | Management | product-owner, project-manager, domain-expert, architect |
 | `infra-` | Infrastructure | devops |
 | `ops-` | Operations | sre |

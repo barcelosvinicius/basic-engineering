@@ -15,6 +15,7 @@
  *   --force     Reinstall even if versions match
  *   --silent    Suppress output (useful for scripts)
  *   --claude    Print the native Claude Code plugin instructions instead of copying
+ *   --profile=<name>  Install a skill subset (full|minimal|backend|frontend; default full)
  */
 
 const path = require('path');
@@ -29,6 +30,8 @@ const dryRun  = args.includes('--dry-run');
 const force   = args.includes('--force');
 const silent  = args.includes('--silent');
 const claude  = args.includes('--claude');
+const profileArg = args.find(a => a.startsWith('--profile='));
+const profile = profileArg ? profileArg.slice('--profile='.length) : undefined;
 
 // Target dir: first non-flag, non-command argument, or cwd
 const positional = args.filter(a => !a.startsWith('--') && a !== command);
@@ -46,7 +49,7 @@ switch (command) {
     break;
 
   case 'check': {
-    const installedFile = path.join(targetDir, '.github', 'base', 'BASE_VERSION');
+    const installedFile = path.join(targetDir, '.be', 'BASE_VERSION');
 
     console.log('');
     console.log('┌─────────────────────────────────────────────────────┐');
@@ -104,7 +107,7 @@ switch (command) {
       process.exit(2);
     }
 
-    const result = install(targetDir, { dryRun, force, silent });
+    const result = install(targetDir, { dryRun, force, silent, profile });
 
     if (result.action === 'skipped') process.exit(0);
     if (result.action === 'dry-run') process.exit(0);
@@ -128,5 +131,6 @@ switch (command) {
     console.error('  --force         Reinstall even if versions already match');
     console.error('  --silent        Suppress output');
     console.error('  --claude        Print Claude Code plugin install instructions');
+    console.error('  --profile=<n>   Skill subset: full|minimal|backend|frontend (default full)');
     process.exit(2);
 }

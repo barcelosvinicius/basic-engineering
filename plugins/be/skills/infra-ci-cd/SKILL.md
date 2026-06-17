@@ -45,6 +45,21 @@ silence findings ad hoc.
 | Week 2–4 | High + Critical | Block only severe issues |
 | Stable | Moderate and up | Recommended standard |
 
+## Supply-chain integrity (beyond CVEs)
+
+SCA finds *known-vulnerable* versions; it misses *known-malicious* ones
+(compromised releases, typosquats, install-script exfiltration). Add:
+
+- **Advisory / IOC scan:** check installed versions against malicious-package
+  feeds — OSV-Scanner, Socket, or the OpenSSF malicious-packages / GitHub
+  Advisory data — and fail on a match. Re-run on every lockfile change.
+- **Provenance & signatures:** prefer packages with build provenance and verify
+  it in CI (`npm audit signatures`, sigstore/cosign).
+- **Neutralize install scripts:** install with scripts disabled where feasible
+  (`npm ci --ignore-scripts`) so a malicious `postinstall` cannot run in CI.
+- **Pin + review new deps** before adding (`proc-dependency-management`); pin
+  transitive versions via the lockfile.
+
 ## Static application security testing (SAST)
 
 SCA checks dependencies; SAST checks the code you wrote. Use both:
