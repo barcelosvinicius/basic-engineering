@@ -38,7 +38,8 @@
   "scripts": {
     "test": "node --test",
     "validate": "node scripts/validate.js",
-    "gen:guide": "node scripts/gen-capabilities.js"
+    "gen:guide": "node scripts/gen-capabilities.js",
+    "release": "node scripts/release.js"
   },
   "engines": {
     "node": ">=18"
