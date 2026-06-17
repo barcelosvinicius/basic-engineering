@@ -31,19 +31,19 @@ On npmjs.com → the package → **Settings → Trusted Publisher → GitHub Act
 
    This bumps the four version files in lockstep, rolls `[Unreleased]` into a
    dated section, regenerates the guides, runs `validate` + tests, then commits
-   `chore(release): vX.Y.Z` and tags `vX.Y.Z`. Add `--dry-run` to preview
-   without committing.
+   `chore(release): vX.Y.Z`. Add `--dry-run` to preview without committing.
 
-3. Push to publish:
+3. Push:
 
    ```bash
-   git push origin HEAD vX.Y.Z
+   git push origin HEAD
    ```
 
-   (or run step 2 with `--push` to do it in one go). The tag push triggers
-   `release.yml` → `validate` + tests → `npm publish` (public, with provenance)
-   via OIDC. The push to `main` updates the marketplace plugin on its own.
-4. Optional: `gh release create vX.Y.Z --notes-from-tag`.
+   (or run step 2 with `--push` to do it in one go). The push to `main` does
+   **both**: the marketplace plugin updates on its own, and `release.yml` sees
+   the new version, runs `validate` + tests, `npm publish`es via OIDC (public,
+   with provenance), then creates the tag and GitHub release. If the version is
+   unchanged, the workflow no-ops — so ordinary commits never publish.
 
 > Manual fallback (needs npm 2FA): `npm publish --auth-type=web` and approve in
 > the browser. Prefer the CI path — no secrets, and it attaches provenance.
