@@ -7,11 +7,6 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Roadmap (deliberately deferred)
-
-- `sec-threat-modeling` skill
-- `qa-performance-testing` skill
-- Stack-specific resource packs for additional ecosystems (Python/FastAPI, Node/Nest, Go)
 
 ## [3.0.0] — 2026-06-17
 
@@ -192,3 +187,9 @@ feedback and a deep analysis of the ECC reference base (see `feedback/BACKLOG.md
 
 - Initial npm release: universal engineering base with 13 role templates, 20 flat
   skills, 11 documentation templates, engineering principles, and the `be` CLI installer.
+
+## Roadmap (not yet scheduled)
+
+- `sec-threat-modeling` skill
+- `qa-performance-testing` skill
+- Stack-specific resource packs for additional ecosystems (Python/FastAPI, Node/Nest, Go)

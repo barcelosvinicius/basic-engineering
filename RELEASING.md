@@ -20,23 +20,30 @@ On npmjs.com → the package → **Settings → Trusted Publisher → GitHub Act
 - **Workflow filename:** `release.yml`
 - **Environment:** leave empty
 
-### Cutting a release
+### Cutting a release — one command
 
-1. Bump the version in lockstep (`npm run validate` enforces the sync):
-   `package.json`, `plugins/be/.claude-plugin/plugin.json`,
-   `.claude-plugin/marketplace.json` (semver) and `BASE_VERSION`
-   (`vYYYYMMDD-HHMMSS`).
-2. Update `CHANGELOG.md` (move **Unreleased** into the new version).
-3. If commands/agents/skills changed, run `npm run gen:guide` and commit the
-   regenerated `BE-GUIDE.md` / `BE-GUIDE.pt.md`.
-4. Tag and push:
+1. Write your notes under `## [Unreleased]` in `CHANGELOG.md`.
+2. Run:
+
    ```bash
-   git tag vX.Y.Z
-   git push origin main vX.Y.Z
+   npm run release -- minor        # or: patch | major | an explicit 3.2.0
    ```
-   The tag push triggers `release.yml`, which checks the version matches the tag,
-   runs `validate` + tests, then `npm publish` (public, with provenance) via OIDC.
-5. Optional: `gh release create vX.Y.Z --notes-from-tag`.
+
+   This bumps the four version files in lockstep, rolls `[Unreleased]` into a
+   dated section, regenerates the guides, runs `validate` + tests, then commits
+   `chore(release): vX.Y.Z` and tags `vX.Y.Z`. Add `--dry-run` to preview
+   without committing.
+
+3. Push to publish:
+
+   ```bash
+   git push origin HEAD vX.Y.Z
+   ```
+
+   (or run step 2 with `--push` to do it in one go). The tag push triggers
+   `release.yml` → `validate` + tests → `npm publish` (public, with provenance)
+   via OIDC. The push to `main` updates the marketplace plugin on its own.
+4. Optional: `gh release create vX.Y.Z --notes-from-tag`.
 
 > Manual fallback (needs npm 2FA): `npm publish --auth-type=web` and approve in
 > the browser. Prefer the CI path — no secrets, and it attaches provenance.
