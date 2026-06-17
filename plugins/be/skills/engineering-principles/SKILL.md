@@ -48,6 +48,20 @@ engineering-principles (universal)
         → spec/task (unit of work)
 ```
 
+## Always-on vs on-demand (the "rules" layer)
+
+`be` keeps the always-loaded layer thin so context stays cheap:
+
+- **Always on (the rules):** these universal principles, the project's
+  `CLAUDE.md`, and each agent's prompt-defense guardrail banner — paid on every
+  call, so keep them short (`proc-context-budget`).
+- **On demand:** skills (only the description loads until one triggers) and
+  their resource files. Detailed "how" lives here, not in the always-on layer.
+
+There is deliberately **no separate `rules/` directory** — it would duplicate
+this digest and `CLAUDE.md`. Put a durable, always-true rule in `CLAUDE.md`
+(project-specific) or a skill (reusable how-to) — never both.
+
 ## Related skills
 
 Security: `sec-secrets-management`, `be-jwt-auth-patterns` · Quality:
