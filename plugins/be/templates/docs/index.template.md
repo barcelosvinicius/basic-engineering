@@ -61,7 +61,7 @@
 
 | # | Document | Focus |
 |---|----------|-------|
-| 4 | `.github/base/engineering-principles.md` §2 | Security principles |
+| 4 | `.be/engineering-principles.md` §2 | Security principles |
 | 5 | `arquitetura/diretrizes-tecnicas.md` §security | Project-specific implementation |
 | 6 | `arquitetura/structural-analysis.md` §security | Implemented / pending checklist |
 
@@ -70,7 +70,7 @@
 | # | Document | Focus |
 |---|----------|-------|
 | 4 | `guias/COMO_USAR_AGENTS.md` | Available agents and how to use them |
-| 5 | `.github/base/engineering-principles.md` §A | Assisted documentation protocol |
+| 5 | `.be/engineering-principles.md` §A | Assisted documentation protocol |
 
 ### 🎓 Study
 
@@ -112,7 +112,7 @@
 
 | Document | Content |
 |----------|---------|
-| `.github/base/engineering-principles.md` | Universal engineering guide |
+| `.be/engineering-principles.md` | Universal engineering guide |
 | `TECNOLOGIAS.md` | Guide to the chosen technologies |
 | `LEARNING-TRAIL.md` | Guided learning trails |
 
@@ -139,7 +139,7 @@
 
 | Topic | Authoritative Source |
 |------|----------------------|
-| General principles | `.github/base/engineering-principles.md` |
+| General principles | `.be/engineering-principles.md` |
 | Requirements (FR/NFR) | `especificacao/REQUISITOS.md` |
 | Security (patterns) | `arquitetura/diretrizes-tecnicas.md` §security |
 | Code conventions | `arquitetura/diretrizes-tecnicas.md` |

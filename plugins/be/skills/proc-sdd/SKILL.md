@@ -97,6 +97,12 @@ than the previous:
 engineering-principles → ai-context file → agent → skill → spec → task
 ```
 
+**Without SDD**, the same hierarchy is simply the authority model ending at the
+docs layer (`engineering-principles → ai-context → agent → skill → docs`): no
+`.specify/` is required, and the "graph" is just that load order plus the
+"most specific layer wins" rule — nothing more. Add `.specify/` only when the
+"When to use SDD" table above says so.
+
 **Golden rule:** default to the deepest (narrowest) layer that contains the
 needed context. Move up only when the current layer is insufficient.
 

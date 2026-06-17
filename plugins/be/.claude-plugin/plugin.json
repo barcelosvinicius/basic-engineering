@@ -1,7 +1,7 @@
 {
   "name": "be",
-  "description": "Engineering base: 25 skills (process, backend, frontend, QA, security, ops), 12 specialized agents, session-continuity automation, ADR/SDD/release workflows.",
-  "version": "2.0.0",
+  "description": "Engineering base: 28 skills (process, backend, frontend, QA, security, ops), 15 specialized agents, live guardrail hooks, stack-aware quality gate, session-continuity automation, ADR/SDD/release workflows.",
+  "version": "3.0.0",
   "author": {
     "name": "barcelosvinicius",
     "url": "https://github.com/barcelosvinicius"

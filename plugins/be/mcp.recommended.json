@@ -1,15 +1,25 @@
 {
   "_comment": [
     "RECOMMENDED MCP SERVERS — this file is NOT loaded automatically.",
-    "The be plugin deliberately ships no auto-started MCP servers: every",
-    "server adds processes, permissions, and tool-schema tokens to your",
-    "context. Review each entry, keep only what the project needs, and copy",
+    "The be plugin deliberately ships no auto-started MCP servers: every server",
+    "adds processes, permissions, and tool-schema tokens to your context.",
+    "",
+    "How to use: review each entry, keep only what the project needs, and copy",
     "the result to your project's .mcp.json (project root).",
+    "",
+    "GOVERNANCE (read before enabling):",
+    "  - Keep under ~10 servers enabled — tool schemas dominate context cost",
+    "    (~500 tokens/tool). Run /be:context-budget to measure.",
+    "  - PIN versions for supply-chain safety: replace `npx -y pkg` with",
+    "    `npx -y pkg@<reviewed-version>`. Unpinned npx runs newly published code",
+    "    on every start. Each server below notes its data boundary.",
+    "  - Per-server `_comment` states what data leaves your machine. Prefer",
+    "    read-only / local servers; never point write-capable servers at prod.",
     "Docs: https://docs.claude.com/en/docs/claude-code/mcp"
   ],
   "mcpServers": {
     "github": {
-      "_comment": "PR/issue workflows used by proc-code-review and the sprint protocol. Requires a GitHub PAT.",
+      "_comment": "Data boundary: sends repo/PR/issue data to GitHub's API using your PAT. Pin a version. Used by proc-code-review and the sprint protocol.",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
@@ -17,14 +27,24 @@
       }
     },
     "context7": {
-      "_comment": "Up-to-date library documentation on demand — pairs well with proc-dependency-management.",
+      "_comment": "Data boundary: sends library names + your query to Upstash Context7 to fetch up-to-date docs. No repo code leaves the machine. Pairs with proc-dependency-management.",
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
     },
+    "sequential-thinking": {
+      "_comment": "Data boundary: local only — structured chain-of-thought tool, no egress. Useful for complex planning/debugging.",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
     "postgres": {
-      "_comment": "Read-only database inspection — pairs with be-db-migrations and dev-data-analyst. Point at a DEV database, never production.",
+      "_comment": "Data boundary: connects to the DB you point it at and can read rows. READ-ONLY inspection — point at a DEV database, NEVER production. Pairs with be-db-migrations and dev-data-analyst.",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-postgres", "${DEV_DATABASE_URL}"]
+    },
+    "playwright": {
+      "_comment": "Data boundary: drives a local browser to the URLs you give it (can reach intranet/localhost). Used for E2E/browser checks alongside qa-engineer. Disable when not testing UI.",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp", "--browser", "chrome"]
     }
   }
 }

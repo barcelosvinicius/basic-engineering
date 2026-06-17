@@ -1,0 +1,25 @@
+# RASCUNHO — regra Semgrep proposta (achado #1)
+# Complementa no-localstorage-auth.yml: aquela cobre token/auth; esta cobre
+# QUALQUER dado de negócio em localStorage (o anti-padrão documentado é mais amplo).
+#
+# Estratégia: sinalizar localStorage.setItem, EXCETO chaves puramente de UI
+# (tema, idioma, flags). Ajustar a allowlist conforme o projeto.
+#
+# Validar com: semgrep --config no-localstorage-business-data.yml frontend/src
+rules:
+  - id: no-localstorage-business-data
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >
+      Dado de negócio não deve ir para localStorage (não sobrevive entre devices,
+      não é "vivo" e foge do backend). Persista no servidor. Exceções de UI
+      (tema, idioma, flags) devem estar na allowlist desta regra. Token/auth são
+      cobertos por no-localstorage-auth.
+    patterns:
+      - pattern-either:
+          - pattern: localStorage.setItem($KEY, ...)
+          - pattern: window.localStorage.setItem($KEY, ...)
+      # Allowlist: NÃO sinaliza chaves claramente de UI. Ajuste os termos por projeto.
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: '^(?!.*(theme|tema|locale|idioma|lang|sidebar|consent|ui[-_])).*$'

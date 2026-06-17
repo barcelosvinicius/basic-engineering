@@ -1,6 +1,6 @@
 {
   "name": "@barcelosvinicius/basic-engineering",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Universal engineering base for AI-assisted software projects — Claude Code plugin (skills, agents, commands, hooks) with an npm installer for Copilot, Cursor, and other tools.",
   "license": "MIT",
   "author": "barcelosvinicius",
@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "test": "node --test",
-    "validate": "node scripts/validate.js"
+    "validate": "node scripts/validate.js",
+    "gen:guide": "node scripts/gen-capabilities.js"
   },
   "engines": {
     "node": ">=18"
