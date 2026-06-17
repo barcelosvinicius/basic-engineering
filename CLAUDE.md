@@ -12,7 +12,7 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 - `plugins/be/skills/<name>/SKILL.md` — canonical skills (Agent Skills format)
 - `plugins/be/agents/*.md` — subagents (work uncustomized; read project conventions at runtime)
 - `plugins/be/commands/*.md` — slash commands (`/be:*`)
-- `plugins/be/hooks/` — SessionStart hook only
+- `plugins/be/hooks/` — SessionStart + PreToolUse guardrails + Stop reminder (scripts in `hooks/scripts/`; fail-open, opt-out via `BE_HOOKS`)
 - `plugins/be/templates/docs/` — documentation templates for target projects
 - `plugins/be/BOOTSTRAP.md` — kickoff guide for target projects
 
