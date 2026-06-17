@@ -32,11 +32,11 @@ commands, and the session-continuity hook are active. Update later with
 ### Other tools (Copilot, Cursor, Windsurf, …)
 
 ```bash
-npx @barcelosvinicius/basic-engineering install   # copies the base to .github/base/
+npx @barcelosvinicius/basic-engineering install   # copies the base to .be/
 npx @barcelosvinicius/basic-engineering check     # check for updates
 ```
 
-Then follow `.github/base/BOOTSTRAP.md`. The content is identical — plain
+Then follow `.be/BOOTSTRAP.md`. The content is identical — plain
 markdown readable by any tool.
 
 > `check-version.sh` is **deprecated** — use `be check` instead.
