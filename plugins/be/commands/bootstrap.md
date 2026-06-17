@@ -9,7 +9,9 @@ derive it from the repository and ask only what cannot be inferred.
 1. **AI context file:** create or update `CLAUDE.md` at the project root
    from the base's `ai-context.template.md` — fill every `<!-- CUSTOMIZE -->`
    section from the actual codebase (stack, structure, conventions, security,
-   business rules, gotchas). Keep it under ~150 lines. If the user also uses
+   business rules, gotchas). Keep it under ~150 lines. Detect the stack via the base's
+   `config/stack-mappings.json` and record its build/test/lint commands and
+   most-relevant skills in `CLAUDE.md`. If the user also uses
    other AI tools, offer to mirror it to `.github/copilot-instructions.md`
    and/or `.cursorrules`.
 2. **Living documentation:** scaffold `docs/` from the base templates
@@ -17,6 +19,9 @@ derive it from the repository and ask only what cannot be inferred.
    bootstrapped" entry), `structural-analysis.md`, `CHANGELOG.md`,
    `lessons-learned.md`, and `docs/adr/` with the ADR template. Skip files
    that already exist — never overwrite.
+   Also copy the base's `BE-GUIDE.md` to the **project root** (never overwrite
+   an existing one) so the team can see everything the base offers at a glance;
+   `/be:help` shows it on demand.
 3. **Structural analysis:** if the project already has source code, offer to
    run `/be:structural-analysis` to baseline the architecture.
 4. **SDD (optional):** if the project will span more than two weeks, offer to
