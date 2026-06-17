@@ -16,6 +16,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { generate, TARGETS } = require('./gen-capabilities.js');
 
 const ROOT = path.join(__dirname, '..');
 const PLUGIN = path.join(ROOT, 'plugins', 'be');
@@ -50,10 +51,10 @@ function parseFrontmatter(content, rel) {
     fail(`${rel}: unterminated YAML frontmatter`);
     return {};
   }
-  const block = content.slice(3, end);
+  const block = content.slice(3, end).replace(/\r/g, '');
   const result = {};
   let currentKey = null;
-  for (const rawLine of block.split(/\r?\n/)) {
+  for (const rawLine of block.split('\n')) {
     if (!rawLine.trim()) continue;
     if (/^\s/.test(rawLine)) {
       if (currentKey) result[currentKey] = (result[currentKey] + ' ' + rawLine.trim()).trim();
@@ -149,10 +150,73 @@ function checkVersions() {
   }
 }
 
+/** BE-GUIDE.md must stay in sync with the plugin's frontmatter. */
+function checkGuide() {
+  for (const { lang, file } of TARGETS) {
+    const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    if (current.replace(/\r\n/g, '\n') !== generate(lang).replace(/\r\n/g, '\n')) {
+      fail(`${path.relative(ROOT, file).replace(/\\/g, '/')} is stale — run \`npm run gen:guide\``);
+    }
+  }
+}
+
+/** Hook scripts referenced in hooks.json must exist; config JSON must be well-formed. */
+function checkConfigAndHooks() {
+  const hooksFile = path.join(PLUGIN, 'hooks', 'hooks.json');
+  if (fs.existsSync(hooksFile)) {
+    let raw = '';
+    try { raw = fs.readFileSync(hooksFile, 'utf8'); JSON.parse(raw); } catch (e) {
+      fail(`plugins/be/hooks/hooks.json: invalid JSON (${e.message})`); raw = '';
+    }
+    const re = /\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9_./-]+\.js)/g;
+    const seen = new Set();
+    let m;
+    while ((m = re.exec(raw))) {
+      const rel = m[1];
+      if (seen.has(rel)) continue;
+      seen.add(rel);
+      if (!fs.existsSync(path.join(PLUGIN, rel))) {
+        fail(`hooks.json references a missing script: ${rel}`);
+      }
+    }
+  }
+
+  const sm = path.join(PLUGIN, 'config', 'stack-mappings.json');
+  if (fs.existsSync(sm)) {
+    try {
+      const d = JSON.parse(fs.readFileSync(sm, 'utf8'));
+      if (!Array.isArray(d.stacks)) fail('config/stack-mappings.json: "stacks" must be an array');
+      else for (const s of d.stacks) {
+        if (!s.id || !Array.isArray(s.indicators) || !s.commands) {
+          fail(`config/stack-mappings.json: stack "${s.id || '?'}" needs id, indicators[], commands`);
+        }
+      }
+    } catch (e) { fail(`config/stack-mappings.json: invalid JSON (${e.message})`); }
+  }
+
+  const ip = path.join(PLUGIN, 'config', 'install-profiles.json');
+  if (fs.existsSync(ip)) {
+    try {
+      const d = JSON.parse(fs.readFileSync(ip, 'utf8'));
+      if (!d.profiles || typeof d.profiles !== 'object') fail('config/install-profiles.json: "profiles" object required');
+      else if (d.default && !d.profiles[d.default]) fail(`config/install-profiles.json: default "${d.default}" is not a defined profile`);
+    } catch (e) { fail(`config/install-profiles.json: invalid JSON (${e.message})`); }
+  }
+
+  for (const rel of ['mcp.recommended.json', '.be-paths.example.json']) {
+    const f = path.join(PLUGIN, rel);
+    if (fs.existsSync(f)) {
+      try { JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { fail(`${rel}: invalid JSON (${e.message})`); }
+    }
+  }
+}
+
 checkSkills();
 checkMarkdownDir('plugins/be/agents', ['name', 'description']);
 checkMarkdownDir('plugins/be/commands', ['description']);
 checkVersions();
+checkGuide();
+checkConfigAndHooks();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);
