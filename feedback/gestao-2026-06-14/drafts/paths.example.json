@@ -1,0 +1,11 @@
+{
+  "_comment": "RASCUNHO (achado #5) — mapa de caminhos por projeto para os comandos do be lerem, em vez de assumir nomes em inglês. Tornaria o be agnóstico de idioma/estrutura. Local sugerido: raiz do projeto que usa o be (ex.: .be-paths.json) ou em base-manifest.json. Os valores abaixo são os deste projeto (PT).",
+  "history": "docs/HISTORICO.md",
+  "structural": "docs/arquitetura/analise-estrutural.md",
+  "lessons": "docs/arquitetura/lessons-learned.md",
+  "requirements": "docs/especificacao/REQUISITOS.md",
+  "pending": "docs/especificacao/pendencias.md",
+  "adr": "docs/adr",
+  "changelog": "CHANGELOG.md",
+  "_fallback": "Se o arquivo não existir, os comandos caem no default em inglês (HISTORY.md, structural-analysis.md, ...) — retrocompatível."
+}
