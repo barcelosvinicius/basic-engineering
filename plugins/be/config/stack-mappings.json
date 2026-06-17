@@ -1,0 +1,106 @@
+{
+  "_comment": [
+    "Stack discovery aid (DATA, not auto-run). Maps project indicator files to the",
+    "real build/test/lint/format commands, the most relevant be skills, and",
+    "suggested command permissions. be is stack-agnostic — commands consult this",
+    "to avoid guessing; /be:check, qa-verification-loop, and /be:bootstrap read it.",
+    "Detect a stack when ANY indicator matches; multiple stacks can match a repo.",
+    "Always prefer a project-defined script (package.json/Makefile) over these."
+  ],
+  "version": 1,
+  "stacks": [
+    {
+      "id": "node-typescript",
+      "name": "TypeScript / JavaScript (Node)",
+      "indicators": ["tsconfig.json", "package.json"],
+      "commands": {
+        "build": ["npm run build", "npx tsc --noEmit"],
+        "typecheck": ["npx tsc --noEmit"],
+        "test": ["npm test", "npx vitest run", "npx jest"],
+        "lint": ["npm run lint", "npx eslint ."],
+        "format": ["npx prettier --check ."]
+      },
+      "skills": ["fe-ux-patterns", "fe-accessibility-patterns", "be-pagination-patterns", "qa-test-data-builders"],
+      "permissions": { "allow": ["npx tsc", "npx eslint", "npx prettier", "npm test", "npm run *"], "deny": ["npm publish"] }
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "indicators": ["pyproject.toml", "requirements.txt", "setup.py", "setup.cfg"],
+      "commands": {
+        "build": ["python -m build"],
+        "typecheck": ["mypy .", "pyright"],
+        "test": ["pytest -q", "python -m pytest"],
+        "lint": ["ruff check .", "flake8"],
+        "format": ["ruff format --check .", "black --check ."]
+      },
+      "skills": ["be-api-error-handling", "be-pagination-patterns", "qa-test-data-builders"],
+      "permissions": { "allow": ["pytest", "ruff", "mypy", "black"], "deny": ["twine upload", "python -m twine"] }
+    },
+    {
+      "id": "java-maven",
+      "name": "Java / Kotlin (Maven)",
+      "indicators": ["pom.xml"],
+      "commands": {
+        "build": ["mvn -q -DskipTests package"],
+        "test": ["mvn -q test"],
+        "lint": ["mvn -q checkstyle:check", "mvn -q spotless:check"],
+        "format": ["mvn -q spotless:check"]
+      },
+      "skills": ["be-api-error-handling", "be-api-versioning", "be-db-migrations", "be-jwt-auth-patterns", "be-pagination-patterns"],
+      "permissions": { "allow": ["mvn test", "mvn -q *"], "deny": ["mvn deploy", "mvn release:*"] }
+    },
+    {
+      "id": "java-gradle",
+      "name": "Java / Kotlin (Gradle)",
+      "indicators": ["build.gradle", "build.gradle.kts", "settings.gradle"],
+      "commands": {
+        "build": ["./gradlew assemble -q"],
+        "test": ["./gradlew test -q"],
+        "lint": ["./gradlew check -q", "./gradlew spotlessCheck"],
+        "format": ["./gradlew spotlessCheck"]
+      },
+      "skills": ["be-api-error-handling", "be-api-versioning", "be-db-migrations", "be-jwt-auth-patterns", "be-pagination-patterns"],
+      "permissions": { "allow": ["./gradlew test", "./gradlew check", "./gradlew assemble"], "deny": ["./gradlew publish"] }
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "indicators": ["go.mod"],
+      "commands": {
+        "build": ["go build ./..."],
+        "test": ["go test ./... -cover"],
+        "lint": ["go vet ./...", "golangci-lint run"],
+        "format": ["gofmt -l ."]
+      },
+      "skills": ["be-api-error-handling", "be-pagination-patterns", "qa-test-data-builders"],
+      "permissions": { "allow": ["go build", "go test", "go vet", "golangci-lint"], "deny": [] }
+    },
+    {
+      "id": "rust",
+      "name": "Rust",
+      "indicators": ["Cargo.toml"],
+      "commands": {
+        "build": ["cargo build"],
+        "test": ["cargo test"],
+        "lint": ["cargo clippy -- -D warnings"],
+        "format": ["cargo fmt --check"]
+      },
+      "skills": ["be-api-error-handling", "qa-test-data-builders"],
+      "permissions": { "allow": ["cargo build", "cargo test", "cargo clippy", "cargo fmt"], "deny": ["cargo publish"] }
+    },
+    {
+      "id": "dotnet",
+      "name": ".NET (C#)",
+      "indicators": ["*.csproj", "*.sln", "global.json"],
+      "commands": {
+        "build": ["dotnet build"],
+        "test": ["dotnet test"],
+        "lint": ["dotnet format --verify-no-changes"],
+        "format": ["dotnet format --verify-no-changes"]
+      },
+      "skills": ["be-api-error-handling", "be-api-versioning", "be-pagination-patterns"],
+      "permissions": { "allow": ["dotnet build", "dotnet test", "dotnet format"], "deny": ["dotnet nuget push"] }
+    }
+  ]
+}

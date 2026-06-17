@@ -1,0 +1,29 @@
+{
+  "_comment": [
+    "Install profiles for the npm installer (Channel B). They select WHICH skills",
+    "get copied to .be/skills — agents, commands, semgrep, docs and the",
+    "rest are always copied in full. Use: npx ... install --profile=<name>.",
+    "Default is `full` (everything) so the installer stays backward-compatible.",
+    "A skill is included when its directory name starts with any listed prefix."
+  ],
+  "version": 1,
+  "default": "full",
+  "profiles": {
+    "full": {
+      "description": "All skills (default).",
+      "skills": "*"
+    },
+    "minimal": {
+      "description": "Process skills + engineering principles only — the universal core.",
+      "skills": ["proc-", "engineering-principles"]
+    },
+    "backend": {
+      "description": "Backend service work: process, backend, security, QA, infra, ops.",
+      "skills": ["proc-", "be-", "sec-", "qa-", "infra-", "ops-", "engineering-principles"]
+    },
+    "frontend": {
+      "description": "Frontend work: process, frontend, QA, security.",
+      "skills": ["proc-", "fe-", "qa-", "sec-", "engineering-principles"]
+    }
+  }
+}
