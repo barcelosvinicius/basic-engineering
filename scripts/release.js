@@ -6,15 +6,15 @@
  *
  *   npm run release -- patch|minor|major     bump (default: patch)
  *   npm run release -- 3.2.0                  explicit version
- *   npm run release -- minor --push           also push main + tag (fires CI publish)
- *   npm run release -- minor --dry-run        do everything except git/commit/tag/push
+ *   npm run release -- minor --push           also push main (fires CI publish)
+ *   npm run release -- minor --dry-run        do everything except git commit/push
  *
  * Steps: bump the 4 version files in lockstep (package.json, plugin.json,
  * marketplace.json, BASE_VERSION); roll CHANGELOG [Unreleased] into a dated
  * version section; regenerate the guides; run validate + tests; then commit
- * `chore(release): vX.Y.Z` and tag `vX.Y.Z`. With --push it pushes main + the
- * tag, which triggers the npm publish workflow. Channel A (marketplace) updates
- * from the main push on its own.
+ * `chore(release): vX.Y.Z`. With --push it pushes main, which triggers the
+ * release workflow (npm publish via OIDC, then tag + GitHub release); the
+ * marketplace updates from the same main push on its own.
  */
 
 const fs = require('fs');
@@ -106,16 +106,14 @@ if (dryRun) {
   process.exit(0);
 }
 
-// ── 5) commit + tag ──────────────────────────────────────────────────────────
+// ── 5) commit (the CI tags + releases after it publishes) ────────────────────
 sh(`git add ${RELEASE_FILES.join(' ')}`);
 sh(`git commit -m "chore(release): v${next}"`);
-sh(`git tag -a v${next} -m "v${next}"`);
 
 if (push) {
   sh('git push origin HEAD');
-  sh(`git push origin v${next}`);
-  console.log(`\n  Pushed. The release workflow publishes v${next} to npm; the marketplace updates from main.\n`);
+  console.log(`\n  Pushed to main. CI publishes v${next} to npm (OIDC) and tags it; the marketplace updates from the same push.\n`);
 } else {
-  console.log(`\n  Committed and tagged v${next}. To publish, push:`);
-  console.log(`  git push origin HEAD v${next}\n`);
+  console.log(`\n  Committed v${next}. Push to publish — CI does npm + tag + release; the marketplace updates from main:`);
+  console.log('  git push origin HEAD\n');
 }

@@ -1,22 +1,26 @@
 name: release
 
-# Publishes @barcelosvinicius/basic-engineering to npm via OIDC Trusted Publishing
-# (no token/secret). Channel A — the Claude Code plugin/marketplace — updates on
-# its own from `main`; this workflow covers Channel B, the npm installer.
+# On every push to main, if package.json's version is not yet on npm, publish it
+# via OIDC Trusted Publishing (no token, with provenance), then create the tag and
+# GitHub release. The Claude Code plugin/marketplace updates from the same main
+# push on its own. So: bump the version (npm run release) and push to main —
+# both channels update, no manual tagging.
 #
-# One-time setup on npmjs.com: the package -> Settings -> Trusted Publisher ->
-# GitHub Actions, repository barcelosvinicius/basic-engineering, workflow
-# release.yml, environment left empty.
+# One-time npm setup: package -> Settings -> Trusted Publisher -> GitHub Actions,
+# repo barcelosvinicius/basic-engineering, workflow release.yml, no environment.
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 permissions:
-  contents: read
-  id-token: write # required for npm Trusted Publishing (OIDC)
+  contents: write # push the version tag + create the release
+  id-token: write # npm Trusted Publishing (OIDC)
 
 jobs:
   publish:
@@ -29,16 +33,41 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - name: Upgrade npm (trusted publishing needs npm >= 11.5.1)
         run: npm install -g npm@latest
-      - name: Verify package.json version matches the tag
-        if: github.ref_type == 'tag'
+
+      - name: Decide whether to publish
+        id: gate
         run: |
-          PKG="$(node -p "require('./package.json').version")"
-          TAG="${GITHUB_REF_NAME#v}"
-          echo "package.json=$PKG tag=$TAG"
-          test "$PKG" = "$TAG"
+          NAME="$(node -p "require('./package.json').name")"
+          VER="$(node -p "require('./package.json').version")"
+          if npm view "$NAME@$VER" version >/dev/null 2>&1; then
+            echo "Version $VER is already on npm — nothing to publish."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New version $VER — will publish."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "version=$VER" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Validate + test
+        if: steps.gate.outputs.publish == 'true'
         run: |
           node scripts/validate.js
           node --test
+
       - name: Publish to npm (OIDC, public, with provenance)
+        if: steps.gate.outputs.publish == 'true'
         run: npm publish
+
+      - name: Tag + GitHub release
+        if: steps.gate.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER="${{ steps.gate.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git ls-remote --exit-code --tags origin "refs/tags/v$VER" >/dev/null 2>&1; then
+            git tag -a "v$VER" -m "v$VER"
+            git push origin "v$VER"
+          fi
+          gh release view "v$VER" >/dev/null 2>&1 || gh release create "v$VER" --title "v$VER" --notes "See CHANGELOG.md for details."
