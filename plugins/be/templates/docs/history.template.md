@@ -87,7 +87,37 @@
 
 ## Delivery History
 
-> Reverse chronological record (most recent first). Each entry is immutable.
+> Reverse chronological record (most recent first). Each entry is immutable —
+> but this section is **compacted**, not grown without bound. See below.
+
+### Compaction rule — this file has a ceiling
+
+The session protocol reads this file **first, every session**. Left alone it
+only grows: measured in a real project, 1,092 → 1,650 lines in fifteen days
+(+51%), 244 KB, with one line of 5,967 characters — large enough to be unusable
+as a first read.
+
+The three living docs have **different natures, and only one of them compacts**:
+
+| File | Nature | Maintenance |
+|---|---|---|
+| `HISTORY.md` | operational state | **compact** — the past is archived, not deleted |
+| `structural-analysis.md` | current X-ray | **replace** — a fact that changed is rewritten, never appended beside the old one |
+| `lessons-learned.md` | historical record | **grows** — it is supposed to; never compact it |
+
+**When:** at session close, if this file passes **~800 lines** (`wc -l`).
+
+**How:**
+1. Keep in `Delivery History` the entries from the **last 90 days** (or the last
+   ~10 sessions, whichever is more).
+2. Move older entries verbatim into `docs/history/YYYY-Qn.md` — moving, not
+   summarising: a decision loses its "why" the moment it is paraphrased.
+3. Leave one index line per archived quarter here, with its date range.
+4. Verify the move by counting, not by reading: entry headings before must equal
+   entry headings after, across the pair (see `proc-safe-removal`).
+
+**Never compact `Current State`, `Blockers` or `Next Steps`** — those are not
+history, they are the file's reason to exist.
 
 ### [YYYY-MM-DD] Initial project setup
 

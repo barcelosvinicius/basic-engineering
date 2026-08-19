@@ -4,6 +4,11 @@
 > Format: **Context → Problem → Rule**. Each entry is immutable — outdated lessons
 > are marked with ✅, never deleted.
 >
+> **This file is meant to grow, and is never compacted.** It is a historical
+> record; `HISTORY.md` is operational state and has a ceiling, and
+> `structural-analysis.md` is a current X-ray that gets rewritten. Confusing the
+> three is what makes people prune the one record that should keep everything.
+>
 > Reference: `engineering-principles.md` §11.2 (Documentation as Code) and §11.4 (PCS).
 
 ---

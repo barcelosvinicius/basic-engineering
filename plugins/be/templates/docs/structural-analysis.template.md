@@ -1,8 +1,15 @@
 # Structural Analysis — [PROJECT]
 
 > Technical X-ray of the project. Pending items classified by severity;
-> applied fixes recorded with date. Update in every development
-> session.
+> applied fixes recorded with date. Update in every development session.
+>
+> **This file is rewritten, never appended to.** A fact that changed is replaced
+> where it stands — with a dated correction banner when the history matters —
+> not recorded again beside the old version. Three contradictory statements in
+> one file were measured in a real project, and two of the three were false;
+> whoever reads for an answer picks wrong two times out of three. Contrast:
+> `lessons-learned.md` grows on purpose, `HISTORY.md` has a ceiling and is
+> compacted.
 >
 > Reference: `engineering-principles.md` §11.1 (Conscious Technical Debt).
 

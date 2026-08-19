@@ -55,10 +55,11 @@ what the session needs to accomplish:
 
 ### Without SDD (`.specify/` not in use)
 
-0. **Measure before reading:** `wc -lc docs/HISTORY.md`. A living doc grows
-   without bound, and prescribing a read without knowing its size is how a
-   session start blows the context window. Over ~2,000 lines, read sections
-   rather than the file and `consult` `proc-context-budget`.
+0. **Measure before reading:** `wc -lc docs/HISTORY.md`. Over ~800 lines it is
+   due for compaction (rule in the history template — archive, never summarise);
+   over ~2,000 read sections rather than the file and `consult`
+   `proc-context-budget`. Prescribing a read without knowing its size is how a
+   session start blows the context window.
 1. Read `docs/HISTORY.md` — Current State (in progress), Blockers, Next Steps.
 2. Read `docs/structural-analysis.md` — Technical Pending Items (what NOT to
    redo), Applied Fixes (what is ALREADY resolved).
