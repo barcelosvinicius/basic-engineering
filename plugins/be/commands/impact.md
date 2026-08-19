@@ -18,3 +18,7 @@ Run the `proc-impact-analysis` skill on the current changes
 5. Output the PR-description block from the skill: risk level, counts,
    high-risk files with reasons, the targeted review checklist for that
    level, and a rollback plan (or "N/A — purely additive").
+
+**Parallel axis:** per changed file for classification (Step 1) and per public contract for the radius (Step 2); the risk level and the PR block are serial.
+Agents opened in parallel are read-only and return findings; a single writer
+integrates them (see `proc-session-continuity`).

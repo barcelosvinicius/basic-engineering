@@ -20,3 +20,7 @@ unclear):
    to append to `docs/HISTORY.md`.
 
 Do not tag or publish anything — preparation only.
+
+**Parallel axis:** per checklist area (security, database, API, frontend, observability); the go/no-go call is serial.
+Agents opened in parallel are read-only and return findings; a single writer
+integrates them (see `proc-session-continuity`).

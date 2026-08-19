@@ -26,3 +26,7 @@ declaring the task done. $ARGUMENTS may narrow the scope (e.g. a path or
    then re-run. Do not claim "done" while NOT READY.
 
 This is advisory tooling, not a hook — run it yourself before handing work back.
+
+**Parallel axis:** per verification phase — build, lint, tests and the security scan do not depend on each other; the READY/NOT READY verdict is serial.
+Agents opened in parallel are read-only and return findings; a single writer
+integrates them (see `proc-session-continuity`).

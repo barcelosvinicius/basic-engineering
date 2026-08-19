@@ -123,6 +123,26 @@ Before ending, answer explicitly: was the declared goal achieved? ✅ / ❌
 If ❌: what prevented it, and what must be made explicit for the next session?
 Reflect the answer in `docs/HISTORY.md` and `docs/structural-analysis.md`.
 
+## Running work in parallel
+
+Read in a fan-out; write in series. Measured in a real pair of repositories:
+three files — `HISTORY.md`, `structural-analysis.md`, `lessons-learned.md` —
+absorbed **179 of 200 commits**' writes, and they are the three that *every*
+session close touches. N agents closing a session in parallel collide on exactly
+those three, and a hand-merged collision is where drift comes from.
+
+1. Agents opened in parallel are **read-only** and return findings in a fixed
+   shape (file · line · fact · evidence), never edits.
+2. **One writer** integrates the findings into the artefacts.
+3. If parallel writing is genuinely needed, each agent's **write scope is
+   declared and must be disjoint** — and disjointness is checked by command,
+   not assumed.
+
+Sweep commands state the axis they parallelise on (per repository, per layer,
+per service); an independent sweep is exactly the case where serialising buys
+nothing. The base already ships the ingredient: most analysis agents are
+read-only by definition.
+
 ## Golden rule
 
 > **Every session that changes functional code MUST update
@@ -143,6 +163,14 @@ Reflect the answer in `docs/HISTORY.md` and `docs/structural-analysis.md`.
 Rule of thumb: a fact another developer needs → `docs/`; a preference about how
 the AI should work → harness memory. Session start reads **both**; never record
 a project decision only in harness memory — it would vanish for the team.
+
+## Size verdict
+
+**Q1 — does the trigger split?** No: start and end are two halves of one
+protocol producing one thing, a session that hands off cleanly. **Q2 — what is
+lookup?** The tables of available agents, skills and documents, already in
+`resources.md`. **Verdict: leave it** — and keep it tight anyway: this is the
+most-executed skill in the base, so every line is paid on every session.
 
 ## See also
 

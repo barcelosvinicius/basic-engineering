@@ -44,9 +44,9 @@ becomes a fact panel that lies — these counts drifted once inside a single day
 | Skill leaves (no outgoing edge) | **7 / 28** |
 | Skills cited by nothing (orphans) | **0** |
 | Agents delegating to another agent | **15 / 15** |
-| `proc-session-continuity` in-degree / declared out-degree | **18 / 7** |
+| `proc-session-continuity` in-degree / declared out-degree | **23 / 7** |
 | Declared `invoke` cycles | **0** |
-| Skills over the ~150-line budget | **4** |
+| Skills over the ~150-line budget | **5** |
 | Skills carrying a resource file | **16 / 28** |
 | Living docs in this repo | **4** |
 
@@ -157,8 +157,10 @@ catalogue inside `SKILL.md` — paid for on every activation, opened only while
 writing the deliverable. That is a pattern of this base, not seven coincidences.
 Skills carrying a resource file went from **10 to 16**.
 
-**Four remain over the line, deliberately.** Their lookup material is out and
-what is left is decision procedure. The budget is the alarm that triggers the
+**Five remain over the line, deliberately** — the four above plus
+`proc-session-continuity`, which grew when the parallel-work rule landed (U4)
+and records the same verdict. Their lookup material is out and what is left is
+decision procedure. The budget is the alarm that triggers the
 test (A-07), not a number to satisfy by pushing decisions out of reach.
 
 ---

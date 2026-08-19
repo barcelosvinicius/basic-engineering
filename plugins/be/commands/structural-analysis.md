@@ -18,3 +18,7 @@ Run the `proc-structural-analysis` skill pipeline on this project
    analysis metadata (date, analyzer, file count).
 4. Finish with the output quality checklist from the skill and report the
    top 5 pending items by severity.
+
+**Parallel axis:** per repository, then per top-level module — Phases 1–3 of the pipeline are independent per module; Phase 5 (assembly) is serial and single-writer.
+Agents opened in parallel are read-only and return findings; a single writer
+integrates them (see `proc-session-continuity`).

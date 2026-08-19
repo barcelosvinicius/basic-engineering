@@ -19,3 +19,7 @@ focus the audit (e.g. "mcp" or "claude.md") — otherwise audit everything.
    concrete actions and the estimated reclaim.
 
 Read-only and advisory — recommend cuts; let the user decide what to remove.
+
+**Parallel axis:** per source of context — agents, skills, MCP tools, rules, CLAUDE.md — measured independently, ranked serially.
+Agents opened in parallel are read-only and return findings; a single writer
+integrates them (see `proc-session-continuity`).
