@@ -26,8 +26,11 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
   undeclared exception once made a prefix-based sweep miss it and misreport the
   activation graph.
 - Skill frontmatter: `name` == directory name; `description` leads with the trigger
-  condition ("Use when…"). Keep SKILL.md ≤ ~150 lines; long examples go in sibling
-  resource files.
+  condition ("Use when…"). SKILL.md loads in full on every activation while sibling
+  resources load on demand, so keep it within ~150 lines — and over that, apply the
+  three-outcome test in `proc-skill-creator` (leave it / extract to resources / new
+  skill) rather than trimming blindly. The discriminator is the **trigger**, not the
+  line count.
 - Never hardcode tool-specific paths (`.be/...`) inside skills/agents —
   reference skills by name.
 - Versions must stay in sync: `package.json`, `plugins/be/.claude-plugin/plugin.json`,

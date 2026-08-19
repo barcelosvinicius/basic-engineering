@@ -135,7 +135,8 @@ heading, as a three-column table:
 
 - [ ] Directory name == frontmatter `name`, correct prefix
 - [ ] `description` leads with "Use when …" trigger
-- [ ] `SKILL.md` ≤ ~150 lines; long material moved to resources
+- [ ] `SKILL.md` within ~150 lines — over it, apply the three-outcome test and
+      record which outcome applies, rather than trimming blindly
 - [ ] At least one ✅/❌ example pair
 - [ ] "Common mistakes" table
 - [ ] Imperative language
@@ -143,40 +144,47 @@ heading, as a three-column table:
 - [ ] At least one existing skill declares an `## Activation edges` row pointing
       at it — a skill nobody reaches is a skill nobody runs
 
+## When a skill gets too big — three outcomes, not two
+
+`SKILL.md` loads **in full every time the skill triggers**; resource files load
+on demand. The ~150-line budget is therefore a budget on what you pay **at every
+activation**, not on how much the skill knows — a 100-line `SKILL.md` with 14 KB
+of resources is well shaped, not oversized.
+
+Line count is an **alarm that says "apply the test"**, never the verdict: it
+cannot tell cohesion from depth. Ask the trigger.
+
+| Ask | Outcome |
+|---|---|
+| One trigger, one output, material you need to **decide**? | **Leave it** — a pipeline skill can exceed 150 lines and still be right |
+| Trigger enumerates cases, but each needs **lookup**, not its own decision? | **Extract to resources** — keep the procedure, move the catalogue |
+| Trigger splits **and** each part has its own decision *and* output? | **New skill** — split, and declare the edge between them |
+
+**The discriminator is the trigger, never the size.** If someone arriving via
+trigger A can skip most of the file, the file is two things. A 60-line skill can
+fail that test; a 250-line pipeline can pass it.
+
+**Do not use "percentage of the file that is code" as a rule.** Measured across
+all 28 skills of this base it gave 2 false positives out of 5 flags — it fires on
+small skills where code *is* the content, and on templates. A hint when you are
+already looking; not a gate.
+
 ## When to update vs create a new skill
 
 | Situation | Action |
 |-----------|--------|
 | Pattern evolved within the same domain | Update the existing skill |
 | New technology or library | New skill (or a new resource file if the principles are shared) |
-| SKILL.md grew past ~150 lines | Move detail into resource files |
+| SKILL.md grew past ~150 lines | Apply the three-outcome test above — extraction is one answer of three |
 | Skill covers 2 different domains | Split by prefix |
 | Pattern deprecated | Add a deprecation note + reference to the replacement |
 
-## Provenance for generated / imported skills
+## Skill lifecycle — provenance and pruning
 
-A skill that was **AI-generated** (e.g. distilled from git history) or
-**imported** from another source must be auditable — record where it came from
-and how much to trust it, in the frontmatter:
-
-```yaml
-metadata:
-  origin: generated        # generated | imported | first-party
-  source: <url / path / session id>
-  created_at: 2026-01-01
-  confidence: 0.7          # 0–1: how validated it is
-  author: <who or what produced it>
-```
-
-First-party base skills don't need it. Treat a low-confidence imported skill as
-provisional until validated against real use.
-
-## Prune by evidence, not by feel
-
-The base stays lean by **measuring**, not guessing (see `proc-context-budget`):
-periodically review skills and demote or remove ones that never trigger,
-duplicate another, or repeatedly lead to bad output. A skill that isn't earning
-its context cost is noise — delete it or move it to the project.
+Applying this skill's own test: both topics are **lookup** for a subset of skills,
+not part of deciding how to write one. See [lifecycle.md](lifecycle.md) —
+provenance frontmatter for AI-generated or imported skills, and how to prune by
+measurement instead of by feel.
 
 ## Common mistakes
 
@@ -188,6 +196,16 @@ its context cost is noise — delete it or move it to the project.
 | Base skill with project names | Base/project confusion | Generalize or move to the project |
 | Not registered in session-continuity resources | Skill hard to discover | Update the table before finishing |
 
+## This skill's own verdict
+
+Trigger: one (a skill is missing or needs refactoring). Output: one (a skill).
+By the test above that is **leave it** — what remains here is the decision
+procedure, and `lifecycle.md` absorbed the part that was lookup. The ~150-line
+budget is the wrong instrument for a procedure skill; it stays as the alarm that
+made this check happen.
+
 ## Resources
 
 - [skill-template.md](skill-template.md) — starting template for new skills.
+- [lifecycle.md](lifecycle.md) — provenance for generated/imported skills, and
+  pruning by measurement.
