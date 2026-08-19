@@ -2,7 +2,7 @@
 
 # `be` — o que esta base faz por você
 
-Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 15 agentes especializados, 28 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
+Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 15 agentes especializados, 29 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
 
 ## Comece por aqui
 
@@ -131,6 +131,7 @@ Carregadas sob demanda quando o gatilho casa — você raramente as invoca diret
 | `proc-impact-analysis` | Use before opening a PR, after a large refactoring, or whenever a change touches a shared boundary. Determines which modules, flows, domain events, a… |
 | `proc-learning-trail` | Use when adopting a new practice, technology, or pattern in the project, or when onboarding needs a guided path. Creates and maintains the Learning T… |
 | `proc-release-checklist` | Use before any production delivery — first deploy, release with schema or security changes, or any release after more than two weeks of inactivity. P… |
+| `proc-safe-removal` | Use before deleting code, configuration, or documentation, and before moving content between files. Removal is the only operation whose error no test… |
 | `proc-sdd` | Use when a project spans more than two weeks, runs multiple features in parallel, or the AI starts contradicting earlier decisions (context drift). S… |
 | `proc-session-continuity` | Use at the start and end of every work session (human or AI-assisted). At start: read docs/HISTORY.md, docs/structural-analysis.md, and git status be… |
 | `proc-skill-creator` | Use when a needed domain/process/infrastructure skill is missing, when an existing skill needs significant refactoring, or when expanding the base ki… |

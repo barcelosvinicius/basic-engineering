@@ -38,6 +38,7 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 | `proc-learning-trail` | When documenting new practices adopted by the team |
 | `proc-domain-mapping` | When discovering the domain model and glossary |
 | `proc-impact-analysis` | Before a change with cross-module blast radius |
+| `proc-safe-removal` | Before deleting code/config/docs, or moving content between files |
 | `proc-structural-analysis` | When auditing technical debt and pending items |
 | `proc-dependency-management` | When adding, upgrading, or auditing dependencies |
 | `proc-code-documentation` | When writing or reviewing comments and docstrings |

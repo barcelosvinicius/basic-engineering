@@ -23,6 +23,12 @@ This is the pre-PR complement to the `proc-code-review` skill — impact analysi
 
 ---
 
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `invoke` | `proc-safe-removal` | the change deletes code, config or docs, or relocates content between files |
+
 ## When to run
 
 | Trigger | Recommended scope |
