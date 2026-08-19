@@ -146,10 +146,12 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   *extract to a resource*, and *new skill*, keyed on the trigger rather than on
   the size. `proc-skill-creator` applied it to itself — `lifecycle.md` absorbed
   the lookup material and the recorded verdict for what remains is *leave it*.
-- **Measured verdict for the other six is pending** (action plan 3.3). Expected:
-  the four `proc-*` pipelines are single-trigger and the honest answer is *leave
-  it*; the two `fe-*` are catalogues indexed by component and need extraction
-  (3.2).
+- **The test applied to the other six gives *extract* for all of them**, which
+  refutes the prediction recorded earlier the same day (*"the `proc-*` pipelines
+  are single-trigger, so leave them"*). Single-trigger only answers question 1.
+  Question 2 — *decide or look up?* — catches what every one of them embeds: its
+  **own output template**. That is a systematic pattern of this base, not six
+  coincidences.
 - **Done when:** each of the seven carries a one-line recorded verdict, and the
   two marked *extract* have resource siblings with no pattern lost.
 

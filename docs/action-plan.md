@@ -198,16 +198,17 @@ that makes it fail**, or it does not count (SUGESTOES §23).
   — *leave it*, a single-trigger procedure. It is still 211 lines, and that is
   the point: the budget is the alarm, not the verdict.
 
-### 3.2 Extract the two catalogues — partially closes P-06
+### 3.2 Extract the embedded lookup material — closes P-06
 
 - **Measured:** `fe-accessibility-patterns` costs ~2,130 tokens per activation
   and has 10 sections, one per component type. A session implementing a modal
   loads all ten; the modal-specific material is 27 of 293 lines — **~9%
   relevance**. `fe-ux-patterns` is the same shape at 275 lines and 8 blocks.
-- **Do:** keep in each `SKILL.md` the decision procedure (semantic HTML first,
-  the pre-delivery checklist, the contrast rules) and move the per-component
-  catalogues to sibling resource files, loaded when that component is the one
-  being built.
+- **Do:** keep in each `SKILL.md` the decision procedure and move the lookup
+  material to sibling resource files. Six skills, one per commit:
+  `fe-accessibility-patterns` and `fe-ux-patterns` (per-component catalogues),
+  `proc-structural-analysis`, `proc-domain-mapping`, `proc-impact-analysis` and
+  `proc-changelog` (each embeds its own output template).
 - **Done when:** both `SKILL.md` files are under 150 lines, both have resource
   siblings, and no pattern was deleted — `git diff --stat` must show the lines
   moved, not lost.
@@ -218,16 +219,24 @@ that makes it fail**, or it does not count (SUGESTOES §23).
 - **Do:** apply 3.1's test to `proc-structural-analysis` (255, minus ~20 after
   1.1), `proc-domain-mapping` (227), `proc-impact-analysis` (207),
   `proc-skill-creator` (193), `proc-changelog` (158).
-- **Expected verdict, from the measurement:** all five are single-trigger
-  pipelines — the test says **leave them**, and the honest conclusion is that the
-  ~150 budget is wrong for pipeline skills, not that the skills are wrong.
-  Record that instead of forcing extraction.
+- **Predicted verdict was wrong.** The plan expected *"all five are
+  single-trigger pipelines, so leave them"*. Applying the corrected test
+  (2026-08-19) gives **extract** for all six, for a reason the prediction
+  missed: single-trigger is only question 1. Question 2 — *decide or look up?* —
+  catches what every one of them embeds, its **own output template**. That is a
+  systematic pattern in this base, not six coincidences: the pipeline skills all
+  carry the shape of their deliverable inline, and pay for it on every
+  activation.
+- **Consequence for this item:** there is nothing to record separately. A
+  verdict of *extract* is discharged by extracting, so 3.3 folds into 3.2 and
+  the per-skill note is not written — a temporary note that disappears on the
+  next commit is drift waiting to happen.
 - **Do NOT merge `proc-structural-analysis` with `proc-domain-mapping`** — an
   earlier suggestion in this session, refuted by measurement: their vocabularies
   are nearly disjoint (`bounded context` 0 vs 14; `risk` 7 vs 1).
-- **Done when:** each of the five carries a one-line note stating which of 3.1's
-  three outcomes applies and why.
-- **Blocked by:** 3.1. **Effort:** low.
+- **Done when:** every skill over the budget has had the test applied and the
+  outcome discharged — extraction done, or a recorded *leave it*.
+- **Blocked by:** 3.1 (done). **Effort:** folded into 3.2.
 
 ---
 
