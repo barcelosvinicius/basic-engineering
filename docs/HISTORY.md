@@ -13,9 +13,9 @@
 
 > ⚡ Last updated: 2026-08-19 (session close)
 
-**Project phase:** active development on `feat/wire-session-continuity-graph`
-(unreleased; version deliberately still 3.0.0 — `release.yml` publishes on push
-to `main` when the version changes).
+**Project phase:** the session's work is merged into `main` (unreleased; version
+deliberately still 3.0.0 — `release.yml` publishes on push to `main` only when
+the version changes).
 
 ### In progress
 
@@ -34,22 +34,24 @@ to `main` when the version changes).
 
 ### Blockers
 
-- **Cannot push from this environment.** HTTPS to GitHub is reachable but no
-  credential is configured (`credential.helper` empty, no `gh`, no token), and
-  SSH port 22 times out. The 36 commits are safe locally on the branch.
+- No active blockers. The push credential gap from earlier the same day was
+  resolved: `gh` CLI installed user-local (`~/.local/bin`, no `sudo`), device-flow
+  login as `barcelosvinicius`, `gh auth setup-git` wired it into `git`. All 37
+  commits were rewritten (author/committer → `viniciusbsilva10@gmail.com`,
+  `Co-Authored-By` trailers stripped) and fast-forwarded directly into `main` —
+  the feature branch was deleted, local and remote, once its tip matched
+  `main`'s.
 
 ### Priority next steps
 
-1. Push the branch — **done when:** `git push -u origin
-   feat/wire-session-continuity-graph` succeeds · **blocked by:** a credential
-   (`gh auth login`, or a PAT with `git config credential.helper store`).
-   Safe: `release.yml` and `ci.yml` only trigger on `main`.
-2. Review the series and open a PR — **done when:** the PR exists and CI is
-   green · **blocked by:** step 1.
-3. Decide whether to cut a release — **done when:** either `npm run release`
-   has run or a note here records the decision to wait · **blocked by:** step 2.
-   Nothing publishes until the version changes on `main`.
-4. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
+1. Confirm CI is green on `origin/main` for this push — **done when:** the
+   GitHub Actions run for commit `69216d7` shows passing · **blocked by:**
+   nothing; `release.yml` will run but should not publish, since the version
+   did not change (3.0.0 → 3.0.0).
+2. Decide whether to cut a release — **done when:** either `npm run release`
+   has run or a note here records the decision to wait · **blocked by:**
+   nothing.
+3. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
    a session records whether the §0 fact panel answered *"what else must
    change?"* on its own · **blocked by:** a few sessions of real use.
 
@@ -58,6 +60,38 @@ to `main` when the version changes).
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-08-19] Push, identity, and unification into `main`
+
+**Owner:** vinicius + Claude Opus 5
+
+**Deliveries:**
+- Resolved the push credential gap recorded at session close: `gh` CLI
+  installed user-local (no `sudo`), authenticated via device flow as
+  `barcelosvinicius` (the repo owner), `gh auth setup-git` wired it into `git`.
+- All 37 commits rewritten: author/committer unified to
+  `viniciusbsilva10@gmail.com` (was `the corporate identity`,
+  mismatched against this repo's prior history and the pushing account);
+  `Co-Authored-By` trailers stripped from every message.
+- `main` fast-forwarded to the branch tip (no merge commit) and pushed to
+  `origin/main`. The feature branch `feat/wire-session-continuity-graph` was
+  then deleted, local and remote — the user asked why it existed at all, and
+  once the identity was fixed and pushed directly, keeping it served no
+  purpose.
+
+**Decisions:**
+- Unify directly into `main` rather than open a PR. The branch had existed as a
+  precaution against `release.yml` publishing unintentionally; that risk does
+  not apply here since the version was never bumped.
+
+**Next steps:** confirm CI is green on `origin/main`.
+
+**Blockers:** none.
+
+**Verified:** `git rev-parse main` == `git rev-parse origin/main` == `69216d7`
+· `npm run validate` and `npm test` (39/39) re-run after both the identity
+rewrite and the fast-forward · commit messages and authorship spot-checked
+after rewrite.
 
 ### [2026-08-19] Phase 5, the size test, and three holes found by measuring
 
