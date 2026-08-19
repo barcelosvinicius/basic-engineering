@@ -88,6 +88,15 @@ test('the shipped plugin graph is acyclic and points only at real skills', () =>
   assert.deepStrictEqual(edges.findUnknownTargets(skills, g), []);
 });
 
+test('docs/structural-analysis.md §0.2 still matches the measured graph', () => {
+  // The fact panel is only worth something if something re-runs it. Advancing on
+  // several fronts at once is exactly when a hand-kept count goes quietly stale.
+  const { spawnSync } = require('child_process');
+  const r = spawnSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'graph-audit.js'), '--check'],
+    { encoding: 'utf8' });
+  assert.strictEqual(r.status, 0, `${r.stdout}${r.stderr}`);
+});
+
 test('proc-session-continuity is no longer a leaf of the graph', () => {
   const dir = path.join(__dirname, '..', 'plugins', 'be', 'skills');
   const declared = edges.collect(dir).edges.get('proc-session-continuity');

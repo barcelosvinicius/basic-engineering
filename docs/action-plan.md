@@ -149,9 +149,25 @@ that makes it fail**, or it does not count (SUGESTOES §23).
 
 ---
 
+### 2.4 ✅ The fact panel re-runs itself
+
+- **Why it was added:** phases 1–2 guarded the inventory and the backlog, but
+  nothing re-ran the numbers in `docs/structural-analysis.md` §0 — the same
+  failure class one level up, and the one that bites hardest when several fronts
+  advance at once. The hand-kept counts in §0.2 went stale twice inside a single
+  day of work.
+- **Done:** §0.2 is now a **generated block** (`node scripts/graph-audit.js --md`),
+  verified by `--check`, which runs as a test so CI catches staleness on every
+  push. Rows that cannot be machine-derived stay in a separate hand-kept table
+  with their proof command, labelled as such — no pretending.
+- **Proof:** flipping the orphan count from 0 to 3 in the doc fails `npm test`.
+- **Deliberately not automated:** parsing the free-form fact rows. A fragile
+  parser would become its own false-alarm source — the same mistake as the
+  code-percentage heuristic rejected in 3.1.
+
 ## Phase 3 — Size: the criterion, then the extraction
 
-### 3.1 Replace the bare number with a test
+### 3.1 ✅ Replace the bare number with a test
 
 - **Measured, and this is the point:** the current rule ("`SKILL.md` ≤ ~150
   lines; long material goes to resources") has **near-zero compliance where it
@@ -173,9 +189,14 @@ that makes it fail**, or it does not count (SUGESTOES §23).
   two real catalogues — but it was tuned on the same corpus it was validated
   against, which is weak evidence. Ship it as a **reporting hint**, never as a
   gate.
-- **Done when:** `proc-skill-creator`'s checklist asks the trigger question, and
-  the ~150 line item states what to move.
-- **Blocked by:** nothing. **Effort:** low.
+- **Done:** the three outcomes are stated in `proc-skill-creator` and summarised
+  in `CLAUDE.md`; the checklist now says to apply the test and record the outcome
+  instead of trimming blindly. The stale row telling authors that growth always
+  means extraction was corrected in the same pass.
+- **Applied to itself first:** `proc-skill-creator` moved provenance and pruning
+  to `lifecycle.md` (lookup for a subset of authors) and records its own verdict
+  — *leave it*, a single-trigger procedure. It is still 211 lines, and that is
+  the point: the budget is the alarm, not the verdict.
 
 ### 3.2 Extract the two catalogues — partially closes P-06
 
@@ -210,17 +231,19 @@ that makes it fail**, or it does not count (SUGESTOES §23).
 
 ---
 
-## Phase 4 — This repo follows its own protocol — closes P-04
+## Phase 4 ✅ done 2026-08-19 — This repo follows its own protocol — closes P-04
 
 - **Measured:** `docs/HISTORY.md` and `docs/lessons-learned.md` do not exist. The
   repo that prescribes session continuity has no record of its own decisions
   since 3.0.0.
 - **Do:** create both from the base's own templates (now carrying the fields from
   A-06), and close this session through `/be:session-end` rather than by hand.
-- **Done when:** `ls docs/` lists `structural-analysis.md`, `HISTORY.md` and
-  `lessons-learned.md`, and the `Stop` hook stops firing its reminder on a
-  code-changing session.
-- **Blocked by:** nothing. **Effort:** low.
+- **Done:** both created from the base's own templates, in the formats added by
+  A-06 — next steps carry a done-criterion and a blocker, the session entry
+  carries `Verified:`, each lesson carries `Evidence:` and `Scope:`.
+- **Note worth keeping:** every lesson recorded came out `Scope: method`, which
+  in this repo means it belongs in the shipped base. The promotion question
+  answered itself on its first run.
 
 ---
 
@@ -242,10 +265,10 @@ From `TRIAGEM.md`; U1–U3 landed on 2026-08-19. Ordered by effect/cost, unchang
 
 ## Sequencing
 
-**Phase 1 → Phase 2 → Phase 3.1 → Phase 4** is one working session's worth and
-is where the effect concentrates: it closes every active drift, leaves a guard
-behind each one, replaces the size number with a test, and finally makes this
-repo run the protocol it sells.
+**Phase 1 → Phase 2 (+2.4) → Phase 3.1 → Phase 4 — done on 2026-08-19**, in ten
+plus three commits, each one re-checked out and verified in isolation. Every
+active drift is closed, each with a guard behind it; the size number is a test;
+and this repo now runs the protocol it sells.
 
 **Phase 3.2, 3.3 and Phase 5** are separate sessions. 3.2 is careful surgery on
 600 lines of material that must be moved without loss; Phase 5 is seven
