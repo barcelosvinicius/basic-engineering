@@ -53,7 +53,58 @@ function badPrefixes(names, prefixes, exceptions = PREFIX_EXCEPTIONS) {
   );
 }
 
+/** Strip fenced code blocks — an example name is not a reference. */
+function stripFences(text) {
+  return text.replace(/^```[\s\S]*?^```/gm, '');
+}
+
+/**
+ * Backticked `prefix-name` mentions in a document that do not resolve to a real
+ * skill or agent. Renaming either one otherwise leaves every prose reference to
+ * it pointing at nothing, silently — the reader follows a name that no longer
+ * exists and nothing in the build notices.
+ */
+const NAME_RE = /`((?:proc|be|fe|qa|sec|ops|infra|dev|mgmt)-[a-z0-9-]+)`/g;
+
+/**
+ * Names that look like references but are deliberately hypothetical — the
+ * naming examples in proc-skill-creator's good/bad pair. Declared here for the
+ * same reason PREFIX_EXCEPTIONS is: an exception to a convention is part of the
+ * convention, and an undeclared one becomes the next tool's false positive.
+ * This check caught them on its first run, before it was trusted.
+ */
+const REFERENCE_EXCEPTIONS = ['be-caching-patterns', 'proc-incident-response'];
+
+function danglingRefs(text, knownNames) {
+  const body = stripFences(text);
+  const bad = new Set();
+  let m;
+  while ((m = NAME_RE.exec(body))) {
+    if (!knownNames.has(m[1]) && !REFERENCE_EXCEPTIONS.includes(m[1])) bad.add(m[1]);
+  }
+  NAME_RE.lastIndex = 0;
+  return [...bad];
+}
+
+/** Counts asserted in prose as "N skills" / "N agents" / "N commands". */
+const COUNT_RE = /\b(\d{1,3})\s+(skills|agents|commands)\b/g;
+
+function wrongCounts(text, actual) {
+  const bad = [];
+  let m;
+  while ((m = COUNT_RE.exec(text))) {
+    const claimed = Number(m[1]);
+    const real = actual[m[2]];
+    if (real !== undefined && claimed !== real) bad.push({ claimed, kind: m[2], real });
+  }
+  COUNT_RE.lastIndex = 0;
+  return bad;
+}
+
 module.exports = {
+  REFERENCE_EXCEPTIONS,
+  danglingRefs,
+  wrongCounts,
   SKILL_PREFIXES,
   AGENT_PREFIXES,
   PREFIX_EXCEPTIONS,

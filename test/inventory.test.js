@@ -35,6 +35,30 @@ test('a declared exception passes the prefix rule', () => {
     'the exception must be declared in one place, not tolerated silently');
 });
 
+test('KNOWN POSITIVE: a backticked name that resolves to nothing is reported', () => {
+  const known = new Set(['qa-security-reviewer']);
+  const doc = 'Delegate to `qa-security-reviewer`, never to `qa-security-auditor`.';
+  assert.deepStrictEqual(inv.danglingRefs(doc, known), ['qa-security-auditor']);
+});
+
+test('a name inside a code fence is an example, not a reference', () => {
+  const doc = ['Real: `qa-security-reviewer`.', '', '```markdown',
+    '| `invoke` | `your-new-skill` | condition |', '```'].join('\n');
+  assert.deepStrictEqual(inv.danglingRefs(doc, new Set(['qa-security-reviewer'])), []);
+});
+
+test('declared reference exceptions are hypothetical names, not ghosts', () => {
+  const doc = 'Good names: `be-caching-patterns`, `proc-incident-response`.';
+  assert.deepStrictEqual(inv.danglingRefs(doc, new Set()), []);
+  assert.ok(inv.REFERENCE_EXCEPTIONS.length > 0);
+});
+
+test('KNOWN POSITIVE: a stale count asserted in prose is reported', () => {
+  const bad = inv.wrongCounts('The base ships 28 skills and 15 agents.',
+    { skills: 29, agents: 15, commands: 11 });
+  assert.deepStrictEqual(bad, [{ claimed: 28, kind: 'skills', real: 29 }]);
+});
+
 test('the shipped inventory is fully registered and correctly named', () => {
   const fs = require('fs');
   const skills = inv.listSkills(PLUGIN);
@@ -46,4 +70,17 @@ test('the shipped inventory is fully registered and correctly named', () => {
   assert.deepStrictEqual(inv.missingFromIndex(index, skills.concat(agents)), []);
   assert.deepStrictEqual(inv.badPrefixes(skills, inv.SKILL_PREFIXES), []);
   assert.deepStrictEqual(inv.badPrefixes(agents, inv.AGENT_PREFIXES), []);
+
+  // No document in the plugin points at a name that does not exist.
+  const known = new Set(skills.concat(agents));
+  for (const s of skills) {
+    const body = fs.readFileSync(path.join(PLUGIN, 'skills', s, 'SKILL.md'), 'utf8');
+    assert.deepStrictEqual(inv.danglingRefs(body, known), [], `skills/${s}`);
+  }
+  for (const dir of ['agents', 'commands']) {
+    for (const f of fs.readdirSync(path.join(PLUGIN, dir)).filter((x) => x.endsWith('.md'))) {
+      const body = fs.readFileSync(path.join(PLUGIN, dir, f), 'utf8');
+      assert.deepStrictEqual(inv.danglingRefs(body, known), [], `${dir}/${f}`);
+    }
+  }
 });

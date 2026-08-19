@@ -25,7 +25,7 @@ elevates AI from autocomplete to a genuine engineering partner.
 /plugin install be@basic-engineering
 ```
 
-Then, in your project: `/be:bootstrap`. Done — 28 skills, 15 agents, 11
+Then, in your project: `/be:bootstrap`. Done — 29 skills, 15 agents, 11
 commands, and the live guardrail hooks are active. Update later with
 `/plugin update be@basic-engineering`.
 
@@ -93,7 +93,7 @@ copy into your project's `.mcp.json`.
 .claude-plugin/marketplace.json   ← plugin marketplace manifest
 plugins/be/                       ← the canonical content (one source of truth)
   ├── .claude-plugin/plugin.json
-  ├── skills/<name>/SKILL.md      ← 28 skills + resources
+  ├── skills/<name>/SKILL.md      ← 29 skills + resources
   ├── agents/*.md                 ← 15 subagents
   ├── commands/*.md               ← 11 slash commands
   ├── hooks/                      ← SessionStart + PreToolUse guardrails + Stop

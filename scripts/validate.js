@@ -239,6 +239,40 @@ function checkInventory() {
   for (const n of inv.badPrefixes(agents, inv.AGENT_PREFIXES)) {
     fail(`agent "${n}": prefix outside ${inv.AGENT_PREFIXES.join(', ')} and not a declared exception`);
   }
+
+  // A backticked name that resolves to nothing: renaming a skill or agent
+  // otherwise leaves every prose reference to it pointing at a ghost, silently.
+  const known = new Set(skills.concat(agents));
+  const docs = [];
+  for (const s of skills) docs.push([`skills/${s}/SKILL.md`, path.join(PLUGIN, 'skills', s, 'SKILL.md')]);
+  for (const dir of ['agents', 'commands']) {
+    const abs = path.join(PLUGIN, dir);
+    if (!fs.existsSync(abs)) continue;
+    for (const f of fs.readdirSync(abs).filter((x) => x.endsWith('.md'))) {
+      docs.push([`${dir}/${f}`, path.join(abs, f)]);
+    }
+  }
+  for (const [rel, abs] of docs) {
+    for (const name of inv.danglingRefs(fs.readFileSync(abs, 'utf8'), known)) {
+      fail(`${rel}: references "${name}", which is not a skill or agent`);
+    }
+  }
+
+  // Counts asserted in prose go stale the moment the inventory changes.
+  const actual = {
+    skills: skills.length,
+    agents: agents.length,
+    commands: fs.existsSync(path.join(PLUGIN, 'commands'))
+      ? fs.readdirSync(path.join(PLUGIN, 'commands')).filter((f) => f.endsWith('.md')).length
+      : 0,
+  };
+  for (const rel of ['README.md', 'CLAUDE.md', 'plugins/be/BOOTSTRAP.md']) {
+    const abs = path.join(ROOT, rel);
+    if (!fs.existsSync(abs)) continue;
+    for (const c of inv.wrongCounts(fs.readFileSync(abs, 'utf8'), actual)) {
+      fail(`${rel}: claims ${c.claimed} ${c.kind}, but there are ${c.real}`);
+    }
+  }
 }
 
 /**
