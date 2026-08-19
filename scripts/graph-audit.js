@@ -91,6 +91,19 @@ const report = {
 
 const T = report.totals;
 
+// These drifted in the hand-kept part of the same fact panel while the generated
+// part stayed correct, which is the whole argument for generating them.
+const overBudget = skills.filter(
+  (n) => fs.readFileSync(P('skills', n, 'SKILL.md'), 'utf8').split('\n').length - 1 > 150
+);
+const withResources = skills.filter(
+  (n) => fs.readdirSync(P('skills', n)).some((f) => f !== 'SKILL.md')
+);
+const docsDir = path.join(ROOT, 'docs');
+const livingDocs = fs.existsSync(docsDir)
+  ? fs.readdirSync(docsDir).filter((f) => f.endsWith('.md')).length
+  : 0;
+
 /** The rows as they must appear in docs/structural-analysis.md §0.2. */
 function renderRows() {
   return [
@@ -103,6 +116,9 @@ function renderRows() {
     `| Agents delegating to another agent | **${report.agentsWithOutgoing} / ${T.agents}** |`,
     `| \`proc-session-continuity\` in-degree / declared out-degree | **${report.hub.inDegree} / ${dOut.length}** |`,
     `| Declared \`invoke\` cycles | **${report.invokeCycles.length}** |`,
+    `| Skills over the ~150-line budget | **${overBudget.length}** |`,
+    `| Skills carrying a resource file | **${withResources.length} / ${T.skills}** |`,
+    `| Living docs in this repo | **${livingDocs}** |`,
   ];
 }
 

@@ -46,6 +46,9 @@ becomes a fact panel that lies — these counts drifted once inside a single day
 | Agents delegating to another agent | **15 / 15** |
 | `proc-session-continuity` in-degree / declared out-degree | **18 / 7** |
 | Declared `invoke` cycles | **0** |
+| Skills over the ~150-line budget | **4** |
+| Skills carrying a resource file | **16 / 28** |
+| Living docs in this repo | **4** |
 
 Not machine-checked (kept by hand, with the command that proves each):
 
@@ -54,7 +57,6 @@ Not machine-checked (kept by hand, with the command that proves each):
 | Read-only agents (`tools:` restricted) | `grep -l '^tools: Read, Grep, Glob, Bash$' plugins/be/agents/*.md \| wc -l` | **9 / 15** | 2026-08-19 |
 | Agents declaring `model:` | `grep -l '^model:' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
 | Agents carrying prompt-injection defense | `grep -lie 'prompt.injection\|prompt defense\|untrusted' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
-| Skills over the ~150-line budget | `for f in plugins/be/skills/*/SKILL.md; do [ $(wc -l < $f) -gt 150 ] && echo $f; done \| wc -l` | **4** | 2026-08-19 |
 
 > **Reading of §0.2 — the finding, and its fix.** As first measured today, the
 > node with the **highest in-degree (18)** had an **out-degree of 1**, and that
@@ -70,8 +72,7 @@ Not machine-checked (kept by hand, with the command that proves each):
 | Fact | Proof command | Value | Measured on |
 |---|---|--:|---|
 | Version triple in sync | `npm run validate` | **PASS** (3.0.0 × 3) | 2026-08-19 |
-| Test suite | `npm test` | **25 pass · 0 fail** | 2026-08-19 |
-| Living docs in this repo | `ls docs/` | **1** (this file) | 2026-08-19 |
+| Test suite | `npm test` | **32 pass · 0 fail** | 2026-08-19 |
 | Backlog items shipped | `node scripts/backlog-audit.js` | **16 done · 2 partial · 2 todo** (of 20) | 2026-08-19 |
 | Invoke cycles in the activation graph | `npm run validate` | **0** | 2026-08-19 |
 
@@ -109,16 +110,15 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟠 Important
 
-#### P-04 — This repo did not follow its own protocol until today
+#### P-04 ✅ — This repo now follows its own protocol
 - **Problem:** `docs/HISTORY.md`, `docs/lessons-learned.md` do not exist; this
   file is the first living doc. The repo prescribing session continuity did not
   practise it, so the plugin has no record of its own decisions since 3.0.0.
-- **Done when:** `ls docs/` lists `structural-analysis.md`, `HISTORY.md`, and
-  `lessons-learned.md`, and the Stop hook stops firing its reminder on a
-  code-changing session.
-- **Blocked by:** nothing.
+- **Closed 2026-08-19:** `docs/` holds `structural-analysis.md`, `HISTORY.md`,
+  `lessons-learned.md` and `action-plan.md`, all created from the base's own
+  templates in the formats added by A-06.
 
-#### P-05 — Nothing forces the backlog status to be re-run *(mostly addressed)*
+#### P-05 ✅ — The backlog status is re-run by command
 - **Where:** `feedback/BACKLOG.md`, `scripts/backlog-audit.js`
 - **Problem:** the backlog stated "nothing implemented yet" for two months while
   **16 of its 20 items were shipped**. Worse, hand-counting it produced three
@@ -130,10 +130,9 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   (`node scripts/backlog-audit.js`, `--md` regenerates the table); each item
   declares the checks that prove it; the outbound half of the promotion loop
   landed in A-03.
-- **Still open:** nothing re-runs it. The table can go stale between releases.
-- **Done when:** the release checklist runs `backlog-audit.js` and refuses a
-  release whose committed table differs from the command's output.
-- **Blocked by:** nothing.
+- **Closed 2026-08-19:** `backlog-audit.js --check` is a pre-flight guard in
+  `scripts/release.js`, before any file is written, and is documented in
+  `RELEASING.md`. Flipping one status cell fails the release.
 
 ### 🟡 Minor
 
