@@ -64,6 +64,46 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 |-------|-----------------|
 | [prefix-name] | [when to use — add when creating it] |
 
+## Why the close is a check, and why writing is serial
+
+Measured over 200 commits in a real pair of repositories:
+
+| File | Writes in 200 commits |
+|---|--:|
+| `HISTORY.md` | 68 |
+| `structural-analysis.md` | 65 |
+| `lessons-learned.md` | 46 |
+
+**179 of 200**, concentrated in the three files that *every* session close
+touches. N agents closing a session in parallel produce N concurrent writes to
+those same three — and a hand-resolved conflict is itself a source of drift.
+
+On the same corpus, 47 versioned documents referenced each other 10 times, while
+a single identifier reached up to 16 files. A fact reaches ~8 files on average
+and almost nothing declares the relationship, which is why *"where else is this
+written?"* has to be asked per changed fact rather than left to recall — under
+pressure, recall fails before lookup does.
+
+## Why writing is serial, and why the close is a sweep
+
+Measured over 200 commits in a real pair of repositories:
+
+| File | Writes in 200 commits |
+|---|--:|
+| `HISTORY.md` | 68 |
+| `structural-analysis.md` | 65 |
+| `lessons-learned.md` | 46 |
+
+**179 of 200**, concentrated in the three files that *every* session close
+touches. N agents closing a session in parallel produce N concurrent writes to
+those same three, and a hand-resolved conflict is itself a source of drift.
+
+On the same corpus, 47 versioned documents referenced each other **10** times
+while a single identifier reached up to **16** files. A fact reaches ~8 files on
+average and almost nothing declares the relationship — which is why *"where else
+is this written?"* is asked per changed fact instead of left to recall. Under
+pressure, recall fails before lookup does.
+
 ## Key documents
 
 | Document | Purpose |

@@ -105,16 +105,18 @@ Before starting any implementation, declare a **verifiable** goal:
    belongs to the base. Queue it for the base's feedback intake, and `invoke`
    `proc-skill-creator` if it deserves a skill. A tool that never collects what
    it taught ages at the speed of whoever maintains it, not of whoever uses it.
-5. `invoke` `qa-verification-loop` before declaring the goal met — the close
-   **checks** what was recorded; it does not compose it from memory.
-6. Commit with Conventional Commits — docs in the **same commit** as the code.
+5. **Delta sweep** — for each fact this session changed, ask *"where else is
+   this written?"*, and check the record against `git log`. See *The close
+   checks* below.
+6. `invoke` `qa-verification-loop` before declaring the goal met.
+7. Commit with Conventional Commits — docs in the **same commit** as the code.
 
 ### With SDD
 
 1. Mark the task ✅ with date in `.specify/tasks/[task].md` (or record blocker).
 2. Update `docs/HISTORY.md` — Current State, next task ID, Delivery History.
-3. Record lessons learned if applicable — the promotion check and the
-   verification pass (steps 4–5 above) apply here unchanged.
+3. Record lessons learned if applicable — the promotion check, the delta sweep
+   and the verification pass (steps 4–6 above) apply here unchanged.
 4. Commit task file + code + HISTORY.md together.
 
 ## Session goal validation
@@ -125,11 +127,9 @@ Reflect the answer in `docs/HISTORY.md` and `docs/structural-analysis.md`.
 
 ## Running work in parallel
 
-Read in a fan-out; write in series. Measured in a real pair of repositories:
-three files — `HISTORY.md`, `structural-analysis.md`, `lessons-learned.md` —
-absorbed **179 of 200 commits**' writes, and they are the three that *every*
-session close touches. N agents closing a session in parallel collide on exactly
-those three, and a hand-merged collision is where drift comes from.
+Read in a fan-out; write in series — the three living docs absorb most of a
+repo's writes and *every* close touches all three, so parallel closes collide on
+exactly those (measurement in [resources.md](resources.md)).
 
 1. Agents opened in parallel are **read-only** and return findings in a fixed
    shape (file · line · fact · evidence), never edits.
@@ -138,10 +138,29 @@ those three, and a hand-merged collision is where drift comes from.
    declared and must be disjoint** — and disjointness is checked by command,
    not assumed.
 
-Sweep commands state the axis they parallelise on (per repository, per layer,
-per service); an independent sweep is exactly the case where serialising buys
-nothing. The base already ships the ingredient: most analysis agents are
-read-only by definition.
+Sweep commands state the axis they parallelise on; an independent sweep is
+exactly where serialising buys nothing.
+
+## The close checks; it does not compose
+
+A long session gets compacted, and context that was never written down is not
+recoverable. So the fact is recorded **when it changes**, and the close
+**confirms** — it does not reconstruct the session from memory at the hour when
+memory is worst.
+
+Two questions at close, both restricted to what this session touched:
+
+1. **"Where else is this fact written?"** — for every fact the session changed.
+   The update **replaces** the earlier record; where history matters, replace it
+   under a dated correction banner. Additive updates leave two answers to one
+   question, and whoever reads later picks the wrong one.
+2. **"Does the record match the commits?"** — `git log <base>..HEAD` against what
+   the living docs now claim. A behaviour change with no changelog entry, or an
+   item still listed as open after its criterion was met, surfaces here.
+
+Restricted to the delta on purpose: a whole-repo sweep is expensive and becomes
+an empty ritual, while the delta sweep is cheap and catches exactly the class of
+error this session was able to create.
 
 ## Golden rule
 
@@ -168,9 +187,14 @@ a project decision only in harness memory — it would vanish for the team.
 
 **Q1 — does the trigger split?** No: start and end are two halves of one
 protocol producing one thing, a session that hands off cleanly. **Q2 — what is
-lookup?** The tables of available agents, skills and documents, already in
-`resources.md`. **Verdict: leave it** — and keep it tight anyway: this is the
-most-executed skill in the base, so every line is paid on every session.
+lookup?** The tables of agents, skills and documents, and the measurements
+behind the rules — all in `resources.md`. **Verdict: leave it.**
+
+Moving the SDD variants out was tried and reverted: they are a *branch of the
+procedure*, not a catalogue, and the move saved six lines at the cost of an
+extra file and two jumps. The test says extract lookup, not extract volume —
+this is the most-executed skill in the base, so keep it tight, but not by
+pushing procedure out of reach.
 
 ## See also
 
