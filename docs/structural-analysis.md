@@ -54,7 +54,7 @@ Not machine-checked (kept by hand, with the command that proves each):
 | Read-only agents (`tools:` restricted) | `grep -l '^tools: Read, Grep, Glob, Bash$' plugins/be/agents/*.md \| wc -l` | **9 / 15** | 2026-08-19 |
 | Agents declaring `model:` | `grep -l '^model:' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
 | Agents carrying prompt-injection defense | `grep -lie 'prompt.injection\|prompt defense\|untrusted' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
-| Skills over the ~150-line budget | `for f in plugins/be/skills/*/SKILL.md; do [ $(wc -l < $f) -gt 150 ] && echo $f; done \| wc -l` | **5** | 2026-08-19 |
+| Skills over the ~150-line budget | `for f in plugins/be/skills/*/SKILL.md; do [ $(wc -l < $f) -gt 150 ] && echo $f; done \| wc -l` | **4** | 2026-08-19 |
 
 > **Reading of §0.2 — the finding, and its fix.** As first measured today, the
 > node with the **highest in-degree (18)** had an **out-degree of 1**, and that
@@ -137,32 +137,30 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟡 Minor
 
-#### P-06 — Five skills exceed the ~150-line budget
-- `proc-skill-creator` (223), `proc-structural-analysis` (222),
-  `proc-domain-mapping` (200), `proc-impact-analysis` (182), `proc-changelog` (158).
-- Four of these now carry a **recorded verdict of *leave it***
-  (`proc-skill-creator`, `proc-structural-analysis`, `proc-domain-mapping`,
-  `proc-impact-analysis`): their lookup material is extracted and what remains
-  is procedure. Being over the budget is the expected
-  state for a pipeline skill — the number is the alarm that triggers the test,
-  not the thing to satisfy.
-- ✅ `fe-accessibility-patterns` 293 → **138** (2026-08-19): per-component
-  catalogue moved to `component-patterns.md`; all 161 lines of code preserved.
-- ✅ `fe-ux-patterns` 275 → **146** (2026-08-19): per-component and per-screen
-  catalogue moved to `ui-patterns.md`; all 93 lines of code preserved.
-- **The budget is now an alarm, not a verdict** (A-07): over it, the
-  three-outcome test in `proc-skill-creator` decides between *leave it*,
-  *extract to a resource*, and *new skill*, keyed on the trigger rather than on
-  the size. `proc-skill-creator` applied it to itself — `lifecycle.md` absorbed
-  the lookup material and the recorded verdict for what remains is *leave it*.
-- **The test applied to the other six gives *extract* for all of them**, which
-  refutes the prediction recorded earlier the same day (*"the `proc-*` pipelines
-  are single-trigger, so leave them"*). Single-trigger only answers question 1.
-  Question 2 — *decide or look up?* — catches what every one of them embeds: its
-  **own output template**. That is a systematic pattern of this base, not six
-  coincidences.
-- **Done when:** each of the seven carries a one-line recorded verdict, and the
-  two marked *extract* have resource siblings with no pattern lost.
+#### P-06 ✅ — the size test has been applied to every skill that exceeded it
+
+Closed 2026-08-19. Seven skills were over the ~150-line budget; all seven had
+the test applied and every extraction preserved its code line-for-line, verified
+per commit.
+
+| Skill | Before | After | Outcome |
+|---|--:|--:|---|
+| `fe-accessibility-patterns` | 293 | **138** | extracted `component-patterns.md` |
+| `fe-ux-patterns` | 275 | **146** | extracted `ui-patterns.md` |
+| `proc-changelog` | 158 | **118** | extracted `format-reference.md` |
+| `proc-skill-creator` | 193 | 223 | extracted `lifecycle.md`, verdict **leave it** |
+| `proc-structural-analysis` | 255 | 222 | extracted `output-schemas.md`, verdict **leave it** |
+| `proc-domain-mapping` | 227 | 200 | extracted `output-schemas.md`, verdict **leave it** |
+| `proc-impact-analysis` | 207 | 182 | extracted `pr-template.md`, verdict **leave it** |
+
+**The systematic finding:** all seven embedded their own output template or
+catalogue inside `SKILL.md` — paid for on every activation, opened only while
+writing the deliverable. That is a pattern of this base, not seven coincidences.
+Skills carrying a resource file went from **10 to 16**.
+
+**Four remain over the line, deliberately.** Their lookup material is out and
+what is left is decision procedure. The budget is the alarm that triggers the
+test (A-07), not a number to satisfy by pushing decisions out of reach.
 
 ---
 
