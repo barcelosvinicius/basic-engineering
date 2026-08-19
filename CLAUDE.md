@@ -20,6 +20,11 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 
 - All content in **English**, kebab-case names, prefixes: `proc-`, `be-`, `fe-`, `qa-`,
   `sec-`, `ops-`, `infra-` (skills); `dev-`, `mgmt-`, `qa-`, `infra-`, `ops-` (agents).
+  **One declared exception:** `engineering-principles` carries no prefix — it is the
+  digest every other skill points at, not a member of a family. Enforced by
+  `npm run validate`, exception list included, so tooling stops guessing: an
+  undeclared exception once made a prefix-based sweep miss it and misreport the
+  activation graph.
 - Skill frontmatter: `name` == directory name; `description` leads with the trigger
   condition ("Use when…"). Keep SKILL.md ≤ ~150 lines; long examples go in sibling
   resource files.
