@@ -24,6 +24,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
   read sections rather than the whole living doc and consult
   `proc-context-budget`.
+- **A name that resolves to nothing, and a count that went stale, now fail the
+  build.** Renaming a skill or agent used to leave every prose reference to it
+  pointing at a ghost with nothing noticing, and `README.md` claimed 28 skills
+  from the moment there were 29. Both are checked across skills, agents,
+  commands and the root docs.
+- **The SessionStart hook reports declared `companions`** — last commit and
+  whether they have uncommitted work — so "close every repo the session touched"
+  is a fact on screen rather than something to remember. Reporting only:
+  unreachable paths, non-repos and a malformed `.be-paths.json` are all silent.
 - **The session close checks the record instead of composing it.** A long
   session gets compacted and unwritten context is not recoverable, so the fact
   is recorded when it changes and the close confirms — with two questions

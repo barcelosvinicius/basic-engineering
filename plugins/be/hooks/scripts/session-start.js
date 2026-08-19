@@ -10,11 +10,18 @@
  * root maps logical doc keys to this project's real paths (so PT projects using
  * `docs/HISTORICO.md` work as well as EN `docs/HISTORY.md`). Missing keys fall
  * back to the English defaults, then to common PT names.
+ *
+ * It also reports declared `companions` — repositories this one is changed
+ * together with. The protocol says to close every repo the session touched, and
+ * a rule with nothing mechanical behind it is the reason a sibling's
+ * lessons-learned once sat 65 commits behind while the active repo's was
+ * current. Reporting only; it never blocks and never writes.
  */
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const MAX_LINES = 40;
 
@@ -56,6 +63,52 @@ function extractSections(content, headings) {
   return out.join('\n').trim();
 }
 
+/** Read the declared companion repositories, if any. */
+function companions(cwd) {
+  try {
+    const mapFile = path.join(cwd, '.be-paths.json');
+    if (!fs.existsSync(mapFile)) return [];
+    const map = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+    return Array.isArray(map && map.companions) ? map.companions : [];
+  } catch {
+    return [];
+  }
+}
+
+function git(dir, args) {
+  return execSync(`git ${args}`, {
+    cwd: dir,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+    timeout: 5000,
+  }).trim();
+}
+
+/**
+ * One line per companion: how long since it was last committed to, and whether
+ * it has uncommitted work. Best-effort — an unreachable or non-git path is
+ * skipped silently rather than turning a session start into an error.
+ */
+function companionStatus(cwd) {
+  const out = [];
+  for (const rel of companions(cwd)) {
+    const dir = path.isAbsolute(rel) ? rel : path.join(cwd, rel);
+    if (!fs.existsSync(path.join(dir, '.git'))) continue;
+    try {
+      const last = git(dir, 'log -1 --format=%cr');
+      const dirty = git(dir, 'status --porcelain').length > 0;
+      out.push(
+        `[be plugin] Companion repo ${rel}: last commit ${last}` +
+          (dirty ? ', has uncommitted changes' : '') +
+          '. The session close runs there too.'
+      );
+    } catch {
+      // unreachable or not a repo — say nothing
+    }
+  }
+  return out;
+}
+
 try {
   const cwd = process.cwd();
   const parts = [];
@@ -82,6 +135,10 @@ try {
       }
     }
   }
+
+  // Companion repositories: the close is supposed to run in each of them.
+  // Surfaced here so it is a fact on screen rather than something to remember.
+  for (const line of companionStatus(cwd)) parts.push(line);
 
   // Session-continuity summary, if the project keeps a history doc.
   const historyPath = resolveDocPath(cwd, 'history', [

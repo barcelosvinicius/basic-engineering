@@ -80,3 +80,55 @@ test('gateguard is opt-in and remembers checked files per session', () => {
   assert.ok(gate.isChecked(data, '/x/app.ts'), 'remembers checked file');
   assert.ok(!gate.isChecked(data, '/x/other.ts'), 'other file still unchecked');
 });
+
+// ── companion repositories (session-start) ─────────────────────────────────
+// The close is supposed to run in every repo the session touched. These pin the
+// fail-open behaviour: a companion that cannot be read must never turn a session
+// start into an error.
+
+const os = require('os');
+const path = require('path');
+const { execSync, spawnSync } = require('child_process');
+
+function projectWith(mapJson) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-comp-'));
+  fs.mkdirSync(path.join(root, 'main', 'docs'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'main', 'docs', 'HISTORY.md'), '# H\n\n## Current State\nwork\n');
+  if (mapJson !== null) fs.writeFileSync(path.join(root, 'main', '.be-paths.json'), mapJson);
+  return root;
+}
+
+function runHook(cwd) {
+  const script = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'session-start.js');
+  const r = spawnSync(process.execPath, [script], { cwd, encoding: 'utf8' });
+  return { status: r.status, out: r.stdout || '' };
+}
+
+test('a declared companion repo is reported at session start', () => {
+  const root = projectWith('{"companions":["../sibling"]}');
+  const sib = path.join(root, 'sibling');
+  fs.mkdirSync(sib);
+  execSync('git init -q && git config user.email t@t && git config user.name t && ' +
+    'echo x > a.txt && git add . && git commit -qm w', { cwd: sib, stdio: 'ignore' });
+  const { status, out } = runHook(path.join(root, 'main'));
+  assert.strictEqual(status, 0);
+  assert.match(out, /Companion repo \.\.\/sibling/);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('a companion path that is missing or not a repo is skipped silently', () => {
+  const root = projectWith('{"companions":["../ghost","../notgit"]}');
+  fs.mkdirSync(path.join(root, 'notgit'));
+  const { status, out } = runHook(path.join(root, 'main'));
+  assert.strictEqual(status, 0);
+  assert.ok(!out.includes('Companion repo'), 'must not report an unreadable companion');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('a malformed .be-paths.json never breaks session start', () => {
+  const root = projectWith('{ not json');
+  const { status, out } = runHook(path.join(root, 'main'));
+  assert.strictEqual(status, 0);
+  assert.ok(out.includes('Session-continuity protocol active'));
+  fs.rmSync(root, { recursive: true, force: true });
+});
