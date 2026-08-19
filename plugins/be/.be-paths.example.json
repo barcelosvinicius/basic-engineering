@@ -4,8 +4,15 @@
     "It lets be commands and hooks work with YOUR doc names — English or",
     "Portuguese — instead of assuming the defaults. Any missing key falls back to",
     "the English default, then to a common Portuguese name. Delete keys you don't",
-    "remap. Paths are relative to the project root."
+    "remap. Paths are relative to the project root.",
+    "",
+    "`companions` declares repositories that this one is changed together with.",
+    "The session close runs in EACH of them, because the protocol otherwise only",
+    "closes the directory the agent happens to be sitting in and the sibling",
+    "starves: measured in a real pair, the sibling's lessons-learned was 65",
+    "commits behind while the same file in the active repo was current."
   ],
+  "companions": ["../sibling-repo"],
   "history": "docs/HISTORICO.md",
   "structural": "docs/arquitetura/analise-estrutural.md",
   "lessons": "docs/arquitetura/lessons-learned.md",

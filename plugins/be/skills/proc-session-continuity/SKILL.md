@@ -110,14 +110,20 @@ Before starting any implementation, declare a **verifiable** goal:
    this written?"*, and check the record against `git log`. See *The close
    checks* below.
 6. `invoke` `qa-verification-loop` before declaring the goal met.
-7. Commit with Conventional Commits — docs in the **same commit** as the code.
+7. **Close every repository this session touched**, not just the one you are
+   standing in. Answer it by command, not memory — for each path in
+   `companions` (see `.be-paths.json`): `git -C <path> log --since=<start>
+   --oneline`. Any repo with commits gets steps 1–6 too. The protocol otherwise
+   closes the current directory while the sibling starves silently.
+8. Commit with Conventional Commits — docs in the **same commit** as the code.
 
 ### With SDD
 
 1. Mark the task ✅ with date in `.specify/tasks/[task].md` (or record blocker).
 2. Update `docs/HISTORY.md` — Current State, next task ID, Delivery History.
-3. Record lessons learned if applicable — the promotion check, the delta sweep
-   and the verification pass (steps 4–6 above) apply here unchanged.
+3. Record lessons learned if applicable — the promotion check, the delta sweep,
+   the verification pass and the companion close (steps 4–7 above) apply here
+   unchanged.
 4. Commit task file + code + HISTORY.md together.
 
 ## Session goal validation

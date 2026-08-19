@@ -104,6 +104,28 @@ average and almost nothing declares the relationship — which is why *"where el
 is this written?"* is asked per changed fact instead of left to recall. Under
 pressure, recall fails before lookup does.
 
+## When a project is a pair of repositories
+
+Measured in a real pair, at the same moment:
+
+| Artefact (sibling repo) | Last touched | Rule in the close |
+|---|---|---|
+| `analise-estrutural.md` | same day | step 1, unconditional |
+| `HISTORICO.md` | 12 days behind | step 2, unconditional |
+| `lessons-learned.md` | **65 commits behind** | step 3, *"if applicable"* |
+
+The delay orders itself by how strongly the step is worded, and the only current
+artefact was current because an audit happened to touch it. The same
+`lessons-learned` in the repo where sessions actually ran was up to date with 169
+entries against 26. **The rule works; it just does not reach the repo next door.**
+
+Two distinct problems, often confused: a fact that belongs clearly to the sibling
+and never gets there (this one — solved by `companions` and step 7), and a fact
+that belongs to **neither** repo because it is an invariant of the pair — retry
+budgets, timeouts, page ceilings. The second needs a mirrored section declared as
+deliberate duplication, with the rule *"change here, change there"*, and is not
+solved by closing both repos.
+
 ## Key documents
 
 | Document | Purpose |
