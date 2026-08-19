@@ -7,6 +7,101 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`proc-session-continuity` declares its activation edges.** The skill that
+  runs at the start and end of every session had the highest in-degree of the
+  graph (18) and an out-degree of 1 — the one node every session passes through
+  forwarded to nothing, so reaching `proc-learning-trail`,
+  `proc-context-budget`, `qa-verification-loop`, `proc-structural-analysis` or
+  `proc-adr` depended on the user recalling the name. It now declares seven
+  typed edges with the condition for each. Edges are **reminders, never blocks**
+  — the rule the `Stop` hook already follows.
+- **Promotion channel back to the base.** Session end asks one question per
+  lesson: *"does this depend on this project?"* A method lesson that does not
+  is queued for the base's feedback intake instead of staying in the project's
+  `docs/`, where only that project benefits.
+- **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
+  read sections rather than the whole living doc and consult
+  `proc-context-budget`.
+- **The rule now lives in the template, not only in the prose.** Measured in a
+  real project: two tables in the *same file*, written by the same team under
+  the same "no value without a date" rule, scored **100%** and **0%**
+  conformance — the only difference was whether the table had a date column.
+  So the templates carry the fields:
+  - `structural-analysis.template.md` gains a **§0 verifiable fact panel**
+    (fact · proof command · value · class · measured on) as its first section,
+    and its pending-item format now requires **`Done when:`** (verifiable by
+    command) and **`Blocked by:`**. An item with no finish line is a feeling
+    and reappears in every future analysis; an item whose criterion is
+    verifiable but unreachable is worse — it looks resolved and never closes.
+  - `lessons-learned.template.md` gains **`Evidence:`** (measured · inferred ·
+    reported · hypothesis) and **`Scope:`** (`project` / `method`). An
+    unlabelled hypothesis inherits the authority of a measurement and readers
+    stop investigating; a `method` lesson is the one that gets promoted back to
+    the base.
+  - `history.template.md` gains a done-criterion and blocker on each next step,
+    and a **`Verified:`** field on session entries — the close checks what was
+    recorded rather than composing it from memory.
+  - `proc-structural-analysis` prescribes emitting §0 first and rejects a
+    percentage no command reproduces; `proc-skill-creator` documents the
+    `## Activation edges` convention and now requires a new skill to have at
+    least one referrer.
+- **Cycle detection over the activation graph** in `npm run validate`
+  (`scripts/lib/edges.js`). Edges are typed — `consult` (read the rules) vs
+  `invoke` (may run the flow) — and only `invoke` edges can recurse, so only
+  those are checked. Declared targets must be real skills.
+- **`scripts/graph-audit.js`** — reports the activation graph (leaves, orphans,
+  in/out degree, declared edges, cycles) so the shape is measured, not assumed.
+- **`npm run audit:backlog` / `npm run audit:graph`** expose the two audits, and
+  `backlog-audit.js --check` fails when the committed status table no longer
+  matches reality — wired as a pre-flight guard in `scripts/release.js`, so a
+  release cannot ship a stale claim about what is implemented.
+- *(repo-internal)* **`scripts/backlog-audit.js`** — reproduces the
+  implementation status of `feedback/BACKLOG.md` by command. It existed because
+  hand-counting that backlog gave three different wrong answers in one session
+  (10, then 12; the real figure is **16 of 20 shipped**), each one plausible and
+  none self-announcing.
+- *(repo-internal, not shipped)* `docs/structural-analysis.md` — this repo now
+  keeps the living doc it prescribes to others, with a §0 fact panel where every
+  number carries its proof command and measurement date.
+
+### Fixed
+
+- **Two skills prescribed incompatible schemas for the same section.**
+  `proc-structural-analysis` Phase 4 carried a YAML domain schema while
+  `proc-domain-mapping` prescribed Markdown tables — both for `## Domain map` in
+  the same output file, so whichever ran last won. Phase 4 now delegates through
+  a declared `invoke` edge to the skill that owns that section.
+- **The session index had drifted 14%.** `proc-session-continuity/resources.md`
+  was missing 3 skills and 3 agents of 43 entries. Registering them was already
+  an instruction (`proc-skill-creator` Step 7); nothing checked it. Now
+  `npm run validate` fails on an unregistered skill or agent.
+- **The naming convention had an undeclared exception.**
+  `engineering-principles` carries no prefix by decision, but that was written
+  nowhere — an omission that made a prefix-based sweep miss the second
+  most-referenced skill and misreport the activation graph. The exception is now
+  declared in one place and enforced.
+- **`BASE_VERSION` was generated from local time** while `CONTRIBUTING.md`
+  documents UTC. For a value compared lexicographically across machines, two
+  releases cut the same day from different timezones can order backwards and the
+  installer would read the newer base as older. `scripts/release.js` now derives
+  both `BASE_VERSION` and the CHANGELOG date from the same UTC instant, and
+  **refuses to write a value that is not strictly greater** than the previous.
+- **`npm run release -- --dry-run` could tell you to destroy your own work.** It
+  writes the release files on purpose (so the diff is readable) and skips the
+  clean-tree guard, then printed `git checkout -- <all release files>` as the
+  revert instruction — discarding any unrelated uncommitted changes in them. It
+  now detects the collision, names the files, and leaves them out of the command.
+
+
+- **Three skills were unreachable from the graph** — `proc-learning-trail`,
+  `proc-skill-creator` and `sec-agent-security` were referenced by no skill,
+  agent or command, so they activated only if the user remembered they existed.
+  Now 0 orphans (`node scripts/graph-audit.js`). `sec-secrets-management` gained
+  a section on credentials consumed by AI agents, which is where
+  `sec-agent-security` belongs.
+
 
 ## [3.0.0] — 2026-06-17
 
