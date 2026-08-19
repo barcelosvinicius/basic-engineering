@@ -24,6 +24,24 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
   read sections rather than the whole living doc and consult
   `proc-context-budget`.
+- **Every skill now keeps its catalogue and output templates out of `SKILL.md`.**
+  All seven skills over the ~150-line budget embedded the shape of their own
+  deliverable inline — paid for on every activation, opened only while writing
+  the output. That was a pattern of this base, not seven coincidences. Skills
+  carrying a resource file went from 10 to 16:
+  `fe-accessibility-patterns` 293 → 138 (`component-patterns.md`),
+  `fe-ux-patterns` 275 → 146 (`ui-patterns.md`),
+  `proc-changelog` 158 → 118 (`format-reference.md`),
+  `proc-structural-analysis` 255 → 222 (`output-schemas.md`),
+  `proc-domain-mapping` 227 → 200 (`output-schemas.md`),
+  `proc-impact-analysis` 207 → 182 (`pr-template.md`),
+  `proc-skill-creator` (`lifecycle.md`). The last four stay over the line by
+  decision — their lookup material is out and what remains is procedure. Each
+  extraction preserved its code line-for-line, verified per commit.
+- **`proc-domain-mapping` states that it owns the `## Domain map` schema**, and
+  the skeleton in `proc-structural-analysis` now points at it instead of
+  describing the fields again — the surviving half of the duplication fixed
+  earlier in this series.
 - **The `SKILL.md` size rule is a test, not a number.** `SKILL.md` loads in full
   on every activation while sibling resources load on demand, so the ~150-line
   budget is a budget on cost per activation — and it cannot tell cohesion from

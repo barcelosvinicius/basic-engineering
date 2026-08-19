@@ -165,7 +165,7 @@ that makes it fail**, or it does not count (SUGESTOES §23).
   parser would become its own false-alarm source — the same mistake as the
   code-percentage heuristic rejected in 3.1.
 
-## Phase 3 — Size: the criterion, then the extraction
+## Phase 3 ✅ done 2026-08-19 — Size: the criterion, then the extraction
 
 ### 3.1 ✅ Replace the bare number with a test
 
@@ -198,7 +198,7 @@ that makes it fail**, or it does not count (SUGESTOES §23).
   — *leave it*, a single-trigger procedure. It is still 211 lines, and that is
   the point: the budget is the alarm, not the verdict.
 
-### 3.2 Extract the embedded lookup material — closes P-06
+### 3.2 ✅ Extract the embedded lookup material — closes P-06
 
 - **Measured:** `fe-accessibility-patterns` costs ~2,130 tokens per activation
   and has 10 sections, one per component type. A session implementing a modal
@@ -209,12 +209,13 @@ that makes it fail**, or it does not count (SUGESTOES §23).
   `fe-accessibility-patterns` and `fe-ux-patterns` (per-component catalogues),
   `proc-structural-analysis`, `proc-domain-mapping`, `proc-impact-analysis` and
   `proc-changelog` (each embeds its own output template).
-- **Done when:** both `SKILL.md` files are under 150 lines, both have resource
-  siblings, and no pattern was deleted — `git diff --stat` must show the lines
-  moved, not lost.
-- **Blocked by:** 3.1 (criterion before surgery). **Effort:** medium.
+- **Done:** all seven, one per commit, each verifying that its code lines were
+  preserved exactly. Three came under the budget; four record *leave it*.
+  Full before/after table in `structural-analysis.md` P-06.
+- **What the exercise found:** the pattern was systematic — every one of the
+  seven carried its own output template or catalogue inline.
 
-### 3.3 The remaining five over-budget skills
+### 3.3 ✅ (folded into 3.2) The remaining over-budget skills
 
 - **Do:** apply 3.1's test to `proc-structural-analysis` (255, minus ~20 after
   1.1), `proc-domain-mapping` (227), `proc-impact-analysis` (207),
