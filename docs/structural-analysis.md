@@ -138,8 +138,13 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 ### 🟡 Minor
 
 #### P-06 — Five skills exceed the ~150-line budget
-- `proc-structural-analysis` (255), `proc-domain-mapping` (227),
+- `proc-structural-analysis` (222), `proc-domain-mapping` (227),
   `proc-skill-creator` (222), `proc-impact-analysis` (207), `proc-changelog` (158).
+- Two of these now carry a **recorded verdict of *leave it***
+  (`proc-skill-creator`, `proc-structural-analysis`): their lookup material is
+  extracted and what remains is procedure. Being over the budget is the expected
+  state for a pipeline skill — the number is the alarm that triggers the test,
+  not the thing to satisfy.
 - ✅ `fe-accessibility-patterns` 293 → **138** (2026-08-19): per-component
   catalogue moved to `component-patterns.md`; all 161 lines of code preserved.
 - ✅ `fe-ux-patterns` 275 → **146** (2026-08-19): per-component and per-screen

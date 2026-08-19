@@ -74,16 +74,7 @@ Phase 5 — Review and assembly
 
 ### Output
 
-```
-scan-report:
-  languages: [...]
-  frameworks: [...]
-  entry_points: [...]
-  config_files: [...]
-  total_source_files: N
-```
-
----
+Schema in [output-schemas.md](output-schemas.md).
 
 ## Phase 2 — File-level analysis
 
@@ -103,16 +94,7 @@ For each file, record:
 
 ### Layer assignment heuristics
 
-| Layer | Indicators |
-|-------|-----------|
-| `api` | Controller, Resource, Router, Handler, REST/GraphQL endpoint |
-| `service` | Service, UseCase, Interactor, BusinessLogic |
-| `domain` | Entity, Model, Aggregate, ValueObject, DomainEvent |
-| `data` | Repository, DAO, Mapper, Migration, ORM config |
-| `ui` | Component, View, Page, Screen, Template |
-| `util` | Helper, Utils, Formatter, Converter |
-| `config` | Configuration, Properties, Module setup |
-| `infra` | Client, Gateway, Adapter, Queue, Cache, Storage |
+Keyword-to-layer table in [output-schemas.md](output-schemas.md).
 
 ### Incremental update rule
 
@@ -187,39 +169,9 @@ a schema invented on the spot.
 
 ### Output — structural-analysis.md
 
-Use the base template `templates/docs/structural-analysis.template.md`.
-Mandatory sections:
-
-```
-## §0 Verifiable fact panel  ← FIRST section, before any prose
-  - Table: fact | proof command | value | class | measured on
-  - class: measured · inferred · reported · hypothesis
-  - Hard rules: a value with no date is not a fact; a fact with no command is
-    an impression — if you cannot write the command, label it and say so.
-
-## Executive summary
-  - 3-5 sentences: what the system does, main layers, dominant patterns
-  - Risk level: 🟢 low / 🟡 medium / 🔴 high
-
-## Architectural layers
-  - Table: layer | module/package | file count | main responsibility
-
-## Module map
-  - Mermaid graph or indented text showing dependencies
-
-## Domain map
-  - Per domain: name, flows, entities, external dependencies
-
-## Pending items
-  - Numbered list (I-01, I-02...) with: description, severity, affected file(s),
-    "done when" (verifiable BY COMMAND) and "blocked by"
-  - Severity: 🔴 critical · 🟠 high · 🟡 medium · 🟢 low
-
-## Analysis metadata
-  - Date, analyser (human / AI agent), total files, version fingerprint
-```
-
----
+Use the base template `templates/docs/structural-analysis.template.md`. The
+mandatory section list is in [output-schemas.md](output-schemas.md); §0 (the
+verifiable fact panel) comes first, before any prose.
 
 ## Incremental update (post-release)
 
@@ -249,6 +201,21 @@ Before committing `docs/structural-analysis.md`:
 - [ ] Module map can be rendered (valid Mermaid or clear indentation)
 - [ ] Metadata section is updated with today's date
 - [ ] File was committed alongside any code changes that triggered it
+
+---
+
+## Size verdict
+
+**Q1 — does the trigger split?** No: kickoff, post-refactoring and
+documentation-divergence all produce one artefact. **Q2 — what is lookup?** The
+output schemas and the layer-keyword table, now in `output-schemas.md`. What
+remains is the five-phase procedure, and it stays at ~200 lines by design — the
+~150 budget is an alarm, not a verdict, and a pipeline is what it costs.
+
+## Resources
+
+- [output-schemas.md](output-schemas.md) — the document skeleton, the layer
+  assignment table, and the Phase 1 scan schema.
 
 ---
 
