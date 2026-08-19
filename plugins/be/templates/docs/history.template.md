@@ -36,9 +36,16 @@
 **Owner:** Name or agent
 **Deliveries:** What was completed
 **Decisions:** Technical or product decisions made
-**Next steps:** What the next session should do
+**Next steps:** What the next session should do, each with its done-criterion
 **Blockers:** Identified impediments (or "None")
+**Verified:** How the declared session goal was checked (command + result),
+  or ❌ and what prevented it
 ```
+
+> The close **checks** what was recorded during the session; it does not
+> compose it from memory. A long session is compacted, and context that was
+> never written down is not recoverable — record the fact when it changes, and
+> use the close to confirm the record matches what the commits show.
 
 ---
 
@@ -61,14 +68,19 @@
 
 ### Blockers
 
-<!-- List active impediments or "No active blockers." -->
+<!-- List active impediments or "No active blockers." Each blocker states what
+     would clear it, so it can be closed by someone other than its author. -->
 - No active blockers.
 
 ### Priority next steps
 
-<!-- Number in priority order -->
-1. [most urgent next step]
-2. [second most urgent]
+<!-- Number in priority order. Each step carries how you will know it is done —
+     verifiable by command — and what must be true first. A step with no
+     done-criterion is a feeling and will still be here next month; a step whose
+     criterion depends on an open blocker is a trap that looks resolved. -->
+1. [most urgent next step] — **done when:** `[command / observable result]` ·
+   **blocked by:** [item ID, or "nothing"]
+2. [second most urgent] — **done when:** `[…]` · **blocked by:** [...]
 3. Consult `docs/structural-analysis.md` for technical pending items
 
 ---
@@ -91,6 +103,7 @@
 
 **Next steps:** Implement RF-01 to RF-[N] according to `REQUISITOS.md`
 **Blockers:** None
+**Verified:** `[command]` → [result]
 
 ---
 

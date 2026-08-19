@@ -17,15 +17,27 @@
 - **Required entry format:**
 
 ```
-### [Month/Year] Short descriptive title
+### [YYYY-MM] Short descriptive title
 
 **Context:** What was being done when the problem was found.
 **Problem:** What went wrong or what was discovered. Be specific —
   include the symptom, observed behavior, and how to reproduce if relevant.
 **Rule:** What to do (or not do) in the future. Include a correct/incorrect
   code example when applicable.
+**Evidence:** measured · inferred · reported · hypothesis — and how you know.
+**Scope:** `project` (depends on this stack/domain) or `method` (would be true
+  in any project — see the promotion step below).
 **Reference:** §X.X of `engineering-principles.md` or a related file.
 ```
+
+- **`Evidence` is part of the lesson, not decoration.** A hypothesis written
+  without its class inherits the authority of a measurement, and whoever reads
+  it stops investigating. "Measured" and "instrumented guess" are equally
+  useful and are not interchangeable.
+- **`Scope: method` means the lesson does not belong here.** A lesson about
+  method improves one project while it sits in `docs/`; sent back to the
+  engineering base it improves every project using it. At session end, each
+  `method` lesson is queued for the base — see `proc-session-continuity`.
 
 - **Grouping:** when the file grows, group by category:
   `## Backend`, `## Frontend`, `## Database`, `## Security`, `## Process`
@@ -35,7 +47,7 @@
 <!-- 
 EXAMPLE — remove this block and replace it with real project lessons
 
-### [Month/Year] Lesson title
+### [YYYY-MM] Lesson title
 
 **Context:** Description of what was being implemented.
 **Problem:** What went wrong, observed symptom, how to reproduce.
@@ -47,6 +59,8 @@ EXAMPLE — remove this block and replace it with real project lessons
 // ❌ Wrong — and why
 [incorrect code or instruction]
 ```
+**Evidence:** measured — `[command that produced it]`, [YYYY-MM-DD]
+**Scope:** project
 **Reference:** §X.X of `engineering-principles.md`
 -->
 

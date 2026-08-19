@@ -191,6 +191,12 @@ Use the base template `templates/docs/structural-analysis.template.md`.
 Mandatory sections:
 
 ```
+## §0 Verifiable fact panel  ← FIRST section, before any prose
+  - Table: fact | proof command | value | class | measured on
+  - class: measured · inferred · reported · hypothesis
+  - Hard rules: a value with no date is not a fact; a fact with no command is
+    an impression — if you cannot write the command, label it and say so.
+
 ## Executive summary
   - 3-5 sentences: what the system does, main layers, dominant patterns
   - Risk level: 🟢 low / 🟡 medium / 🔴 high
@@ -205,7 +211,8 @@ Mandatory sections:
   - Per domain: name, flows, entities, external dependencies
 
 ## Pending items
-  - Numbered list (I-01, I-02...) with: description, severity, affected file(s)
+  - Numbered list (I-01, I-02...) with: description, severity, affected file(s),
+    "done when" (verifiable BY COMMAND) and "blocked by"
   - Severity: 🔴 critical · 🟠 high · 🟡 medium · 🟢 low
 
 ## Analysis metadata
@@ -233,7 +240,12 @@ Before committing `docs/structural-analysis.md`:
 
 - [ ] Executive summary is accurate and readable by a non-engineer
 - [ ] All layers are populated (no empty sections)
-- [ ] Pending items are numbered and have severity ratings
+- [ ] §0 exists, is the first section, and every row has a command and a date
+- [ ] Percentages and counts in the prose appear in §0 with their command —
+      an "engineering estimate" that no command reproduces does not belong here
+- [ ] Pending items are numbered, have severity ratings, and each one states
+      "done when" (by command) and "blocked by" — an item with no finish line
+      is a feeling and will reappear in every future analysis
 - [ ] Module map can be rendered (valid Mermaid or clear indentation)
 - [ ] Metadata section is updated with today's date
 - [ ] File was committed alongside any code changes that triggered it

@@ -10,6 +10,29 @@
 
 ---
 
+## §0 — Verifiable fact panel
+
+Every claim this document makes about the system goes here first, with the
+command that reproduces it. Two hard rules:
+
+- **A value without a date is not a fact** — it is a value that was true once.
+- **A fact without a command is an impression** — if you cannot write the
+  command, say so in the Class column and call it what it is.
+
+`Class` is part of the fact, not of the style: **measured** (a command produced
+it) · **inferred** (derived from something measured) · **reported** (someone
+said so) · **hypothesis** (instrumented guess). An unlabelled hypothesis
+inherits the authority of a measurement, and readers stop investigating.
+
+| Fact | Proof command | Value | Class | Measured on |
+|------|---------------|-------|-------|-------------|
+| *[e.g. endpoints without pagination]* | `[command]` | `[value]` | measured | [YYYY-MM-DD] |
+
+> Re-run this whole table before each release. A stale row is a defect, not a
+> detail — it is the row someone will trust.
+
+---
+
 ## Summary by Level
 
 | Level | Description | Qty | Status |
@@ -25,13 +48,23 @@
 
 ### 🔴 Critical
 
-<!-- Format:
+<!-- Format — the last two fields are not optional:
 #### C-01 — [Short title]
 - **File(s):** [where it is]
 - **Problem:** [incorrect behavior]
 - **Cause:** [why it happens]
 - **Solution:** [what to do]
+- **Done when:** [criterion verifiable BY COMMAND — write the command]
+- **Blocked by:** [what must be true first — another item's ID, or "nothing"]
 - **Reference:** §X.X of `engineering-principles.md`
+
+Why those two fields exist, measured in real projects:
+  - An item with no done-criterion is not a pending item, it is a feeling. It
+    reappears in every future analysis and never closes. "Reduce the God Class"
+    has no finish line; "0 `@Autowired` in the repo" closed in one session.
+  - An item whose criterion is verifiable but UNREACHABLE is worse than a vague
+    one: it looks resolved and never closes. If satisfying it depends on another
+    open item, say so here — the item is born blocked instead of born orphaned.
 -->
 
 *No critical pending items at the moment.*
@@ -70,9 +103,9 @@
 
 ## Applied Fixes
 
-| # | Description | File(s) | Date |
-|---|-------------|---------|------|
-| — | *No fixes recorded yet.* | — | — |
+| # | Description | File(s) | Proof it holds | Date |
+|---|-------------|---------|----------------|------|
+| — | *No fixes recorded yet.* | — | — | — |
 
 ---
 
@@ -83,4 +116,4 @@
 
 ---
 
-*Last updated: [YYYY-MM-DD] · Reference: `engineering-principles.md`*
+*Last updated: [YYYY-MM-DD] · Reference: `engineering-principles.md` · Re-run §0 before each release.*

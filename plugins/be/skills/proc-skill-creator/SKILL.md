@@ -102,10 +102,34 @@ The `description` is read **before** the skill is opened — it alone
 determines whether the skill triggers. Lead with the trigger condition and
 be specific enough not to fire in wrong contexts.
 
-### Step 7: Register it
+### Step 7: Register it, and declare who reaches it
 
 Add the new skill to the table in the `proc-session-continuity` skill's
 `resources.md`, so it is discoverable from the session protocol.
+
+**Then answer: which existing skill hands off to this one?** A skill nothing
+points at is an *orphan* — it works, and it activates only when someone
+remembers it exists. Three skills in this base were orphans until measured;
+one of them was the reason a project's `lessons-learned` sat 65 commits stale
+while the skill that maintains it was shipped and idle.
+
+Declare the hand-off in the **referring** skill, under an `## Activation edges`
+heading, as a three-column table:
+
+```markdown
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `invoke` | `your-new-skill` | [the condition that makes this apply] |
+```
+
+- **`consult`** = read the target's rules; no execution, cannot re-enter.
+- **`invoke`** = may run the target's flow. Only these can form a cycle, so
+  only these are checked — in prose, a mention and a hand-off look identical,
+  and a graph with untyped edges cannot be verified at all.
+- **Every edge is a reminder, never a block.** An edge that cannot be honoured
+  now becomes a pending item, not a stop condition.
 
 ## Quality checklist
 
@@ -116,6 +140,8 @@ Add the new skill to the table in the `proc-session-continuity` skill's
 - [ ] "Common mistakes" table
 - [ ] Imperative language
 - [ ] Registered in `proc-session-continuity/resources.md`
+- [ ] At least one existing skill declares an `## Activation edges` row pointing
+      at it — a skill nobody reaches is a skill nobody runs
 
 ## When to update vs create a new skill
 
