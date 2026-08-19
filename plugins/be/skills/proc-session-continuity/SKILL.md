@@ -9,12 +9,32 @@ description: >
 
 # Skill: Session Continuity
 
-Defines the mandatory continuity protocol between work sessions. Every agent
-starting a development session must follow this flow to avoid rework, preserve
-context, and keep documentation synchronized with the code.
+The mandatory continuity protocol between work sessions: follow it to avoid
+rework, preserve context, and keep documentation synchronized with the code.
 
 Reference: `engineering-principles.md` §A.3 (Session Briefs), §A.5 (Expected
 AI Behavior), and §Appendix C (Context as Graph — Depth and Breadth).
+
+## Activation edges
+
+This skill runs at the start **and** end of every session — the base's main
+dispatch point — so its hand-offs are declared, not left to memory. Edges are
+**typed**: `consult` = read that skill's rules; `invoke` = may run its flow.
+Only `invoke` edges can recurse, so only those are checked for cycles — in
+prose, a mention and a hand-off look identical.
+
+| Type | Target | When |
+|---|---|---|
+| `consult` | `proc-context-budget` | session start, before reading a living doc over ~2,000 lines |
+| `invoke` | `qa-verification-loop` | session end, before claiming the declared goal was met |
+| `invoke` | `proc-structural-analysis` | session end, when the session changed structure |
+| `invoke` | `proc-learning-trail` | session end, when a lesson is worth keeping |
+| `invoke` | `proc-adr` | session end, when a hard-to-reverse decision was made |
+| `invoke` | `proc-skill-creator` | session end, when a lesson is project-independent (promotion) |
+| `consult` | `engineering-principles` | any time the ground rules are needed |
+
+> **Every edge is a reminder, never a block** — the rule the `Stop` hook follows.
+> An edge you cannot honour now becomes a pending item, not a stop condition.
 
 ## Context loading strategy
 
@@ -35,6 +55,10 @@ what the session needs to accomplish:
 
 ### Without SDD (`.specify/` not in use)
 
+0. **Measure before reading:** `wc -lc docs/HISTORY.md`. A living doc grows
+   without bound, and prescribing a read without knowing its size is how a
+   session start blows the context window. Over ~2,000 lines, read sections
+   rather than the file and `consult` `proc-context-budget`.
 1. Read `docs/HISTORY.md` — Current State (in progress), Blockers, Next Steps.
 2. Read `docs/structural-analysis.md` — Technical Pending Items (what NOT to
    redo), Applied Fixes (what is ALREADY resolved).
@@ -74,13 +98,23 @@ Before starting any implementation, declare a **verifiable** goal:
    Next steps, Blockers); update "Next Steps".
 3. Record in `docs/lessons-learned.md` if applicable — only discoveries that
    prevent future rework (Context / Problem / Rule / Reference format).
-4. Commit with Conventional Commits — docs in the **same commit** as the code.
+   `invoke` `proc-learning-trail` when the lesson is a practice being adopted,
+   and `proc-adr` when the session made a hard-to-reverse decision.
+4. **Promotion check — one question per lesson:** *"does this depend on this
+   project?"* If **no** — it is about method, not about this stack — the lesson
+   belongs to the base. Queue it for the base's feedback intake, and `invoke`
+   `proc-skill-creator` if it deserves a skill. A tool that never collects what
+   it taught ages at the speed of whoever maintains it, not of whoever uses it.
+5. `invoke` `qa-verification-loop` before declaring the goal met — the close
+   **checks** what was recorded; it does not compose it from memory.
+6. Commit with Conventional Commits — docs in the **same commit** as the code.
 
 ### With SDD
 
 1. Mark the task ✅ with date in `.specify/tasks/[task].md` (or record blocker).
 2. Update `docs/HISTORY.md` — Current State, next task ID, Delivery History.
-3. Record lessons learned if applicable.
+3. Record lessons learned if applicable — the promotion check and the
+   verification pass (steps 4–5 above) apply here unchanged.
 4. Commit task file + code + HISTORY.md together.
 
 ## Session goal validation

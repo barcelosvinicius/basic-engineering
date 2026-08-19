@@ -71,6 +71,15 @@ Order matters; follow exactly:
 - **Logs:** never log secrets or PII; scrub headers like `Authorization`
   in middleware (see `ops-observability`).
 
+## When the consumer is an AI agent
+
+A credential handed to an autonomous agent or an MCP server leaves the blast
+radius this skill assumes: the agent can be steered by content it reads, so the
+secret is only as scoped as the agent's least-agency boundary. Apply
+`sec-agent-security` **in addition** to this skill — scope the token to the
+narrowest capability, never place a long-lived secret where injected text can
+reach it, and keep a kill switch that revokes without a deploy.
+
 ## Common mistakes
 
 | Mistake | Cause | Solution |

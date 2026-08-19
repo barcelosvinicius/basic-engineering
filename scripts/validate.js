@@ -211,12 +211,33 @@ function checkConfigAndHooks() {
   }
 }
 
+/**
+ * Declared activation edges must point at real skills and must not form a
+ * runtime cycle. Only `invoke` edges can recurse; `consult` edges cannot.
+ * The detector itself is exercised against planted cycles in test/graph.test.js
+ * — a ruler that was never shown to fail is not evidence.
+ */
+function checkActivationEdges() {
+  const edges = require('./lib/edges.js');
+  const dir = path.join(PLUGIN, 'skills');
+  if (!fs.existsSync(dir)) return;
+  const { skills, edges: graph } = edges.collect(dir);
+
+  for (const { from, target } of edges.findUnknownTargets(skills, graph)) {
+    fail(`skills/${from}: activation edge points at "${target}", which is not a skill`);
+  }
+  for (const cycle of edges.findInvokeCycles(graph)) {
+    fail(`activation graph: invoke cycle ${cycle.join(' -> ')}`);
+  }
+}
+
 checkSkills();
 checkMarkdownDir('plugins/be/agents', ['name', 'description']);
 checkMarkdownDir('plugins/be/commands', ['description']);
 checkVersions();
 checkGuide();
 checkConfigAndHooks();
+checkActivationEdges();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);
