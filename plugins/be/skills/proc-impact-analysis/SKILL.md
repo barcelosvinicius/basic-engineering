@@ -151,29 +151,8 @@ Based on the risk level and affected layers, produce a targeted checklist:
 
 ## Step 5 — PR description template
 
-Paste the following into the PR description after running the analysis:
-
-```markdown
-## Impact Analysis
-
-**Risk level:** [🟢 Low / 🟡 Medium / 🟠 High / 🔴 Critical]
-
-**Changed files:** N
-**Directly affected consumers:** N files
-**Affected flows:** [flow names]
-**Bounded contexts touched:** [context names]
-
-### High-risk files
-- [ ] [path] — [reason for high risk]
-
-### Impact review checklist
-[paste the checklist generated in Step 4]
-
-### Rollback plan
-[describe how to revert if necessary — or "N/A — purely additive change"]
-```
-
----
+Fill in the template in [pr-template.md](pr-template.md) — impact summary,
+high-risk files, the review checklist and the rollback plan.
 
 ## Integration with other skills
 
@@ -184,23 +163,19 @@ Paste the following into the PR description after running the analysis:
 | `proc-code-review` | Impact analysis runs first; its checklist feeds the code review |
 | `proc-release-checklist` | Release checklist references the PR's impact analysis risk level |
 
----
+## Size verdict
 
-## Automation hint
+**Q1 — does the trigger split?** No: pre-PR, post-refactoring and
+shared-boundary changes all produce one artefact, an impact analysis. **Q2 —
+what is lookup?** The PR description template and the CI automation snippet, now
+in `pr-template.md`. What remains is the five-step procedure.
+**Verdict: leave it.**
 
-For projects with CI/CD:
+## Resources
 
-```yaml
-# .github/workflows/ci.yml — add to PR trigger
-- name: Impact analysis report
-  run: |
-    git diff --name-only origin/main > /tmp/changed-files.txt
-    # Pass to an AI agent using proc-impact-analysis skill
-    # Output as a PR comment via gh pr comment
-```
-
-The analysis can be automated as a CI step that posts the impact summary
-as a PR comment before reviewers are assigned.
+- [pr-template.md](pr-template.md) — the PR description template (impact
+  summary, high-risk files, review checklist, rollback plan) and the CI
+  automation hint.
 
 ---
 
