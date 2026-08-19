@@ -54,7 +54,7 @@ Not machine-checked (kept by hand, with the command that proves each):
 | Read-only agents (`tools:` restricted) | `grep -l '^tools: Read, Grep, Glob, Bash$' plugins/be/agents/*.md \| wc -l` | **9 / 15** | 2026-08-19 |
 | Agents declaring `model:` | `grep -l '^model:' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
 | Agents carrying prompt-injection defense | `grep -lie 'prompt.injection\|prompt defense\|untrusted' plugins/be/agents/*.md \| wc -l` | **15 / 15** | 2026-08-19 |
-| Skills over the ~150-line budget | `for f in plugins/be/skills/*/SKILL.md; do [ $(wc -l < $f) -gt 150 ] && echo $f; done \| wc -l` | **7** | 2026-08-19 |
+| Skills over the ~150-line budget | `for f in plugins/be/skills/*/SKILL.md; do [ $(wc -l < $f) -gt 150 ] && echo $f; done \| wc -l` | **6** | 2026-08-19 |
 
 > **Reading of §0.2 — the finding, and its fix.** As first measured today, the
 > node with the **highest in-degree (18)** had an **out-degree of 1**, and that
@@ -137,10 +137,12 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟡 Minor
 
-#### P-06 — Seven skills exceed the ~150-line budget
-- `fe-accessibility-patterns` (293), `fe-ux-patterns` (275),
-  `proc-structural-analysis` (255), `proc-domain-mapping` (227),
-  `proc-skill-creator` (211), `proc-impact-analysis` (207), `proc-changelog` (158).
+#### P-06 — Six skills exceed the ~150-line budget
+- `fe-ux-patterns` (275), `proc-structural-analysis` (255),
+  `proc-domain-mapping` (227), `proc-skill-creator` (222),
+  `proc-impact-analysis` (207), `proc-changelog` (158).
+- ✅ `fe-accessibility-patterns` 293 → **138** (2026-08-19): the per-component
+  catalogue moved to `component-patterns.md`; all 161 lines of code preserved.
 - **The budget is now an alarm, not a verdict** (A-07): over it, the
   three-outcome test in `proc-skill-creator` decides between *leave it*,
   *extract to a resource*, and *new skill*, keyed on the trigger rather than on
