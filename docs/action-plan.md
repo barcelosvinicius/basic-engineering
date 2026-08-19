@@ -257,7 +257,7 @@ that makes it fail**, or it does not count (SUGESTOES §23).
 
 ---
 
-## Phase 5 — The remaining feedback units
+## Phase 5 ✅ done 2026-08-19 — The remaining feedback units
 
 From `TRIAGEM.md`; U1–U3 landed on 2026-08-19. Ordered by effect/cost, unchanged.
 
@@ -267,9 +267,9 @@ From `TRIAGEM.md`; U1–U3 landed on 2026-08-19. Ordered by effect/cost, unchang
 | **U8** | ✅ Zero without a denominator | 9 | Low | done 2026-08-19 |
 | **U10** | ✅ Every verifiable rule ships with a case that makes it fail | 23 | Medium | done 2026-08-19 — six instances from this branch as evidence |
 | **U9** | ✅ `proc-safe-removal`: four axes + `// NB:`, **plus content relocation** | 10 | Medium | done 2026-08-19 — Part 3 is a gap found by making the mistakes |
-| **U6** | The close **checks** rather than composes; contradiction sweep on the session's delta | 17, 2, 4 | Medium | open — `Verified:` field already landed (A-06) |
-| **U5** | History compaction rule | 1, 12 | Medium | open — measure-before-read landed in U1; compaction did not |
-| **U7** | Close every repo the session touched (`companions:`) | 7, 6 | Medium | open — mechanism exists (`.be-paths`) |
+| **U6** | ✅ The close **checks** rather than composes; delta contradiction sweep | 17, 2, 4 | Medium | done 2026-08-19 — both failure modes were produced while building this branch |
+| **U5** | ✅ History compaction rule + each doc names its own nature | 1, 12 | Medium | done 2026-08-19 — ceiling at ~800 lines, archive verbatim, never summarise |
+| **U7** | ✅ Close every repo the session touched (`companions:`) | 7, 6 | Medium | done 2026-08-19 |
 
 ---
 

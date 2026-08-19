@@ -125,12 +125,15 @@ especialistas mas só carregar o que casa com o projeto. Especialista sem inchar
 | **U2** | O campo no template: comando de prova + data, `pronto quando:`, `bloqueado por:`, classe de evidência | 22, 3, 5, 16, 18 | Baixo | ✅ 2026-08-19 |
 | **U3** | Canal de promoção: uma pergunta no `session-end` devolve lição de método ao plugin | 8 | Baixo | ✅ 2026-08-19 |
 | **U4** | Paralelismo seguro: *agente paralelo lê; quem escreve é um só* + eixo declarado | 14, 11 | Baixo | ✅ 2026-08-19 |
-| **U5** | Custo do que se manda ler: compactação do histórico + medir antes de ler | 1, 12 | Médio | parcial |
-| **U6** | Fechamento confere, não redige + varredura de contradição no delta | 17, 2, 4 | Médio | aberto |
-| **U7** | Fechar todos os repos que a sessão tocou (`companions:`) | 7, 6 | Médio | aberto |
+| **U5** | Custo do que se manda ler: compactação do histórico + medir antes de ler | 1, 12 | Médio | ✅ 2026-08-19 |
+| **U6** | Fechamento confere, não redige + varredura de contradição no delta | 17, 2, 4 | Médio | ✅ 2026-08-19 |
+| **U7** | Fechar todos os repos que a sessão tocou (`companions:`) | 7, 6 | Médio | ✅ 2026-08-19 |
 | **U8** | Zero sem denominador: ausência carrega evidência do alvo exercido | 9 | Baixo | ✅ 2026-08-19 |
 | **U9** | Gesto de remoção segura (4 eixos + `// NB:`) — e **relocação de conteúdo**, lacuna descoberta em uso | 10 + erros medidos | Médio | ✅ 2026-08-19 |
 | **U10** | Régua nasce falhando: regra verificável traz caso positivo conhecido | 23 | Médio | ✅ 2026-08-19 |
+
+**Fila concluída em 2026-08-19** — as dez unidades entregues. Restam apenas os
+itens marcados como fora de escopo abaixo.
 
 **Fora desta fila:** proposta 13 (grafo entre documentos) **adiada** — reavaliar depois de U2;
 proposta 15 (hook de frase distintiva) **rejeitada no mecanismo** — intenção coberta por U6;

@@ -24,6 +24,21 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
   read sections rather than the whole living doc and consult
   `proc-context-budget`.
+- **The session close checks the record instead of composing it.** A long
+  session gets compacted and unwritten context is not recoverable, so the fact
+  is recorded when it changes and the close confirms — with two questions
+  restricted to the session's delta: *where else is this fact written?* (the
+  update replaces, it does not accumulate) and *does the record match the
+  commits?*
+- **`HISTORY.md` has a ceiling, and each living doc states its own nature.**
+  Over ~800 lines, entries older than 90 days move verbatim into
+  `docs/history/YYYY-Qn.md` — moved, never summarised. `HISTORY.md` compacts,
+  `structural-analysis.md` is rewritten, `lessons-learned.md` grows and is never
+  compacted; confusing the three is what makes people prune the wrong one.
+- **`.be-paths.json` gains `companions`** — the close runs in every repository
+  the session committed to, answered by command rather than memory. Measured in
+  a real pair, the sibling's `lessons-learned` was 65 commits behind while the
+  same file in the active repo was current.
 - **`proc-safe-removal`** — a new skill for the one change that cannot fail
   loudly. Deleting takes its own test with it, so the suite goes green because
   the evidence is gone; moving content fails silently in both directions, with
