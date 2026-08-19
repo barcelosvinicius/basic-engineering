@@ -24,6 +24,23 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
   read sections rather than the whole living doc and consult
   `proc-context-budget`.
+- **The `SKILL.md` size rule is a test, not a number.** `SKILL.md` loads in full
+  on every activation while sibling resources load on demand, so the ~150-line
+  budget is a budget on cost per activation — and it cannot tell cohesion from
+  depth. Over it, `proc-skill-creator` now asks the **trigger** and gives three
+  outcomes: *leave it* (one trigger, one output, decision material — a pipeline
+  skill can be longer and still be right), *extract to a resource* (the trigger
+  enumerates cases needing lookup), or *new skill* (the trigger splits and each
+  part has its own decision and output). The quantitative shortcut was tested
+  against all 28 skills and **not shipped**: ">30% of the file in code blocks"
+  gave 2 false positives out of 5 flags. `proc-skill-creator` applied the test to
+  itself — `lifecycle.md` now holds the provenance/pruning material.
+- **`docs/structural-analysis.md` §0.2 is generated and verified.**
+  `npm run audit:graph -- --md` regenerates it and `--check` fails when it drifts;
+  a test runs the check on every push. Rows that cannot be machine-derived stay
+  in a separate hand-kept table with their proof command, labelled as such.
+- *(repo-internal)* `docs/HISTORY.md` and `docs/lessons-learned.md` — this repo
+  now keeps the living docs it prescribes to others, in the new formats.
 - **The rule now lives in the template, not only in the prose.** Measured in a
   real project: two tables in the *same file*, written by the same team under
   the same "no value without a date" rule, scored **100%** and **0%**
