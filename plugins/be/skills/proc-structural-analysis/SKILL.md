@@ -23,6 +23,12 @@ the basic-engineering doc system.
 
 ---
 
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `invoke` | `proc-domain-mapping` | Phase 4 — it owns the `## Domain map` section and its schema |
+
 ## When to run this pipeline
 
 | Trigger | Description |
@@ -152,24 +158,18 @@ and must be recorded as a pending item.
 
 ---
 
-## Phase 4 — Domain extraction
+## Phase 4 — Domain extraction (delegated)
 
 **Goal:** map code to business concepts, flows, and process steps.
 
-For each identified business domain:
+**This phase is owned by `proc-domain-mapping`.** `invoke` it and use its output
+as this pipeline's `## Domain map` section. **Never restate its schema here** —
+two skills prescribing one section is a contradiction with a delivery date: the
+one that runs last wins and neither knows the other exists.
 
-```
-domain:
-  name: [domain name — e.g., "Billing", "Identity", "Catalogue"]
-  description: [what business problem it solves]
-  entry_module: [primary module or package]
-  flows:
-    - name: [flow name — e.g., "Checkout", "Password Reset"]
-      steps: [ordered list of modules/functions involved]
-      triggers: [HTTP endpoint, event, cron, etc.]
-  entities: [core domain objects]
-  external_dependencies: [third-party systems or APIs]
-```
+If the project has no domain complexity worth a bounded-context analysis, say so
+in one line and leave the section at that. An empty section with a reason beats
+a schema invented on the spot.
 
 ---
 
