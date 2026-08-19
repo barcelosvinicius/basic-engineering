@@ -23,7 +23,11 @@ On npmjs.com → the package → **Settings → Trusted Publisher → GitHub Act
 ### Cutting a release — one command
 
 1. Write your notes under `## [Unreleased]` in `CHANGELOG.md`.
-2. Run:
+2. If any backlog item changed state, refresh the status table:
+   `node scripts/backlog-audit.js --md` and commit it. The release refuses to
+   run against a stale table — it once claimed "nothing implemented" for two
+   months while 16 of 20 items had shipped.
+3. Run:
 
    ```bash
    npm run release -- minor        # or: patch | major | an explicit 3.2.0
@@ -36,7 +40,7 @@ On npmjs.com → the package → **Settings → Trusted Publisher → GitHub Act
    if one of those files already had uncommitted work, it says so instead of
    telling you to `git checkout --` over it.
 
-3. Push:
+4. Push:
 
    ```bash
    git push origin HEAD

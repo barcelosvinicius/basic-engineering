@@ -74,6 +74,15 @@ if (prevBaseVersion && baseVersion <= prevBaseVersion) {
   );
 }
 
+// ── guard: the backlog's claimed status still matches reality ────────────────
+// It once claimed "nothing implemented yet" for two months while 16 of 20 items
+// had shipped. A release that ships a wrong status ships it to everyone.
+try {
+  execSync('node scripts/backlog-audit.js --check', { cwd: ROOT, stdio: 'inherit' });
+} catch {
+  fail('feedback/BACKLOG.md is out of date — run `node scripts/backlog-audit.js --md` and commit it');
+}
+
 // ── guard: clean tree (so the release commit is pure) ────────────────────────
 if (!dryRun && shOut('git status --porcelain')) {
   fail('working tree is dirty — commit your changes first (or pass --dry-run)');
