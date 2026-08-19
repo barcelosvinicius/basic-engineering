@@ -12,6 +12,9 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 | `qa-` | qa-engineer | Tests and coverage |
 | `qa-` | qa-security-reviewer | Defensive OWASP review |
 | `qa-` | qa-pentest-engineer | Offensive security, IDOR |
+| `qa-` | qa-pr-test-analyzer | Whether a PR's tests are adequate for what changed |
+| `qa-` | qa-silent-failure-hunter | Swallowed exceptions, errors turned into null, logs without context |
+| `qa-` | qa-release-sanitizer | Secrets, PII and internal refs before going public or releasing |
 | `mgmt-` | mgmt-product-owner | Requirements, backlog |
 | `mgmt-` | mgmt-domain-expert | Domain business rules |
 | `mgmt-` | mgmt-project-manager | Coordination, API contracts |
@@ -38,17 +41,20 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 | `proc-structural-analysis` | When auditing technical debt and pending items |
 | `proc-dependency-management` | When adding, upgrading, or auditing dependencies |
 | `proc-code-documentation` | When writing or reviewing comments and docstrings |
+| `proc-context-budget` | When the session drags or after adding skills/agents/MCP servers |
 | `engineering-principles` | Digest of the universal engineering principles |
 | `be-pagination-patterns` | When implementing list endpoints |
 | `be-api-versioning` | When creating or versioning REST endpoints |
 | `be-api-error-handling` | Error contract, HTTP status, problem details |
 | `be-jwt-auth-patterns` | Token-based authentication, revocation |
 | `be-db-migrations` | Versioned database migrations |
+| `qa-verification-loop` | Before declaring work done — build, lint, tests, security, READY verdict |
 | `qa-test-data-builders` | Builder pattern, test fixtures, AAA pattern |
 | `fe-ux-patterns` | Visual hierarchy, colors, states, forms |
 | `fe-accessibility-patterns` | ARIA, keyboard, WCAG contrast |
 | `infra-ci-cd` | CI/CD pipeline, dependency audit |
 | `sec-secrets-management` | Handling secrets, keys, and credentials |
+| `sec-agent-security` | Building or operating an AI agent / MCP tool that reads untrusted content |
 | `ops-observability` | Logs, metrics, traces, SLOs, runbooks |
 
 ### Project-specific (create when customizing)
