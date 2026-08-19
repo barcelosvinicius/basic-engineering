@@ -72,7 +72,7 @@ Not machine-checked (kept by hand, with the command that proves each):
 | Fact | Proof command | Value | Measured on |
 |---|---|--:|---|
 | Version triple in sync | `npm run validate` | **PASS** (3.0.0 × 3) | 2026-08-19 |
-| Test suite | `npm test` | **32 pass · 0 fail** | 2026-08-19 |
+| Test suite | `npm test` | **39 pass · 0 fail** | 2026-08-19 |
 | Backlog items shipped | `node scripts/backlog-audit.js` | **16 done · 2 partial · 2 todo** (of 20) | 2026-08-19 |
 | Invoke cycles in the activation graph | `npm run validate` | **0** | 2026-08-19 |
 
@@ -136,6 +136,17 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟡 Minor
 
+#### P-07 — Typed activation edges are declared by 4 skills of 29 *(not a defect)*
+- **Where:** `## Activation edges` sections across `plugins/be/skills/`
+- **State:** 22 skills cite another skill in prose; 4 declare typed edges. The
+  cycle checker therefore sees a fraction of the graph.
+- **Why it is recorded as "not a defect":** a prose mention does not execute, so
+  there is no hidden cycle to find. Forcing 22 declarations would be bureaucracy,
+  which the base's own intake filter rejects. Adoption is incremental by design.
+- **Revisit when:** a real invoke-cycle is found that the checker missed, or a
+  skill's hand-off is followed by an agent and turns out to be ambiguous.
+- **Blocked by:** nothing — it is waiting for evidence, not for work.
+
 #### P-06 ✅ — the size test has been applied to every skill that exceeded it
 
 Closed 2026-08-19. Seven skills were over the ~150-line budget; all seven had
@@ -193,6 +204,8 @@ Recorded because the temptation in any review is to discard what works.
 | A-01 | First structural analysis of the repo itself; §0 fact panel established | `docs/structural-analysis.md` | 2026-08-19 |
 | A-02 | Graph audit made reproducible instead of ad-hoc grep | `scripts/graph-audit.js` | 2026-08-19 |
 | A-03 | **P-01/P-02 closed** — hub declares 7 typed activation edges; orphans 3 → 0; promotion channel back to the base added at session end | `skills/proc-session-continuity`, `skills/sec-secrets-management` | 2026-08-19 |
+| A-09 | `SessionStart` reports declared `companions` — the sibling-repo rule stops depending on memory | `hooks/scripts/session-start.js` | 2026-08-19 |
+| A-08 | Dangling `prefix-name` references and stale inventory counts now fail the build | `scripts/lib/inventory.js`, `scripts/validate.js`, `README.md` | 2026-08-19 |
 | A-07 | Size rule replaced by a trigger-keyed three-outcome test; §0.2 turned into a generated block with `--check` | `skills/proc-skill-creator`, `CLAUDE.md`, `scripts/graph-audit.js` | 2026-08-19 |
 | A-06 | Templates carry the fields the rules demand: §0 fact panel, `Done when:`/`Blocked by:`, `Evidence:`/`Scope:`, `Verified:` | `templates/docs/*`, `skills/proc-structural-analysis`, `skills/proc-skill-creator` | 2026-08-19 |
 | A-05 | Backlog status turned into a command after hand-counting gave three different wrong answers | `scripts/backlog-audit.js`, `feedback/BACKLOG.md` | 2026-08-19 |

@@ -64,6 +64,15 @@ nothing:
    current, unfixed state first: it must return the "not done" answer. If it
    already returns "done", it is measuring something else.
 
+Two rules for the positive case itself:
+
+- **It must be representative, not merely wrong.** A mutation the pattern cannot
+  match proves nothing about the pattern — the check stays silent and looks
+  broken when the test was.
+- **When a new check fires on its first run, read it as data about the check as
+  much as about the corpus.** Sometimes the corpus is wrong; sometimes the check
+  flags a deliberate example. Decide which before "fixing" anything.
+
 And when a count matters, do not hand-count it twice — turn it into a command.
 Hand-counting the same inventory three times in one session can produce three
 different answers, each plausible.

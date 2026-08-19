@@ -45,6 +45,51 @@ count into a command.
 `test/graph.test.js` and `test/inventory.test.js`.
 **Reference:** `feedback/project-a-2026-08-19/SUGESTOES.md` §23.
 
+### [2026-08] When a new check fires, first ask whether the check is wrong
+
+**Context:** two rulers written this session fired on their very first run.
+
+**Problem:** in one case the corpus was wrong (`README.md` claimed 28 skills
+when there were 29 — a real defect). In the other the *ruler* was wrong: the
+dangling-reference check flagged `be-caching-patterns` and
+`proc-incident-response`, which are the hypothetical names in a good/bad naming
+example, not references to anything. Treating the second as a corpus defect
+would have "fixed" correct documentation.
+
+And the negative test written to prove that same check was itself invalid: the
+mutation used `qa-security-reviewerX`, whose capital letter the pattern cannot
+match at all, so nothing was detected and the check briefly looked broken.
+
+**Rule:** a check's first run is data about **the check** as much as about the
+corpus — read both before acting. And a known positive case must be
+**representative**, not merely wrong: a mutation the pattern cannot match proves
+nothing about the pattern.
+
+**Evidence:** measured — both runs on 2026-08-19, both resolved by inspection.
+**Scope:** method — extends the ruler discipline in `qa-verification-loop`.
+**Reference:** `feedback/project-a-2026-08-19/SUGESTOES.md` §23.
+
+### [2026-08] A count restated in prose goes stale by construction
+
+**Context:** the same figure written in two places — an inventory count in
+`README.md`, and a per-skill line count inside the pending item that tracked
+those skills.
+
+**Problem:** both drifted within hours of being written, in a session whose
+entire subject was preventing drift. `README.md` said 28 skills from the moment
+there were 29; the P-06 table's "after" column was stale for two skills and
+missing a third.
+
+**Rule:** do not restate a derived number in prose. Either a command generates
+it, or it is not written down. Where the historical value matters, keep the
+"before" — which is fixed — and let the current value live only in the generated
+block. The generated §0.2 of `structural-analysis.md` survived thirteen commits
+unchanged while the hand-kept table beside it drifted twice; same document, same
+day, same author, and the only variable was whether a command produced the row.
+
+**Evidence:** measured — `npm run validate` now fails on both classes.
+**Scope:** method.
+
 ### [2026-08] An undeclared exception becomes someone else's measurement error
 
 **Context:** `engineering-principles` is the only skill without a prefix, by
@@ -130,4 +175,4 @@ moved content.
 
 ---
 
-*Last updated: 2026-08-19 · Reference: `engineering-principles.md` §11.2, §11.4*
+*Last updated: 2026-08-19 (session close) · Reference: `engineering-principles.md` §11.2, §11.4*

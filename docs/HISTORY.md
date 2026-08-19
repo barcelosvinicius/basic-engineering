@@ -11,7 +11,7 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-19
+> ⚡ Last updated: 2026-08-19 (session close)
 
 **Project phase:** active development on `feat/wire-session-continuity-graph`
 (unreleased; version deliberately still 3.0.0 — `release.yml` publishes on push
@@ -19,38 +19,84 @@ to `main` when the version changes).
 
 ### In progress
 
-- Action plan Phase 3.2/3.3, Phase 5 — see [action-plan.md](action-plan.md).
+- Nothing in flight. Every planned unit is delivered; what remains is a
+  decision, not implementation.
 
 ### Recently completed
 
-- Activation graph wired (orphans 3 → 0, hub out-degree 1 → 7, cycles 0).
+- Activation graph wired: orphans 3 → 0, hub out-degree 1 → 7, cycles 0.
 - Doc templates carry the fields their rules demand.
-- Drift sweep: 4 findings, all closed; each with a guard in `npm run validate`
-  or in the release path.
-- Size rule replaced by a three-outcome test keyed on the trigger.
+- Drift sweep: 4 findings closed, each with a guard behind it.
+- Size rule replaced by a trigger-keyed test; all 7 over-budget skills treated.
+- Feedback queue U1–U10 complete.
+- Three further holes found by measurement and closed: dangling names, stale
+  inventory counts, and `companions` having no mechanical trigger.
 
 ### Blockers
 
-- No active blockers.
+- **Cannot push from this environment.** HTTPS to GitHub is reachable but no
+  credential is configured (`credential.helper` empty, no `gh`, no token), and
+  SSH port 22 times out. The 36 commits are safe locally on the branch.
 
 ### Priority next steps
 
-<!-- Each step carries how we will know it is done, and what must be true first. -->
-1. Phase 3.3 — record the three-outcome verdict for the five remaining
-   over-budget skills — **done when:** each of the five carries a one-line
-   verdict · **blocked by:** nothing.
-2. Phase 3.2 — extract the `fe-*` catalogues — **done when:** both `SKILL.md`
-   under 150 lines, both with resource siblings, and `git diff --stat` shows
-   lines moved rather than lost · **blocked by:** nothing.
-3. Phase 5 — U4 (parallel agents read, one writer writes) then U8 — **done
-   when:** the rule is stated in `proc-session-continuity` and each sweep
-   command declares its parallel axis · **blocked by:** nothing.
+1. Push the branch — **done when:** `git push -u origin
+   feat/wire-session-continuity-graph` succeeds · **blocked by:** a credential
+   (`gh auth login`, or a PAT with `git config credential.helper store`).
+   Safe: `release.yml` and `ci.yml` only trigger on `main`.
+2. Review the series and open a PR — **done when:** the PR exists and CI is
+   green · **blocked by:** step 1.
+3. Decide whether to cut a release — **done when:** either `npm run release`
+   has run or a note here records the decision to wait · **blocked by:** step 2.
+   Nothing publishes until the version changes on `main`.
+4. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
+   a session records whether the §0 fact panel answered *"what else must
+   change?"* on its own · **blocked by:** a few sessions of real use.
 
 ---
 
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-08-19] Phase 5, the size test, and three holes found by measuring
+
+**Owner:** vinicius + Claude Opus 5
+
+**Deliveries:**
+- Feedback queue completed: U4 (parallel agents read, one writer writes),
+  U5 (history ceiling + each doc names its nature), U6 (the close checks rather
+  than composes), U7 (`companions`), U8 (zero without a denominator),
+  U9 (`proc-safe-removal`), U10 (a rule ships with a case that makes it fail).
+- Size rule became a trigger-keyed test; all seven over-budget skills treated —
+  three came under the line, four record *leave it*. Skills with a resource file
+  10 → 16.
+- Three holes closed after this round's own measurement: a renamed skill left
+  prose references pointing at nothing and passed the build; `README.md` claimed
+  28 skills when there were 29; `companions` was protocol with nothing
+  mechanical behind it.
+- `docs/HISTORY.md`, `docs/lessons-learned.md`, `docs/action-plan.md` created;
+  this repo now runs the protocol it ships.
+
+**Decisions:**
+- `proc-safe-removal` shipped **larger than triaged** — the proposal asked for a
+  deletion protocol; the errors made here showed relocation has the same silent
+  shape, so it covers both.
+- Moving the SDD variants out of the hub was tried and **reverted**: 6 lines
+  saved for an extra file and two jumps. The test extracts lookup, not volume.
+- Typed edges stay at 4 of 29 by decision, recorded as P-07: prose does not
+  execute, so there is no hidden cycle, and forcing 22 declarations is
+  bureaucracy.
+
+**Next steps:** push the branch, open the PR, decide on the release.
+
+**Blockers:** no push credential in this environment (see Current State).
+
+**Verified:** `npm run validate` passes · `npm test` 39 pass / 0 fail ·
+`node scripts/graph-audit.js --check` matches · `node scripts/backlog-audit.js
+--check` matches · `node bin/be.js install <tmp> --dry-run` ok · all 36 commits
+re-checked out and verified individually · goal declared at session start ✅
+achieved and exceeded.
 
 ### [2026-08-19] Wire the activation graph, close the drift, guard the rules
 
