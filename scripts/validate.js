@@ -212,6 +212,36 @@ function checkConfigAndHooks() {
 }
 
 /**
+ * Every skill and agent must be registered in the session index, and must carry
+ * a declared prefix. Both rules already existed in prose (`proc-skill-creator`
+ * Step 7; `CLAUDE.md` conventions) and nothing enforced them — the index had
+ * drifted 14% and the one unprefixed skill was an undeclared exception.
+ * Exercised against planted violations in test/inventory.test.js.
+ */
+function checkInventory() {
+  const inv = require('./lib/inventory.js');
+  const skills = inv.listSkills(PLUGIN);
+  const agents = inv.listAgents(PLUGIN);
+
+  const indexFile = path.join(PLUGIN, 'skills', 'proc-session-continuity', 'resources.md');
+  if (fs.existsSync(indexFile)) {
+    const index = fs.readFileSync(indexFile, 'utf8');
+    for (const name of inv.missingFromIndex(index, skills.concat(agents))) {
+      fail(`"${name}" is not registered in skills/proc-session-continuity/resources.md`);
+    }
+  } else {
+    fail('missing file: plugins/be/skills/proc-session-continuity/resources.md');
+  }
+
+  for (const n of inv.badPrefixes(skills, inv.SKILL_PREFIXES)) {
+    fail(`skill "${n}": prefix outside ${inv.SKILL_PREFIXES.join(', ')} and not a declared exception`);
+  }
+  for (const n of inv.badPrefixes(agents, inv.AGENT_PREFIXES)) {
+    fail(`agent "${n}": prefix outside ${inv.AGENT_PREFIXES.join(', ')} and not a declared exception`);
+  }
+}
+
+/**
  * Declared activation edges must point at real skills and must not form a
  * runtime cycle. Only `invoke` edges can recurse; `consult` edges cannot.
  * The detector itself is exercised against planted cycles in test/graph.test.js
@@ -238,6 +268,7 @@ checkVersions();
 checkGuide();
 checkConfigAndHooks();
 checkActivationEdges();
+checkInventory();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);
