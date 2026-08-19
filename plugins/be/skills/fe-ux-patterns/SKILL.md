@@ -102,151 +102,14 @@ the space between them should be visibly larger than the space between items in 
 
 ---
 
-## 5. Cards and listings
+## 5. Component and screen patterns — see the catalogue
 
-```
-Minimum card:
-┌─────────────────────────────────┐
-│ [Icon] Title             Status │  ← identification line
-│ Main value                      │  ← most important information
-│ Metadata 1  •  Metadata 2      │  ← secondary context
-└─────────────────────────────────┘
+Cards and listings, forms, loading states, empty states, toasts, responsive
+breakpoints and information density per screen type each have a worked pattern
+in [ui-patterns.md](ui-patterns.md). Open the one you are building — it is
+reference, not something to read end to end.
 
-Rules:
-- First element = identifies WHAT it is (name, category, title)
-- Second = the VALUE most relevant to the decision
-- Third+ = context (date, source, subcategory)
-- Actions (edit, delete) = appear on hover or in a menu, never occupy fixed space
-```
-
-**Card anti-patterns:**
-- ❌ Putting a technical ID as the first element
-- ❌ Showing all fields of an object — filter what matters for the context
-- ❌ Destructive actions without visual separation from primary actions
-
----
-
-## 6. Forms
-
-```
-Field order: from most general to most specific
-Example: Category → Subcategory → Description → Amount → Date
-
-Validation:
-- DO NOT validate on each field's onBlur (interrupts the flow)
-- Validate on submit (shows all errors at once)
-- Exception: fields with immediate rules (CPF, email — validate on blur)
-
-Error messages:
-- Close to the field, not at the top of the form
-- Descriptive: "Amount must be greater than zero" (not "Invalid field")
-- Color + icon + text: never color alone
-
-Labels:
-- Always visible (do not use placeholder as a label substitute)
-- Placeholder = example of expected format, not the field name
-```
-
----
-
-## 7. Loading states
-
-| Duration | Recommended pattern |
-|----------|---------------------|
-| < 100ms | No indicator needed |
-| 100–300ms | Disable the button that triggered the action |
-| 300ms–2s | Skeleton screen (for lists/cards) or spinner (for actions) |
-| > 2s | Skeleton + context message ("Loading transactions...") |
-| Indeterminate | Indeterminate progress bar + cancel option |
-
-**Skeleton screens > spinners for content:**
-- Skeleton reduces layout "shock" when the real data loads
-- Spinner gives no clue about what will appear — increases perceived anxiety
-
----
-
-## 8. Empty state
-
-Every component that lists data must have an **informative and actionable** empty state:
-
-```
-❌ Bad:  "No results found."
-
-✅ Good:
-  [themed icon]
-  No transactions in March
-  Import your statement or add an entry manually.
-  [Import CSV]  [Add manually]
-```
-
-**Empty-state rules:**
-- Explains WHY it is empty (no data, active filter, period without activity)
-- Offers the action that resolves the emptiness (when one exists)
-- Tone: neutral or light — not alarmist
-
----
-
-## 9. Toasts and action feedback
-
-```
-Position: bottom-right corner (desktop default) or centered top (mobile)
-Duration: 3–5 seconds for success; persistent for error until the user closes it
-
-Types:
-✅ Success  — green, auto-close, message confirming what was done
-⚠️ Warning  — yellow, auto-close or manual
-❌ Error    — red, persistent, with details link if applicable
-ℹ️ Info     — neutral, auto-close
-
-Toast content:
-- Past tense: "Transaction saved." / "3 items imported."  (not "Success!")
-- Specific: "March invoice deleted." (not "Item deleted.")
-- Actionable when possible: "Transaction saved. [Undo]"
-```
-
----
-
-## 10. Responsiveness — breakpoints
-
-```css
-/* Mobile first — write the base for mobile, override for larger screens */
-/* sm */ @media (min-width: 640px)  { /* small tablet */ }
-/* md */ @media (min-width: 768px)  { /* tablet */ }
-/* lg */ @media (min-width: 1024px) { /* desktop */ }
-/* xl */ @media (min-width: 1280px) { /* wide desktop */ }
-
-Behaviors by breakpoint:
-- Mobile (< 768px):
- → Navigation: hamburger menu or bottom bar
- → Tables: horizontal scroll or stacked cards
- → Charts: reduced height, no side legend
- → Forms: single-column fields
-
-- Tablet (768px–1024px):
- → Collapsible sidebar
- → 2-column grid
-
-- Desktop (≥ 1024px):
- → Fixed sidebar
- → 3-4 column grid
- → Full tables
-```
-
----
-
-## 11. Information density by screen type
-
-| Screen type | Density | Rationale |
-|---|---|---|
-| Dashboard / KPI panel | High | Experienced user wants a fast overview |
-| List / history | Medium | Scanning + focused action |
-| Form | Low | Focus and precision are the priority |
-| Confirmation screen | Minimal | Reduce cognitive friction before irreversible action |
-| Settings | Medium | Rarely accessed; detail is welcome |
-
----
-
-## 12. UX review checklist (pre-delivery)
+## 6. UX review checklist (pre-delivery)
 
 **Communication:**
 - [ ] Is the most important information visually highlighted?
@@ -269,6 +132,14 @@ Behaviors by breakpoint:
 - [ ] Does the screen have ≤ 3 visual focal points?
 - [ ] Is information the user does not need in this context absent?
 - [ ] Is there no redundant label + icon when one of them is enough?
+
+---
+
+## Resources
+
+- [ui-patterns.md](ui-patterns.md) — worked patterns per component and screen:
+  cards and listings, forms, loading and empty states, toasts, responsive
+  breakpoints, information density.
 
 ---
 
