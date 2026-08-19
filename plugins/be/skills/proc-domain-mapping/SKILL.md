@@ -35,18 +35,8 @@ solve, in what order, and where exactly do those responsibilities live?"**
 
 ## Core DDD vocabulary used in this skill
 
-| Term | Meaning in this pipeline |
-|------|--------------------------|
-| **Bounded context** | A named boundary inside which a model is consistent |
-| **Aggregate** | A cluster of objects treated as one transactional unit |
-| **Entity** | An object with identity that persists over time |
-| **Value object** | An immutable descriptor with no identity |
-| **Domain event** | Something that happened in the domain and is worth recording |
-| **Domain service** | Logic that does not belong to any single entity |
-| **Application service** | Orchestrates use cases; no domain logic |
-| **Repository** | Abstraction for persisting and retrieving aggregates |
-
----
+Glossary in [output-schemas.md](output-schemas.md) — bounded context, aggregate,
+domain event, and the rest, with the meaning this skill assumes.
 
 ## Pipeline phases
 
@@ -84,15 +74,7 @@ Look for naming signals in package/module names, directory names, and class name
 
 ### Output per context
 
-```
-context:
-  name: [PascalCase name]
-  description: [one sentence — what business problem it owns]
-  root_package: [e.g., com.company.billing or src/billing]
-  team_owner: [optional — which squad or agent owns this context]
-```
-
----
+Schema in [output-schemas.md](output-schemas.md).
 
 ## Phase 2 — Model extraction
 
@@ -185,33 +167,10 @@ Record each missing ACL as a pending item in `structural-analysis.md`.
 
 ## Phase 5 — Output assembly
 
-### Domain map section for structural-analysis.md
-
-```markdown
-## Domain map
-
-### Bounded contexts
-
-| Context | Root package | Core aggregate(s) | Owns |
-|---------|-------------|-------------------|------|
-| [Name] | [package] | [Aggregate] | [responsibilities] |
-
-### Context relationships
-
-[Diagram or table: which contexts communicate, via what mechanism]
-
-### Domain event catalogue
-
-| Event | Published by | Consumed by | Trigger |
-|-------|-------------|-------------|---------|
-
-### Flow index
-
-| Flow | Trigger | Contexts involved | Risk |
-|------|---------|-------------------|------|
-```
-
----
+This skill owns the `## Domain map` section of `structural-analysis.md`. Its
+schema — bounded contexts, context relationships, the domain event catalogue and
+the flow index — is defined once, in
+[output-schemas.md](output-schemas.md), and nowhere else.
 
 ## Integration with other skills
 
@@ -221,6 +180,20 @@ Record each missing ACL as a pending item in `structural-analysis.md`.
 | `proc-impact-analysis` | Domain map enables precise impact scoping — change in Context A does not automatically affect Context B |
 | `proc-sdd` | Specs reference bounded contexts; each context is a candidate for its own spec |
 | Agent definitions | Each agent should declare which bounded context(s) it owns |
+
+---
+
+## Size verdict
+
+**Q1 — does the trigger split?** No: kickoff, a new bounded context and drifted
+boundaries all produce one artefact, the domain map. **Q2 — what is lookup?**
+The DDD glossary and the output schemas, now in `output-schemas.md`. What
+remains is the five-phase procedure. **Verdict: leave it.**
+
+## Resources
+
+- [output-schemas.md](output-schemas.md) — the `## Domain map` section schema
+  (defined here and nowhere else), the DDD glossary, and the per-context output.
 
 ---
 

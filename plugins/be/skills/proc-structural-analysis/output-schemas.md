@@ -32,7 +32,7 @@ Mandatory sections:
   - Mermaid graph or indented text showing dependencies
 
 ## Domain map
-  - Per domain: name, flows, entities, external dependencies
+  - Schema owned by `proc-domain-mapping` — do not restate it here
 
 ## Pending items
   - Numbered list (I-01, I-02...) with: description, severity, affected file(s),
