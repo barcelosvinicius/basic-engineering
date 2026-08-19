@@ -28,9 +28,10 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 - Skill frontmatter: `name` == directory name; `description` leads with the trigger
   condition ("Use when…"). SKILL.md loads in full on every activation while sibling
   resources load on demand, so keep it within ~150 lines — and over that, apply the
-  three-outcome test in `proc-skill-creator` (leave it / extract to resources / new
-  skill) rather than trimming blindly. The discriminator is the **trigger**, not the
-  line count.
+  three-outcome test in `proc-skill-creator` rather than trimming blindly: does the
+  **trigger** split into different outputs (→ new skill)? then, section by section,
+  is this needed to **decide** or to **look up** (→ extract the lookup)? What is left
+  is the procedure, whatever its length.
 - Never hardcode tool-specific paths (`.be/...`) inside skills/agents —
   reference skills by name.
 - Versions must stay in sync: `package.json`, `plugins/be/.claude-plugin/plugin.json`,

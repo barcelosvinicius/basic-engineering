@@ -152,17 +152,28 @@ activation**, not on how much the skill knows — a 100-line `SKILL.md` with 14 
 of resources is well shaped, not oversized.
 
 Line count is an **alarm that says "apply the test"**, never the verdict: it
-cannot tell cohesion from depth. Ask the trigger.
+cannot tell cohesion from depth. Two questions, in this order.
 
-| Ask | Outcome |
+**1. Does the trigger split?** Do the situations in the `description` lead to
+different outputs, each needing its own decision? If yes → **new skill**, and
+declare the edge between them. If someone arriving via trigger A can skip most
+of the file, the file is two things. This question is about cohesion and is
+**independent of size** — a 60-line skill can fail it.
+
+**2. Section by section: is this needed to _decide_, or to _look up_?**
+Everything you consult *while* doing the work — catalogues, output templates,
+per-stack examples, reference tables — is lookup. → **extract to a resource**.
+What remains is the decision procedure. → **leave it**, whatever its length.
+
+| Symptom | Outcome |
 |---|---|
-| One trigger, one output, material you need to **decide**? | **Leave it** — a pipeline skill can exceed 150 lines and still be right |
-| Trigger enumerates cases, but each needs **lookup**, not its own decision? | **Extract to resources** — keep the procedure, move the catalogue |
-| Trigger splits **and** each part has its own decision *and* output? | **New skill** — split, and declare the edge between them |
+| Trigger enumerates situations with different outputs | **New skill** |
+| One trigger, but the file carries a catalogue or an output template | **Extract to a resource** |
+| One trigger, and what is left is how to decide | **Leave it** — a pipeline skill can exceed 150 lines and be right |
 
-**The discriminator is the trigger, never the size.** If someone arriving via
-trigger A can skip most of the file, the file is two things. A 60-line skill can
-fail that test; a 250-line pipeline can pass it.
+Question 2 applies even when the trigger does **not** split: a single-trigger
+skill carrying a big output template is still paying for that template on every
+activation.
 
 **Do not use "percentage of the file that is code" as a rule.** Measured across
 all 28 skills of this base it gave 2 false positives out of 5 flags — it fires on
@@ -198,11 +209,12 @@ measurement instead of by feel.
 
 ## This skill's own verdict
 
-Trigger: one (a skill is missing or needs refactoring). Output: one (a skill).
-By the test above that is **leave it** — what remains here is the decision
-procedure, and `lifecycle.md` absorbed the part that was lookup. The ~150-line
-budget is the wrong instrument for a procedure skill; it stays as the alarm that
-made this check happen.
+**Q1 — does the trigger split?** No: every situation in the `description`
+produces one output, a skill. **Q2 — what is lookup?** The blank skill template
+(`skill-template.md`) and the provenance/pruning policy (`lifecycle.md`) — both
+already extracted. **Verdict: leave it.** What remains is the decision procedure,
+and the ~150-line budget is the wrong instrument for one; it stays as the alarm
+that made this check happen.
 
 ## Resources
 
