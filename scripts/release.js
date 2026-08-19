@@ -53,10 +53,45 @@ if (next === cur) fail(`next version equals current (${cur})`);
 
 console.log(`\n  Release ${cur} -> ${next}${dryRun ? '  (dry-run)' : ''}\n`);
 
+// ── resolve + guard BASE_VERSION, before anything is written ─────────────────
+// UTC, as CONTRIBUTING.md documents. It used to be local time, which is wrong
+// for a value compared lexicographically across machines: two releases cut on
+// the same day from different timezones can invert, and the installer would
+// then read the newer base as older. The guard makes that unrepresentable.
+// Both this and the CHANGELOG date derive from the same UTC instant, so they
+// can never disagree about which day the release happened.
+const d = new Date();
+const z = (n) => String(n).padStart(2, '0');
+const baseVersion =
+  `v${d.getUTCFullYear()}${z(d.getUTCMonth() + 1)}${z(d.getUTCDate())}` +
+  `-${z(d.getUTCHours())}${z(d.getUTCMinutes())}${z(d.getUTCSeconds())}`;
+const prevBaseVersion = read('BASE_VERSION').trim();
+if (prevBaseVersion && baseVersion <= prevBaseVersion) {
+  fail(
+    `BASE_VERSION ${baseVersion} is not newer than ${prevBaseVersion}. ` +
+    'The installer compares these lexicographically, so a value that does not ' +
+    'increase would make this release look older than the last.'
+  );
+}
+
 // ── guard: clean tree (so the release commit is pure) ────────────────────────
 if (!dryRun && shOut('git status --porcelain')) {
   fail('working tree is dirty — commit your changes first (or pass --dry-run)');
 }
+
+// A dry run deliberately writes the files so the diff can be inspected, and it
+// skips the clean-tree guard above — which makes it the one mode where a file
+// may already carry unrelated uncommitted work. Remember which, so the revert
+// advice printed at the end never tells you to discard it.
+// NB: shOut trims the whole output, so the first line loses its leading status
+// space — slicing a fixed 3 chars would eat one character of that filename.
+// Match the status field instead of counting columns.
+const dirtyBefore = dryRun
+  ? shOut('git status --porcelain')
+      .split(/\r?\n/)
+      .map((l) => l.replace(/^[ MADRCU?!]{1,2}\s+/, '').trim())
+      .filter(Boolean)
+  : [];
 
 // ── 1) bump semver in the three manifests ────────────────────────────────────
 for (const f of [
@@ -70,14 +105,11 @@ for (const f of [
   write(f, after);
 }
 
-// ── 2) BASE_VERSION timestamp ────────────────────────────────────────────────
-const d = new Date();
-const z = (n) => String(n).padStart(2, '0');
-const baseVersion = `v${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;
+// ── 2) BASE_VERSION ──────────────────────────────────────────────────────────
 write('BASE_VERSION', baseVersion + '\n');
 
 // ── 3) CHANGELOG: roll [Unreleased] into a dated version section ──────────────
-const date = `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+const date = `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`;
 const cl = read('CHANGELOG.md');
 if (cl.includes('## [Unreleased]')) {
   write('CHANGELOG.md', cl.replace('## [Unreleased]', `## [Unreleased]\n\n## [${next}] — ${date}`));
@@ -101,8 +133,18 @@ const RELEASE_FILES = [
 ];
 
 if (dryRun) {
-  console.log('\n  [dry-run] files updated; no commit/tag/push. Revert with:');
-  console.log(`  git checkout -- ${RELEASE_FILES.join(' ')}\n`);
+  const clash = RELEASE_FILES.filter((f) => dirtyBefore.includes(f));
+  console.log('\n  [dry-run] files updated; no commit/tag/push.');
+  if (clash.length) {
+    console.log('\n  ⚠  These already had uncommitted changes before this run:');
+    for (const f of clash) console.log(`       ${f}`);
+    console.log('     `git checkout --` on them would DISCARD that work. Revert the');
+    console.log('     release edits by hand (`git diff` shows both), then run:');
+    console.log(`  git checkout -- ${RELEASE_FILES.filter((f) => !clash.includes(f)).join(' ')}\n`);
+  } else {
+    console.log('  Revert with:');
+    console.log(`  git checkout -- ${RELEASE_FILES.join(' ')}\n`);
+  }
   process.exit(0);
 }
 

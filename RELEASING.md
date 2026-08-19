@@ -31,7 +31,10 @@ On npmjs.com → the package → **Settings → Trusted Publisher → GitHub Act
 
    This bumps the four version files in lockstep, rolls `[Unreleased]` into a
    dated section, regenerates the guides, runs `validate` + tests, then commits
-   `chore(release): vX.Y.Z`. Add `--dry-run` to preview without committing.
+   `chore(release): vX.Y.Z`. `--dry-run` previews without committing — note it
+   **does write the files** (so you can read the diff) and prints how to revert;
+   if one of those files already had uncommitted work, it says so instead of
+   telling you to `git checkout --` over it.
 
 3. Push:
 
