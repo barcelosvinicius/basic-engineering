@@ -42,15 +42,36 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
    unintended changes, missing error handling, and edge cases (null, empty,
    zero, overflow, unauthorized).
 
+## Zero without a denominator is not a result
+
+`SKIPPED` with a reason solves *"it did not run"*. It does not solve the worse
+case: **it ran, it passed, and it passed over the wrong artefact.** Green from a
+stale build cache is indistinguishable from legitimate green in the report.
+
+So every phase that reports an **absence** — a green suite, zero security
+findings, no lint errors — carries the evidence that it exercised the right
+target:
+
+| Phase reports | Carry with it |
+|---|---|
+| Tests green | how many tests **ran** (a suite that collected 0 tests is green) |
+| No security findings | how many files were **scanned**, and the pattern set used |
+| No lint errors | how many files the linter **saw** |
+| Build OK | that the artefact is **newer than the source** — or that the cache was cleared |
+
+If you cannot state the denominator, the phase is `SKIPPED`, not `PASS`. A
+measurement that reports nothing found, without saying what it looked at, is
+indistinguishable from a measurement that did not look.
+
 ## Report format
 
 ```
 VERIFICATION REPORT
-Build:    [PASS/FAIL]
-Types:    [PASS/FAIL] (N errors)
-Lint:     [PASS/FAIL] (N warnings)
-Tests:    [PASS/FAIL] (X/Y passed, Z% coverage)
-Security: [PASS/FAIL] (N findings)
+Build:    [PASS/FAIL]  (artefact newer than sources / cache cleared)
+Types:    [PASS/FAIL]  (N errors)
+Lint:     [PASS/FAIL]  (N warnings over F files)
+Tests:    [PASS/FAIL]  (X/Y passed over T collected, Z% coverage)
+Security: [PASS/FAIL]  (N findings over F files scanned)
 Diff:     N files changed
 
 Verdict:  [READY / NOT READY] for PR
@@ -60,4 +81,5 @@ Blocking issues:
 
 Do not declare work done while the verdict is NOT READY. If a phase cannot run
 (missing tool/command), mark it `SKIPPED` with the reason — never report a
-phase as PASS when it did not actually run.
+phase as PASS when it did not actually run, and never as PASS when it ran but
+you cannot say over what.
