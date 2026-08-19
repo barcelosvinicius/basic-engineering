@@ -24,6 +24,24 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - **Measure before reading** at session start (`wc -lc`): over ~2,000 lines,
   read sections rather than the whole living doc and consult
   `proc-context-budget`.
+- **`proc-safe-removal`** — a new skill for the one change that cannot fail
+  loudly. Deleting takes its own test with it, so the suite goes green because
+  the evidence is gone; moving content fails silently in both directions, with
+  each file still reading fine. Four axes before deleting (provenance,
+  supersession, damage, unreachability), a `// NB:` note on whatever survives,
+  and a verification protocol for relocations. Reachable from
+  `proc-impact-analysis`.
+- **The parallel-work rule is stated: read in a fan-out, write in series.**
+  Three files absorb 179 of 200 commits' writes and every session close touches
+  all three, so N agents closing in parallel collide on exactly those. Parallel
+  agents are read-only and return findings; one writer integrates. Five sweep
+  commands now declare the axis they parallelise on.
+- **A phase reporting an absence carries its denominator.** Tests collected,
+  files scanned, files linted, artefact newer than sources — green over a stale
+  cache is otherwise indistinguishable from legitimate green.
+- **A verifiable rule ships with a known positive case that makes it fail.**
+  Written into `qa-verification-loop` with the three failure modes that produce
+  a plausible number and announce nothing, and added to the skill checklist.
 - **Every skill now keeps its catalogue and output templates out of `SKILL.md`.**
   All seven skills over the ~150-line budget embedded the shape of their own
   deliverable inline — paid for on every activation, opened only while writing

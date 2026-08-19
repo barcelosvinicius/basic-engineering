@@ -263,13 +263,13 @@ From `TRIAGEM.md`; U1–U3 landed on 2026-08-19. Ordered by effect/cost, unchang
 
 | U | Unit | Proposals | Effort | Note |
 |---|------|-----------|--------|------|
-| **U4** | Parallel agents read; one writer writes. Sweep commands declare their parallel axis | 14, 11 | Low | 9 of 15 agents are already read-only — the rule is missing, not the capability |
-| **U8** | Zero without a denominator: a phase reporting absence carries evidence it exercised the right target | 9 | Low | Extends `SKIPPED`-with-reason, which is already right |
-| **U6** | The close **checks** rather than composes; contradiction sweep restricted to the session's delta | 17, 2, 4 | Medium | Partially prepared: `Verified:` field landed in A-06 |
-| **U5** | History compaction rule | 1, 12 | Medium | Measure-before-read landed in U1; compaction did not |
-| **U7** | Close every repo the session touched (`companions:`) | 7, 6 | Medium | Mechanism exists (`.be-paths`) |
-| **U9** | Safe-removal gesture: four axes + `// NB:` on survivors | 10 | Medium | New skill; needs a referrer per 3.1 |
-| **U10** | Every verifiable rule ships with a known positive case | 23 | Medium | Already practised in Phase 2; this makes it the written rule |
+| **U4** | ✅ Parallel agents read; one writer writes. Five sweep commands declare their axis | 14, 11 | Low | done 2026-08-19 |
+| **U8** | ✅ Zero without a denominator | 9 | Low | done 2026-08-19 |
+| **U10** | ✅ Every verifiable rule ships with a case that makes it fail | 23 | Medium | done 2026-08-19 — six instances from this branch as evidence |
+| **U9** | ✅ `proc-safe-removal`: four axes + `// NB:`, **plus content relocation** | 10 | Medium | done 2026-08-19 — Part 3 is a gap found by making the mistakes |
+| **U6** | The close **checks** rather than composes; contradiction sweep on the session's delta | 17, 2, 4 | Medium | open — `Verified:` field already landed (A-06) |
+| **U5** | History compaction rule | 1, 12 | Medium | open — measure-before-read landed in U1; compaction did not |
+| **U7** | Close every repo the session touched (`companions:`) | 7, 6 | Medium | open — mechanism exists (`.be-paths`) |
 
 ---
 
