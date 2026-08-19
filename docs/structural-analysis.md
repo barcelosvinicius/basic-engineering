@@ -142,15 +142,21 @@ Closed 2026-08-19. Seven skills were over the ~150-line budget; all seven had
 the test applied and every extraction preserved its code line-for-line, verified
 per commit.
 
-| Skill | Before | After | Outcome |
-|---|--:|--:|---|
-| `fe-accessibility-patterns` | 293 | **138** | extracted `component-patterns.md` |
-| `fe-ux-patterns` | 275 | **146** | extracted `ui-patterns.md` |
-| `proc-changelog` | 158 | **118** | extracted `format-reference.md` |
-| `proc-skill-creator` | 193 | 223 | extracted `lifecycle.md`, verdict **leave it** |
-| `proc-structural-analysis` | 255 | 222 | extracted `output-schemas.md`, verdict **leave it** |
-| `proc-domain-mapping` | 227 | 200 | extracted `output-schemas.md`, verdict **leave it** |
-| `proc-impact-analysis` | 207 | 182 | extracted `pr-template.md`, verdict **leave it** |
+| Skill | Before | Outcome |
+|---|--:|---|
+| `fe-accessibility-patterns` | 293 | extracted `component-patterns.md` → **under the line** |
+| `fe-ux-patterns` | 275 | extracted `ui-patterns.md` → **under the line** |
+| `proc-changelog` | 158 | extracted `format-reference.md` → **under the line** |
+| `proc-skill-creator` | 193 | extracted `lifecycle.md` → verdict **leave it** |
+| `proc-structural-analysis` | 255 | extracted `output-schemas.md` → verdict **leave it** |
+| `proc-domain-mapping` | 227 | extracted `output-schemas.md` → verdict **leave it** |
+| `proc-impact-analysis` | 207 | extracted `pr-template.md` → verdict **leave it** |
+| `proc-session-continuity` | 116 | grew with U4/U5/U6/U7 → verdict **leave it** |
+
+*"Before" is historical and fixed. The current count is not repeated here — it
+lives in the generated §0.2 block, because a per-skill line count restated in
+prose goes stale on the next edit. It did, twice, before this table was
+rewritten this way.*
 
 **The systematic finding:** all seven embedded their own output template or
 catalogue inside `SKILL.md` — paid for on every activation, opened only while
