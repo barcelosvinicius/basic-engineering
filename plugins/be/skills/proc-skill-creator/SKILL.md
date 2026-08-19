@@ -143,6 +143,9 @@ heading, as a three-column table:
 - [ ] Registered in `proc-session-continuity/resources.md`
 - [ ] At least one existing skill declares an `## Activation edges` row pointing
       at it — a skill nobody reaches is a skill nobody runs
+- [ ] Any rule the skill makes **verifiable** ships with a known positive case
+      that makes the check fail (see `qa-verification-loop`) — an unexercised
+      ruler proves nothing
 
 ## When a skill gets too big — three outcomes, not two
 

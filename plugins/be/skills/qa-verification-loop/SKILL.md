@@ -42,6 +42,32 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
    unintended changes, missing error handling, and edge cases (null, empty,
    zero, overflow, unauthorized).
 
+## Before you trust a ruler, make it fail
+
+Every check you write — a CI gate, a validation rule, a done-criterion, a grep
+that answers a question — is itself a measurement, and an unexercised
+measurement proves nothing. **Feed it a known positive case and confirm it
+fails, before you believe a pass.**
+
+Three failure modes, all of which return a plausible number and announce
+nothing:
+
+1. **The ruler is written from the rule's wording, not the artefact's habit.**
+   A pattern built from how the rule is phrased finds what the phrasing
+   predicts. Search for what the codebase *actually writes* — enumerate a few
+   real examples first, then build the pattern from them.
+2. **The criterion matches the prose that explains it.** A check for "the string
+   X is gone" still fires on the sentence documenting why X was removed. Anchor
+   the criterion on the **structural form** the defect takes (a schema lives in
+   a code block; an import lives in an import statement), not on a word.
+3. **The criterion cannot distinguish done from not-done.** Run it against the
+   current, unfixed state first: it must return the "not done" answer. If it
+   already returns "done", it is measuring something else.
+
+And when a count matters, do not hand-count it twice — turn it into a command.
+Hand-counting the same inventory three times in one session can produce three
+different answers, each plausible.
+
 ## Zero without a denominator is not a result
 
 `SKIPPED` with a reason solves *"it did not run"*. It does not solve the worse
