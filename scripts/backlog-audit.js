@@ -13,6 +13,13 @@
  * Each item declares the checks that prove it. All checks pass -> done;
  * some -> partial; none -> todo.
  *
+ * The checks are filesystem predicates (scripts/lib/probes.js), never shell
+ * commands. They used to be shell one-liners, which made the verdict depend on
+ * the operating system: `execSync` spawns cmd.exe on Windows, where '...' does
+ * not quote, so every probe containing a `|` broke and shipped work was
+ * reported as not started — while CI stayed green on Linux. A release guard
+ * reads this audit, so that discrepancy blocked releases from Windows.
+ *
  * Usage:
  *   node scripts/backlog-audit.js          human-readable report
  *   node scripts/backlog-audit.js --md     regenerate the table for BACKLOG.md
@@ -21,69 +28,72 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const probes = require('./lib/probes.js');
 
 const ROOT = path.resolve(__dirname, '..');
 
+const MD = /\.md$/;
+
 const ITEMS = [
   ['1',  'Enforcement spine (hooks)', [
-    'test -f plugins/be/hooks/hooks.json',
-    "grep -qi 'no-verify' plugins/be/hooks/scripts/pre-tooluse.js",
-    "grep -qi 'detectSecrets' plugins/be/hooks/scripts/_lib.js"]],
+    { kind: 'file', path: 'plugins/be/hooks/hooks.json' },
+    { kind: 'content', path: 'plugins/be/hooks/scripts/pre-tooluse.js', re: /no-verify/i },
+    { kind: 'content', path: 'plugins/be/hooks/scripts/_lib.js', re: /detectSecrets/i }]],
   ['2',  '/be:check + verification-loop + semgrep', [
-    'test -f plugins/be/commands/check.md',
-    'test -d plugins/be/skills/qa-verification-loop',
-    'ls plugins/be/semgrep/*.yml']],
+    { kind: 'file', path: 'plugins/be/commands/check.md' },
+    { kind: 'dir', path: 'plugins/be/skills/qa-verification-loop' },
+    { kind: 'anyFile', dir: 'plugins/be/semgrep', name: /\.ya?ml$/ }]],
   ['3',  'Generated capabilities guide + /be:help', [
-    'test -f plugins/be/commands/help.md',
-    'test -f scripts/gen-capabilities.js']],
+    { kind: 'file', path: 'plugins/be/commands/help.md' },
+    { kind: 'file', path: 'scripts/gen-capabilities.js' }]],
   ['4',  'model: + tools: + prompt defense on agents', [
-    "test $(grep -l '^model:' plugins/be/agents/*.md | wc -l) -eq $(ls plugins/be/agents/*.md | wc -l)",
-    "test $(grep -lie 'prompt.injection|prompt defense|untrusted' -E plugins/be/agents/*.md | wc -l) -eq $(ls plugins/be/agents/*.md | wc -l)"]],
-  ['5',  'Stack-conditional activation', ['test -f plugins/be/config/stack-mappings.json']],
-  ['6',  'Modular install profiles', ['test -f plugins/be/config/install-profiles.json']],
+    { kind: 'everyFile', dir: 'plugins/be/agents', name: MD, re: /^model:/m },
+    { kind: 'everyFile', dir: 'plugins/be/agents', name: MD, re: /prompt.injection|prompt defense|untrusted/i }]],
+  ['5',  'Stack-conditional activation', [
+    { kind: 'file', path: 'plugins/be/config/stack-mappings.json' }]],
+  ['6',  'Modular install profiles', [
+    { kind: 'file', path: 'plugins/be/config/install-profiles.json' }]],
   ['7',  'Path map (.be-paths)', [
-    'test -f plugins/be/.be-paths.example.json',
-    "grep -qi 'be-paths' plugins/be/hooks/scripts/session-start.js"]],
+    { kind: 'file', path: 'plugins/be/.be-paths.example.json' },
+    { kind: 'content', path: 'plugins/be/hooks/scripts/session-start.js', re: /be-paths/i }]],
   ['8',  'Technique agents: sanitizer + silent-failure', [
-    'test -f plugins/be/agents/qa-release-sanitizer.md',
-    'test -f plugins/be/agents/qa-silent-failure-hunter.md']],
+    { kind: 'file', path: 'plugins/be/agents/qa-release-sanitizer.md' },
+    { kind: 'file', path: 'plugins/be/agents/qa-silent-failure-hunter.md' }]],
   ['9',  '/be:context-budget', [
-    'test -f plugins/be/commands/context-budget.md',
-    'test -d plugins/be/skills/proc-context-budget']],
+    { kind: 'file', path: 'plugins/be/commands/context-budget.md' },
+    { kind: 'dir', path: 'plugins/be/skills/proc-context-budget' }]],
   ['10', 'Enriched mcp.recommended.json', [
-    "grep -qiE 'pin|version' plugins/be/mcp.recommended.json",
-    "grep -qiE 'boundary|privacy' plugins/be/mcp.recommended.json"]],
-  ['11', 'gateguard fact-force (opt-in)', ['test -f plugins/be/hooks/scripts/_gateguard.js']],
-  ['12', 'sec-agent-security skill', ['test -d plugins/be/skills/sec-agent-security']],
+    { kind: 'content', path: 'plugins/be/mcp.recommended.json', re: /pin|version/i },
+    { kind: 'content', path: 'plugins/be/mcp.recommended.json', re: /boundary|privacy/i }]],
+  ['11', 'gateguard fact-force (opt-in)', [
+    { kind: 'file', path: 'plugins/be/hooks/scripts/_gateguard.js' }]],
+  ['12', 'sec-agent-security skill', [
+    { kind: 'dir', path: 'plugins/be/skills/sec-agent-security' }]],
   ['13', 'Supply-chain / IOC guidance in CI skill', [
-    "grep -qi 'IOC' plugins/be/skills/infra-ci-cd/SKILL.md"]],
-  ['14', 'JSON schemas in validate.js', ["grep -qi 'schema' scripts/validate.js"]],
+    { kind: 'content', path: 'plugins/be/skills/infra-ci-cd/SKILL.md', re: /IOC/i }]],
+  ['14', 'JSON schemas in validate.js', [
+    { kind: 'content', path: 'scripts/validate.js', re: /schema/i }]],
   ['15', 'Provenance + prune-by-evidence', [
-    "grep -qi 'provenance' plugins/be/skills/proc-skill-creator/SKILL.md",
-    "grep -qiE 'prune|health' plugins/be/skills/proc-skill-creator/SKILL.md"]],
+    { kind: 'content', path: 'plugins/be/skills/proc-skill-creator/SKILL.md', re: /provenance/i },
+    { kind: 'content', path: 'plugins/be/skills/proc-skill-creator/SKILL.md', re: /prune|health/i }]],
   ['16', 'Cost governance (/be:cost-report + model-route)', [
-    'test -f plugins/be/commands/model-route.md',
-    'test -f plugins/be/commands/cost-report.md']],
-  ['17', 'Always-on rules/ layer', ['test -d plugins/be/rules']],
+    { kind: 'file', path: 'plugins/be/commands/model-route.md' },
+    { kind: 'file', path: 'plugins/be/commands/cost-report.md' }]],
+  ['17', 'Always-on rules/ layer', [
+    { kind: 'dir', path: 'plugins/be/rules' }]],
   ['18', 'More technique agents (4 named)', [
-    'test -f plugins/be/agents/qa-pr-test-analyzer.md',
-    'test -f plugins/be/agents/qa-comment-analyzer.md',
-    'test -f plugins/be/agents/qa-type-design-analyzer.md',
-    'test -f plugins/be/agents/mgmt-spec-miner.md']],
+    { kind: 'file', path: 'plugins/be/agents/qa-pr-test-analyzer.md' },
+    { kind: 'file', path: 'plugins/be/agents/qa-comment-analyzer.md' },
+    { kind: 'file', path: 'plugins/be/agents/qa-type-design-analyzer.md' },
+    { kind: 'file', path: 'plugins/be/agents/mgmt-spec-miner.md' }]],
   ['19', 'Memory boundary declared', [
-    "grep -qiE 'two memories|harness memory' plugins/be/skills/proc-session-continuity/SKILL.md"]],
+    { kind: 'content', path: 'plugins/be/skills/proc-session-continuity/SKILL.md', re: /two memories|harness memory/i }]],
   ['20', 'SDD explicitly optional', [
-    "grep -qi 'without sdd' plugins/be/skills/proc-sdd/SKILL.md"]],
+    { kind: 'content', path: 'plugins/be/skills/proc-sdd/SKILL.md', re: /without sdd/i }]],
 ];
 
-function run(cmd) {
-  try { execSync(cmd, { cwd: ROOT, stdio: 'ignore', timeout: 10000 }); return true; }
-  catch { return false; }
-}
-
 const rows = ITEMS.map(([id, name, checks]) => {
-  const results = checks.map(run);
+  const results = checks.map((c) => probes.run(ROOT, c));
   const passed = results.filter(Boolean).length;
   const status = passed === checks.length ? 'done' : passed === 0 ? 'todo' : 'partial';
   return { id, name, status, passed, total: checks.length, checks, results };
@@ -127,7 +137,9 @@ if (process.argv.includes('--md')) {
     const mark = r.status === 'done' ? '✔' : r.status === 'partial' ? '~' : '✗';
     console.log(`${mark} ${r.id.padStart(2)} ${r.name}  (${r.passed}/${r.total})`);
     if (r.status !== 'done') {
-      r.checks.forEach((c, i) => { if (!r.results[i]) console.log(`      missing: ${c}`); });
+      r.checks.forEach((c, i) => {
+        if (!r.results[i]) console.log(`      missing: ${probes.describe(c)}`);
+      });
     }
   }
   console.log(`\n${tally.done} done · ${tally.partial} partial · ${tally.todo} not started (of ${rows.length})`);
