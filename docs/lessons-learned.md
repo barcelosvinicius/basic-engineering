@@ -16,6 +16,34 @@
 
 ## Process
 
+### [2026-08] If you distribute files, you own how they land on the other machine
+
+**Context:** the plugin's hooks never executed on the Windows workstation, while
+another plugin — installed the same way, same day, same scope, also
+auto-discovered from `hooks/hooks.json` — ran its hooks in the same session.
+
+**Problem:** after manifest shape, schema, scope, enablement and script presence
+were checked and all matched, exactly one mechanical difference remained. The
+working plugin ships a `.gitattributes` pinning `* text=auto eol=lf`, so its
+installed copy is LF. This base shipped none, so a clone made on Windows
+(`core.autocrlf=true`) wrote **CRLF** into every file of the plugin cache — the
+manifest the loader reads included. Whether that is the cause is not yet known;
+what is certain is that the repository never decided what its files would look
+like on the machines it ships to, and inherited whatever each machine's git
+config chose.
+
+**Rule:** a repository that distributes files decides their line endings, in
+`.gitattributes`, from the first commit. Anything else delegates a property of
+your artefact to a setting on someone else's machine. And note the shape of the
+fix: `.gitattributes` in a *fresh* clone produces LF, but an existing clone
+keeps CRLF in files git has no reason to rewrite — so the repair for an affected
+machine is to re-clone, not to update.
+
+**Evidence:** measured 2026-08-20 — `head -c 4` on both installed manifests
+(`{\r\n` against `{\n`), and `.gitattributes` present in one repo and absent in
+the other. An experiment isolating the variable is recorded as P-08.
+**Scope:** method — every repo that ships files, not only this one.
+
 ### [2026-08] A fact about tooling belongs to a machine, not to a project
 
 **Context:** the first session run from the Windows workstation, reading a
@@ -266,4 +294,4 @@ moved content.
 
 ---
 
-*Last updated: 2026-08-19 (session close) · Reference: `engineering-principles.md` §11.2, §11.4*
+*Last updated: 2026-08-20 (session close) · Reference: `engineering-principles.md` §11.2, §11.4*

@@ -303,6 +303,27 @@ branch.
 
 ---
 
+## Phase 7 — queued for promotion into the shipped base
+
+Every lesson recorded on 2026-08-19/20 came out `Scope: method`, which in this
+repo means it does not belong only in `docs/` — it belongs in what other
+projects install. Queued rather than written today, because the session's
+subject was portability and a rule shipped in a hurry is the next drift.
+
+| Lesson | Where it belongs | Done when |
+|--------|------------------|-----------|
+| A fact about tooling belongs to a machine | `proc-session-continuity` — living-doc facts about paths, credentials or installed versions must name their machine | the skill states it and the `HISTORY.md` template carries the field |
+| Fail-open plus silence hides a total outage | `qa-verification-loop` / `sec-agent-security` — anything that degrades silently needs an interrogable second channel | the rule is stated with `be doctor` as its worked example |
+| A guard that shells out measures the shell | `proc-skill-creator` checklist — a check that decides a fact reads the filesystem, it does not delegate to a shell | the checklist item exists and names the cmd.exe quoting case |
+| If you distribute files, you own their line endings | `infra-ci-cd` — `.gitattributes` from the first commit for any repo that ships files | the skill says it, with the re-clone-not-update caveat |
+| Generated rows held while hand-kept rows drifted | already enforced here by `graph-audit --check`; the *rule* belongs in `proc-structural-analysis` | the skill tells authors to generate the panel, not to write it |
+
+**Blocked by:** nothing. **Effort:** low each; they are sentences, not systems.
+**Do not batch them into one commit** — a rule per commit, each with the case
+that makes it fail, is the discipline the base itself prescribes.
+
+---
+
 ## Sequencing
 
 **Phase 1 → Phase 2 (+2.4) → Phase 3.1 → Phase 4 — done on 2026-08-19**, in ten

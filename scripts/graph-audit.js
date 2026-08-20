@@ -125,6 +125,25 @@ const agentFiles = fs.readdirSync(P('agents')).filter((f) => f.endsWith('.md'));
 const agentsPayload = payloadBytes(agentFiles.map((f) => P('agents', f)));
 const B = (n) => `${n.toLocaleString('en-US')} B`;
 
+// The version the panel was measured against. It used to be prose in the
+// document's header and went stale the moment 3.1.0 shipped — the same class as
+// every other count that was written by hand instead of produced.
+const readOr = (file, fallback) => {
+  try {
+    return fs.readFileSync(path.join(ROOT, file), 'utf8').trim();
+  } catch {
+    return fallback;
+  }
+};
+const semver = (() => {
+  try {
+    return `be ${JSON.parse(readOr('package.json', '{}')).version}`;
+  } catch {
+    return 'be (unknown)';
+  }
+})();
+const baseVersion = readOr('BASE_VERSION', '(unknown)');
+
 /** How many entries a shipped directory holds, 0 when it does not exist. */
 const countIn = (dir, filter = () => true) =>
   fs.existsSync(dir) ? fs.readdirSync(dir).filter(filter).length : 0;
@@ -152,6 +171,7 @@ function renderRows() {
   return [
     '| Fact | Value |',
     '|------|-------|',
+    `| Measured against | **${semver}** · \`BASE_VERSION ${baseVersion}\` |`,
     `| Skills · agents · commands | **${T.skills} · ${T.agents} · ${T.commands}** |`,
     `| Hook scripts · events wired | **${hookScripts} · ${hookEvents.length}** (${hookEvents.join(', ')}) |`,
     `| Doc templates · config data files | **${docTemplates} · ${configFiles}** |`,

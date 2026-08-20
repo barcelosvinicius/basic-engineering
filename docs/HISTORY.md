@@ -54,11 +54,13 @@ for weeks and were invisible from Linux, where every prior session and CI run.
   plugin in the same session, so failures *are* recorded and this was an
   absence. Two hypotheses were refuted (the `shell` field already defaults to
   bash; `${CLAUDE_PLUGIN_ROOT}` is substituted by Claude Code, not by a shell).
-  The remaining candidate is the install itself: **v2.0.0 from 2026-06-10** on
-  this machine against 3.0.0 in the repo, with 1 hook script of 5. The
-  experiment that separates "stale install" from "environment" — registering a
-  probe hook in `.claude/settings.local.json` — was **blocked by the permission
-  classifier** and needs the user's authorisation.
+  Two candidates remain, and the sharper one arrived at the close: the installed
+  `hooks.json` on this machine is **CRLF**, while the plugin whose hooks do fire
+  ships a `.gitattributes` pinning `eol=lf` and is LF. The other candidate is the
+  install itself — **v2.0.0 from 2026-06-10**, with 1 hook script of 5. An
+  experiment isolating the first is **already running**: the cached file was
+  rewritten to LF and nothing else was touched. See P-08 in
+  `structural-analysis.md`.
 - *(machine-scoped, resolved on the Linux machine)* The push credential gap of
   the earlier session was fixed there with a user-local `gh` install
   (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
@@ -137,10 +139,25 @@ for weeks and were invisible from Linux, where every prior session and CI run.
   rather than re-litigated later.
 - `be doctor` **exits 1 when it finds something**, matching `be check`.
 
-**Next steps:** commit this work; settle the hook outage; decide on the release.
+- **Released as v3.1.0** on both channels: npm via OIDC with provenance, and the
+  marketplace, which follows `main`. Tag and GitHub release at `076d11c`. Nine
+  function-grouped commits plus the release commit; the first eight were each
+  re-checked out in a separate worktree and verified on their own.
 
-**Blockers:** the hook outage (see Current State) — its decisive experiment
-needs user authorisation.
+**Session goal — ✅ achieved, and it was not the goal declared at the start.**
+The opening goal was the release decision; the user redirected in the first
+exchange to *"cobrir as pendências de implementação e validar prováveis drifts"*,
+then widened it twice — to the Windows/Linux question, and to leaving the base
+operational. All of it landed: five drifts closed with a guard each, the last
+open backlog item shipped, two new capabilities, and the release. **One item is
+open by design**: P-08, whose cause is now a single-variable experiment waiting
+on the next session rather than an unknown.
+
+**Next steps:** read the P-08 experiment; update the other machines; promote the
+method lessons into the shipped base (action plan Phase 7).
+
+**Blockers:** none. P-08 is *waiting*, not blocked — the experiment is already
+running and needs a new session, not a decision.
 
 **Verified:** `npm run validate` passes · `npm test` **65 pass · 0 fail** (was
 39) · `node scripts/graph-audit.js --check` and `node scripts/backlog-audit.js
