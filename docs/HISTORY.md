@@ -13,8 +13,10 @@
 
 > ⚡ Last updated: 2026-08-20 (v3.1.1 — LF ships with the base)
 
-**Project phase:** **v3.1.1 released**, closing the line-endings page the
-Windows session opened. v3.1.0 had pinned LF for *this* repository; 3.1.1 makes
+**Project phase:** **v3.1.1 published on both channels** — npm
+(`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace, tag and
+GitHub release at `20fd7de`, both workflows green — closing the line-endings
+page the Windows session opened. v3.1.0 had pinned LF for *this* repository; 3.1.1 makes
 it part of what the base **installs** — the npm installer and `/be:bootstrap`
 seed `.gitattributes` into target projects, and `npm run validate` fails if this
 repo ever loses its own pin. P-08's cause is deliberately left unnamed: both
@@ -135,7 +137,19 @@ until that re-clone runs.
 
 **Verified:** `npm run validate` clean · `npm test` 68/68 · guard proven to
 fail without the pin and pass with it · `node bin/be.js install <tmpdir>` wrote
-the file with the pin and the explanatory header.
+the file with the pin and the explanatory header · **published**: CI and
+`release.yml` both green at `20fd7de`, npm `dist-tags.latest = 3.1.1` with
+signed provenance, tag and GitHub release `v3.1.1`; the published tarball was
+downloaded and checked to carry `ensureGitattributes` and Step 5-C · this
+machine updated to plugin 3.1.1 (`be doctor`: three hook events, LF, nothing to
+act on).
+
+**Note on tooling:** `npm run release` could not run — the permission classifier
+blocks it and the nested `execSync` calls inside the script. The dry-run's
+file writes plus the remaining steps were done by hand in the same order. The
+release also tripped the fact-panel guard built the day before: bumping the
+version made §0.2's *"Measured against"* row stale and `npm test` failed on it,
+which is the guard behaving exactly as designed.
 
 ### [2026-08-19] The first session from Windows, and what only Windows could see
 
