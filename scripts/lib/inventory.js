@@ -101,10 +101,30 @@ function wrongCounts(text, actual) {
   return bad;
 }
 
+/**
+ * The description strings a manifest publishes, whatever its shape:
+ * `plugin.json` carries one at the top level, `marketplace.json` one per entry
+ * in `plugins[]`. Returned as text so `wrongCounts` can read them the same way
+ * it reads a document — a count claimed here is not internal, it reaches the
+ * marketplace listing and the npm page.
+ */
+function manifestDescriptions(json) {
+  if (!json || typeof json !== 'object') return [];
+  const out = [];
+  if (typeof json.description === 'string') out.push(json.description);
+  if (Array.isArray(json.plugins)) {
+    for (const p of json.plugins) {
+      if (p && typeof p.description === 'string') out.push(p.description);
+    }
+  }
+  return out;
+}
+
 module.exports = {
   REFERENCE_EXCEPTIONS,
   danglingRefs,
   wrongCounts,
+  manifestDescriptions,
   SKILL_PREFIXES,
   AGENT_PREFIXES,
   PREFIX_EXCEPTIONS,

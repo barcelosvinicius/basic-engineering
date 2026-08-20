@@ -273,6 +273,35 @@ function checkInventory() {
       fail(`${rel}: claims ${c.claimed} ${c.kind}, but there are ${c.real}`);
     }
   }
+
+  // The same claim inside a manifest ships to the marketplace and to npm, where
+  // it is the first line a user reads — and it drifted there first: both
+  // descriptions still said "28 skills" three commits after the 29th landed,
+  // because this check only ever read the three documents above.
+  // Feed it the description strings, not the raw JSON: a version like "3.0.0"
+  // next to the word "skills" must not be read as a count.
+  // `package.json`'s description is not decoration: the npm registry serves it,
+  // and the session-start update check parses its counts to tell a user what a
+  // newer version would give them. A stale count there becomes a wrong promise.
+  for (const rel of [
+    'plugins/be/.claude-plugin/plugin.json',
+    '.claude-plugin/marketplace.json',
+    'package.json',
+  ]) {
+    const abs = path.join(ROOT, rel);
+    if (!fs.existsSync(abs)) continue;
+    let json;
+    try {
+      json = JSON.parse(fs.readFileSync(abs, 'utf8'));
+    } catch {
+      continue; // malformed JSON is already reported by the manifest checks
+    }
+    for (const text of inv.manifestDescriptions(json)) {
+      for (const c of inv.wrongCounts(text, actual)) {
+        fail(`${rel}: description claims ${c.claimed} ${c.kind}, but there are ${c.real}`);
+      }
+    }
+  }
 }
 
 /**

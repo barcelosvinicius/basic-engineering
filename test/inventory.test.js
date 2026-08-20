@@ -35,6 +35,39 @@ test('a declared exception passes the prefix rule', () => {
     'the exception must be declared in one place, not tolerated silently');
 });
 
+test('KNOWN POSITIVE: a stale count in a manifest description is reported', () => {
+  // This one drifted in public: both manifests still said "28 skills" three
+  // commits after the 29th landed, because the count check read only the three
+  // root documents. A manifest description is the marketplace listing.
+  const pluginJson = { description: 'Engineering base: 28 skills, 15 specialized agents.' };
+  const marketplace = { plugins: [{ description: 'Engineering base: 28 skills, 15 agents.' }] };
+  const actual = { skills: 29, agents: 15, commands: 11 };
+
+  for (const json of [pluginJson, marketplace]) {
+    const claims = inv.manifestDescriptions(json).flatMap((t) => inv.wrongCounts(t, actual));
+    assert.deepStrictEqual(claims, [{ claimed: 28, kind: 'skills', real: 29 }]);
+  }
+});
+
+test('the shipped manifests claim the inventory they actually ship', () => {
+  const actual = {
+    skills: inv.listSkills(PLUGIN).length,
+    agents: inv.listAgents(PLUGIN).length,
+    commands: require('fs')
+      .readdirSync(path.join(PLUGIN, 'commands'))
+      .filter((f) => f.endsWith('.md')).length,
+  };
+  for (const rel of [
+    path.join(PLUGIN, '.claude-plugin', 'plugin.json'),
+    path.join(__dirname, '..', '.claude-plugin', 'marketplace.json'),
+  ]) {
+    const json = JSON.parse(require('fs').readFileSync(rel, 'utf8'));
+    for (const text of inv.manifestDescriptions(json)) {
+      assert.deepStrictEqual(inv.wrongCounts(text, actual), [], `${rel}: ${text}`);
+    }
+  }
+});
+
 test('KNOWN POSITIVE: a backticked name that resolves to nothing is reported', () => {
   const known = new Set(['qa-security-reviewer']);
   const doc = 'Delegate to `qa-security-reviewer`, never to `qa-security-auditor`.';
