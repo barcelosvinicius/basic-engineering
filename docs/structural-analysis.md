@@ -139,14 +139,23 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   *fresh* marketplace clone checks out LF. An existing clone keeps CRLF in files
   git has no reason to rewrite, so a machine that has hit this may need the
   marketplace removed and re-added rather than merely updated.
-- **Done when:** a session on this machine shows the `be` SessionStart context
-  on screen, or the cause is named and recorded here.
-- **Blocked by:** the decisive experiment (registering a probe hook in
-  `.claude/settings.local.json`) was refused by the permission classifier and
-  needs the user's authorisation; alternatively the user runs
-  `/plugin update be@basic-engineering` and the next session settles it.
+- **Decision 2026-08-20 — close with prevention, not diagnosis.** The
+  experiment's readout was only reachable from the Windows install itself:
+  the WSL session opened to read it runs a **separate** `~/.claude` (its cache
+  was always LF — `core.autocrlf` unset — so its hooks firing distinguishes
+  nothing). Rather than keep the readout pending on a machine only the user
+  can open, the user chose to spend the energy on making the LF standard part
+  of the base: the npm installer and `/be:bootstrap` now seed
+  `* text=auto eol=lf` into target projects (never touching an existing file),
+  and `npm run validate` fails if this repo loses its own pin (v3.1.1). The
+  cause is deliberately left unnamed; both candidates die of the same cure.
+- **Done when:** on the Windows machine, `/plugin marketplace remove
+  basic-engineering` + `/plugin marketplace add barcelosvinicius/basic-engineering`
+  (fresh clone → LF **and** current version, killing both candidates at once)
+  and `npx @barcelosvinicius/basic-engineering@latest doctor` there reports
+  3.1.1 with three hook events firing.
 - **Meanwhile:** `be doctor` reports the gap, including which hook events are
-  not running — the outage is now visible even while its cause is unknown.
+  not running — the outage is visible even with its cause unnamed.
 
 #### P-04 ✅ — This repo now follows its own protocol
 - **Problem:** `docs/HISTORY.md`, `docs/lessons-learned.md` do not exist; this

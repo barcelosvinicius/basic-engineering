@@ -150,6 +150,24 @@ function checkVersions() {
   }
 }
 
+/**
+ * The LF pin must never leave this repo. Without it, a Windows checkout
+ * (core.autocrlf=true) holds CRLF where git, CI, and every other machine hold
+ * LF — hook scripts, hashes, and byte-level facts silently diverge (P-08).
+ * The installer and /be:bootstrap seed the same line into target projects;
+ * this check keeps the repo honest about its own rule.
+ */
+function checkGitattributes() {
+  const file = path.join(ROOT, '.gitattributes');
+  if (!fs.existsSync(file)) {
+    fail('missing file: .gitattributes — the repo must pin `* text=auto eol=lf`');
+    return;
+  }
+  if (!/^\s*\*\s+text=auto\s+eol=lf/m.test(fs.readFileSync(file, 'utf8'))) {
+    fail('.gitattributes does not pin `* text=auto eol=lf`');
+  }
+}
+
 /** BE-GUIDE.md must stay in sync with the plugin's frontmatter. */
 function checkGuide() {
   for (const { lang, file } of TARGETS) {
@@ -328,6 +346,7 @@ checkSkills();
 checkMarkdownDir('plugins/be/agents', ['name', 'description']);
 checkMarkdownDir('plugins/be/commands', ['description']);
 checkVersions();
+checkGitattributes();
 checkGuide();
 checkConfigAndHooks();
 checkActivationEdges();

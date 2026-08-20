@@ -22,13 +22,19 @@ derive it from the repository and ask only what cannot be inferred.
    Also copy the base's `BE-GUIDE.md` to the **project root** (never overwrite
    an existing one) so the team can see everything the base offers at a glance;
    `/be:help` shows it on demand.
-3. **Structural analysis:** if the project already has source code, offer to
+3. **Line endings:** if the project has no `.gitattributes`, create one at the
+   root pinning `* text=auto eol=lf` (plus `binary` entries for any binary
+   assets). If one exists without that pin, propose adding the line — never
+   rewrite the user's file silently. Without the pin, a Windows checkout
+   (`core.autocrlf=true`) holds CRLF where git, CI, and every other machine
+   hold LF, and scripts, hashes, and byte-level checks diverge invisibly.
+4. **Structural analysis:** if the project already has source code, offer to
    run `/be:structural-analysis` to baseline the architecture.
-4. **SDD (optional):** if the project will span more than two weeks, offer to
+5. **SDD (optional):** if the project will span more than two weeks, offer to
    create the `.specify/specs|plans|tasks` structure per the `proc-sdd` skill.
-5. **MCP (optional):** mention `mcp.recommended.json` at the plugin root as a
+6. **MCP (optional):** mention `mcp.recommended.json` at the plugin root as a
    reviewed-by-the-user starting point for the project's `.mcp.json`.
-6. Finish by proposing the first commit
+7. Finish by proposing the first commit
    (`chore(setup): initialize documentation structure`) and reminding the
    user of the session protocol: `/be:session-start` and `/be:session-end`.
 

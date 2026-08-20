@@ -214,6 +214,20 @@ needs, and copy it to the project's `.mcp.json`. The base deliberately
 ships **no auto-started servers** — every server adds processes,
 permissions, and context tokens.
 
+### Step 5-C — Line endings (both channels; automatic via `/be:bootstrap` and the npm installer)
+
+Pin LF at the project root so every machine checks out identical bytes:
+
+```gitattributes
+* text=auto eol=lf
+```
+
+`/be:bootstrap` (Channel A) and the npm installer (Channel B) both create
+`.gitattributes` with this line when the project has none; an existing file
+is never modified. Without the pin, a Windows clone with
+`core.autocrlf=true` holds CRLF where git, CI, and every other machine hold
+LF — shell scripts stop running and byte-level facts stop reproducing.
+
 ### Step 6 — Process automation (optional, GitHub)
 
 ```
@@ -231,7 +245,7 @@ Priority (`critical`–`low`), Points (Fibonacci).
 ### Step 7 — First commit
 
 ```bash
-git add CLAUDE.md docs/ .github/
+git add CLAUDE.md docs/ .github/ .gitattributes
 git commit -m "chore(setup): initialize documentation structure and engineering base"
 ```
 

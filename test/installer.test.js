@@ -147,6 +147,30 @@ test('unknown profile falls back to the full set', () => {
   assert.ok(fs.existsSync(path.join(skills, 'fe-ux-patterns', 'SKILL.md')), 'falls back to full');
 });
 
+test('fresh install seeds .gitattributes with the LF pin', () => {
+  const target = tmpProject();
+  install(target, { silent: true });
+  assert.match(read(target, '.gitattributes'), /^\* text=auto eol=lf$/m);
+});
+
+test('an existing .gitattributes is never modified', () => {
+  const target = tmpProject();
+  fs.writeFileSync(path.join(target, '.gitattributes'), '*.png binary\n');
+  install(target, { silent: true });
+  assert.strictEqual(read(target, '.gitattributes'), '*.png binary\n');
+});
+
+test('update seeds .gitattributes when the project lost or never had one', () => {
+  const target = tmpProject();
+  install(target, { silent: true });
+  fs.unlinkSync(path.join(target, '.gitattributes'));
+  fs.writeFileSync(path.join(target, '.be', 'BASE_VERSION'), 'v20200101-000000\n');
+
+  const result = install(target, { silent: true });
+  assert.strictEqual(result.action, 'updated');
+  assert.match(read(target, '.gitattributes'), /^\* text=auto eol=lf$/m);
+});
+
 test('a previous .github/base install is detected and never deleted', () => {
   const target = tmpProject();
   const oldBase = path.join(target, '.github', 'base');

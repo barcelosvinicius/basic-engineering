@@ -16,6 +16,37 @@
 
 ## Process
 
+### [2026-08] When one cure kills every candidate, the diagnosis is optional
+
+**Context:** P-08 (hooks not firing on Windows) had been narrowed to two
+candidates — CRLF in the plugin cache, and an install two minor versions
+behind. An experiment isolating the first was left running on the Windows
+machine: its cached `hooks.json` rewritten to LF, nothing else touched.
+
+**Problem:** the readout was attempted from a WSL session, which turned out to
+be a **different Claude Code installation** — its own `~/.claude`, its own
+marketplace clone, `core.autocrlf` unset, so that cache had always been LF.
+Its hooks firing was the expected result under *both* hypotheses, so the
+observation discriminated nothing. Reporting it as confirmation would have
+written a cause into `structural-analysis.md` on evidence that never touched
+the affected machine. Meanwhile the repair — a fresh marketplace clone — fixes
+line endings **and** the version in one action, so the pending diagnosis was
+gating nothing.
+
+**Rule:** before spending another session on *which* candidate is the cause,
+check whether the available fix already covers all of them. When it does,
+closing with prevention is the cheaper correct move — provided the prevention
+is mechanical (a guard, a seeded file), not a note asking people to remember.
+And name the environment an experiment's readout requires: "the same machine"
+is not the same as "the same hardware".
+
+**Evidence:** measured 2026-08-20 — the WSL cache's `hooks.json` carried zero
+`\r` bytes and no reachable backup of the rewrite; `git config core.autocrlf`
+unset in both the global and the marketplace clone. Prevention shipped in
+v3.1.1 (installer + `/be:bootstrap` seed `.gitattributes`; `npm run validate`
+guards this repo's own pin) and is exercised by three installer tests.
+**Scope:** method — applies to any two-candidate defect with a shared cure.
+
 ### [2026-08] If you distribute files, you own how they land on the other machine
 
 **Context:** the plugin's hooks never executed on the Windows workstation, while

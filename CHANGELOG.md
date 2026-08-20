@@ -7,6 +7,18 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **LF ships with the base, not just with this repo.** The npm installer and
+  `/be:bootstrap` now seed `.gitattributes` with `* text=auto eol=lf` at the
+  target project root when none exists — an existing file is never modified
+  (at most an advisory when it lacks the pin). `npm run validate` fails if
+  this repo ever loses its own pin, and BOOTSTRAP.md documents the rule as
+  Step 5-C. This closes the P-08 class at the source: a Windows checkout with
+  `core.autocrlf=true` otherwise holds CRLF where git, CI, and every other
+  machine hold LF, and hook scripts, hashes, and byte-level facts silently
+  diverge per machine.
+
 ## [3.1.0] — 2026-08-20
 
 ### Added

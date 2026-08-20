@@ -11,14 +11,15 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-20 (v3.1.0 released)
+> ⚡ Last updated: 2026-08-20 (v3.1.1 — LF ships with the base)
 
-**Project phase:** **v3.1.0 is published on both channels** — npm
-(`latest: 3.1.0`, via OIDC with provenance) and the Claude Code marketplace
-(which follows `main`), with tag `v3.1.0` and a GitHub release at `076d11c`.
-Both workflows green. The release carries the portability work found by the
-first session ever run from the **Windows** workstation: defects that existed
-for weeks and were invisible from Linux, where every prior session and CI run.
+**Project phase:** **v3.1.1 released**, closing the line-endings page the
+Windows session opened. v3.1.0 had pinned LF for *this* repository; 3.1.1 makes
+it part of what the base **installs** — the npm installer and `/be:bootstrap`
+seed `.gitattributes` into target projects, and `npm run validate` fails if this
+repo ever loses its own pin. P-08's cause is deliberately left unnamed: both
+remaining candidates die of the same cure (a fresh marketplace clone), so the
+energy went into prevention rather than a diagnosis that gated nothing.
 
 > **Environment note.** This base is operated from more than one machine: a
 > Linux environment (where every session up to 2026-08-19 ran, and where CI runs
@@ -28,9 +29,8 @@ for weeks and were invisible from Linux, where every prior session and CI run.
 
 ### In progress
 
-- Nothing half-done. The portability work is committed in eight function-grouped
-  commits, **each re-checked out in a separate worktree and verified on its
-  own** — validate, the full suite, and both `--check`s.
+- Nothing half-done. v3.1.1 is committed and released; what remains is the
+  Windows re-clone, which only the user's machine can run.
 
 ### Recently completed
 
@@ -49,18 +49,17 @@ for weeks and were invisible from Linux, where every prior session and CI run.
 
 ### Blockers
 
-- **The plugin's hooks do not run on the Windows machine.** Proven by the
-  session transcript: zero hook records for `be`, against four for another
-  plugin in the same session, so failures *are* recorded and this was an
-  absence. Two hypotheses were refuted (the `shell` field already defaults to
-  bash; `${CLAUDE_PLUGIN_ROOT}` is substituted by Claude Code, not by a shell).
-  Two candidates remain, and the sharper one arrived at the close: the installed
-  `hooks.json` on this machine is **CRLF**, while the plugin whose hooks do fire
-  ships a `.gitattributes` pinning `eol=lf` and is LF. The other candidate is the
-  install itself — **v2.0.0 from 2026-06-10**, with 1 hook script of 5. An
-  experiment isolating the first is **already running**: the cached file was
-  rewritten to LF and nothing else was touched. See P-08 in
-  `structural-analysis.md`.
+- **The plugin's hooks do not run on the Windows machine** — still true there,
+  now with a decided remedy instead of a pending diagnosis. Two hypotheses were
+  refuted earlier (the `shell` field defaults to bash; `${CLAUDE_PLUGIN_ROOT}`
+  is substituted by Claude Code, not by a shell). Two candidates remained: CRLF
+  in the cached `hooks.json`, and the install being **v2.0.0 from 2026-06-10**
+  (1 hook script of 5). The isolating experiment was **not readable from the
+  WSL session** — that is a separate Claude Code installation whose cache was
+  always LF, so its hooks firing proves nothing about Windows. Rather than hold
+  the item open on a readout only the user can take, the session closed it with
+  prevention (v3.1.1, below): a fresh marketplace clone on Windows kills both
+  candidates at once. See P-08 in `structural-analysis.md`.
 - *(machine-scoped, resolved on the Linux machine)* The push credential gap of
   the earlier session was fixed there with a user-local `gh` install
   (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
@@ -69,21 +68,20 @@ for weeks and were invisible from Linux, where every prior session and CI run.
 
 ### Priority next steps
 
-1. **Read the running P-08 experiment** — the installed v2.0.0's `hooks.json`
-   was rewritten from CRLF to LF in the plugin cache, **changing nothing else**,
-   because that line-ending difference is the only mechanical difference left
-   between this plugin and one whose hooks do fire on this machine.
-   **Done when:** the next session on this machine either shows the `be`
-   SessionStart summary — naming CRLF as the cause — or does not, which rules it
-   out · **blocked by:** opening a new session, and *not* updating the plugin
-   first, which would mix two variables. Backup of the original file is in the
-   session scratchpad.
-2. **Update the other machines to 3.1.0** — **done when:**
-   `npx @barcelosvinicius/basic-engineering@latest doctor` reports 3.1.0 and
-   three hook events on each · **blocked by:** nothing. Refresh the marketplace
-   *before* updating the plugin: the clone is per machine and pinned to the
-   commit it last fetched, so `/plugin update` alone can answer "already up to
-   date" and be wrong.
+1. **Re-clone the marketplace on the Windows machine** — `/plugin marketplace
+   remove basic-engineering` then `/plugin marketplace add
+   barcelosvinicius/basic-engineering`. A plain `/plugin update` is **not
+   enough there**: the existing clone keeps CRLF in files git has no reason to
+   rewrite, and the pin only acts on a fresh checkout. **Done when:**
+   `npx @barcelosvinicius/basic-engineering@latest doctor` on that machine
+   reports 3.1.1 with three hook events, and a session there shows the
+   SessionStart summary · **blocked by:** only the user can run it — the WSL
+   session cannot reach that `~/.claude`.
+2. **Any other machine:** refresh the marketplace *before* updating the plugin
+   (the clone is per machine and pinned to the commit it last fetched, so
+   `/plugin update` alone can answer "already up to date" and be wrong), then
+   `npx @barcelosvinicius/basic-engineering@latest update` for npm-installed
+   bases. **Done when:** `doctor` reports 3.1.1 and three hook events.
 3. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
    a session records whether the fact panel answered *"what else must change?"*
    on its own · **blocked by:** a few sessions of real use.
@@ -93,6 +91,51 @@ for weeks and were invisible from Linux, where every prior session and CI run.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-08-20] v3.1.1 — LF becomes something the base installs
+
+**Owner:** vinicius + Claude Fable 5 · **Machine:** WSL2 (Linux), a *third*
+environment: separate `~/.claude`, separate marketplace clone, `core.autocrlf`
+unset.
+
+**Deliveries:**
+- **The installer seeds `.gitattributes`** (`* text=auto eol=lf`) at the target
+  project root, on fresh install and on update, **only when absent**. An
+  existing file is never modified — if it lacks the pin, the installer prints
+  an advisory and leaves it alone, keeping the "never delete/overwrite user
+  files" contract intact.
+- **`/be:bootstrap` does the same on the Claude Code channel** (new step 3),
+  and BOOTSTRAP.md documents the rule as Step 5-C for both channels.
+- **`npm run validate` guards this repo's own pin** — proven by removing
+  `.gitattributes` and watching the build fail with that single error, then
+  restoring it.
+- Three installer tests cover the three paths: seeded on fresh install, an
+  existing file left byte-identical, and re-seeded on update when the project
+  lost it. Suite 65 → **68 tests**.
+
+**Decisions:**
+- **Close P-08 with prevention instead of diagnosis.** The isolating experiment
+  (cached `hooks.json` rewritten CRLF → LF) could only be read from the Windows
+  install; this WSL session is a different Claude Code installation whose cache
+  was always LF, so its hooks firing discriminates nothing between the two
+  candidates. Since the fix for either is the same fresh marketplace clone, the
+  user chose to stop paying for the readout and make the standard structural.
+  The cause stays unnamed on purpose, and the lesson records why that is
+  acceptable here.
+- **Seed, never rewrite.** An existing `.gitattributes` may encode deliberate
+  choices (submodules, LFS, per-path `eol=crlf` for Windows-only scripts);
+  overwriting it to enforce our rule would be exactly the class of damage the
+  installer promises not to do.
+
+**Next steps:** the Windows re-clone (`/plugin marketplace remove` + `add`),
+then `doctor` there should report 3.1.1 with three hook events.
+
+**Blockers:** none in the repository; P-08 remains open on the Windows machine
+until that re-clone runs.
+
+**Verified:** `npm run validate` clean · `npm test` 68/68 · guard proven to
+fail without the pin and pass with it · `node bin/be.js install <tmpdir>` wrote
+the file with the pin and the explanatory header.
 
 ### [2026-08-19] The first session from Windows, and what only Windows could see
 
