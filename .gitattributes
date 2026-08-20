@@ -1,0 +1,22 @@
+# Line endings are normalised so that a fact measured on one machine reproduces
+# on another. Without this, a Windows checkout (core.autocrlf=true) holds CRLF
+# while git — and CI on ubuntu-latest — store LF, and `wc -c` over the same
+# commit returns 142,752 bytes on one and 139,253 on the other. That divergence
+# is not theoretical: it put a wrong payload figure in the fact panel and made a
+# release guard disagree with CI about whether the backlog was up to date.
+#
+# Prefer invariance over per-platform branching: a value that is the same
+# everywhere needs no adaptation.
+
+* text=auto eol=lf
+
+# Binary content must never be touched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.woff binary
+*.woff2 binary

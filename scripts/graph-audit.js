@@ -15,8 +15,8 @@
  * Usage:
  *   node scripts/graph-audit.js           human-readable report
  *   node scripts/graph-audit.js --json    machine-readable
- *   node scripts/graph-audit.js --md      the generated block for
- *                                         docs/structural-analysis.md §0.2
+ *   node scripts/graph-audit.js --md      the generated fact panel for
+ *                                         docs/structural-analysis.md
  *   node scripts/graph-audit.js --check   exit 1 if that block is stale
  *
  * The --md/--check pair exists because a fact panel nobody re-runs becomes a
@@ -104,12 +104,60 @@ const livingDocs = fs.existsSync(docsDir)
   ? fs.readdirSync(docsDir).filter((f) => f.endsWith('.md')).length
   : 0;
 
-/** The rows as they must appear in docs/structural-analysis.md §0.2. */
+/**
+ * Bytes of shipped content, counted with CR stripped.
+ *
+ * Why normalise instead of `cat … | wc -c`: on a CRLF checkout that command
+ * returns one extra byte per line — 142,752 against 139,253 for the very same
+ * commit. A "verifiable fact" whose value depends on the reader's git config
+ * sends whoever re-runs §0 chasing a drift that is not there, or hides one that
+ * is. Git stores LF; count what git stores.
+ */
+function payloadBytes(files) {
+  return files.reduce(
+    (n, f) => n + Buffer.byteLength(fs.readFileSync(f, 'utf8').replace(/\r\n/g, '\n'), 'utf8'),
+    0
+  );
+}
+
+const skillsPayload = payloadBytes(skills.map((n) => P('skills', n, 'SKILL.md')));
+const agentFiles = fs.readdirSync(P('agents')).filter((f) => f.endsWith('.md'));
+const agentsPayload = payloadBytes(agentFiles.map((f) => P('agents', f)));
+const B = (n) => `${n.toLocaleString('en-US')} B`;
+
+/** How many entries a shipped directory holds, 0 when it does not exist. */
+const countIn = (dir, filter = () => true) =>
+  fs.existsSync(dir) ? fs.readdirSync(dir).filter(filter).length : 0;
+
+const hookScripts = countIn(P('hooks', 'scripts'), (f) => f.endsWith('.js'));
+const hookEvents = fs.existsSync(P('hooks', 'hooks.json'))
+  ? Object.keys(JSON.parse(fs.readFileSync(P('hooks', 'hooks.json'), 'utf8')).hooks || {})
+  : [];
+const docTemplates = countIn(P('templates', 'docs'));
+const configFiles = countIn(P('config'));
+
+// Agent hygiene. These three lived in the hand-kept half of the panel and went
+// stale the moment three agents were added — in the same session, in the same
+// file, while the generated rows beside them failed the build until corrected.
+// Everything derivable belongs on this side of the line.
+const agentText = agentFiles.map((f) => fs.readFileSync(P('agents', f), 'utf8'));
+const readOnlyAgents = agentText.filter((t) => /^tools: Read, Grep, Glob, Bash$/m.test(t)).length;
+const modelAgents = agentText.filter((t) => /^model:/m.test(t)).length;
+const defendedAgents = agentText.filter(
+  (t) => /prompt.injection|prompt defense|untrusted/i.test(t)
+).length;
+
+/** The rows as they must appear in the fact panel of docs/structural-analysis.md. */
 function renderRows() {
   return [
     '| Fact | Value |',
     '|------|-------|',
     `| Skills · agents · commands | **${T.skills} · ${T.agents} · ${T.commands}** |`,
+    `| Hook scripts · events wired | **${hookScripts} · ${hookEvents.length}** (${hookEvents.join(', ')}) |`,
+    `| Doc templates · config data files | **${docTemplates} · ${configFiles}** |`,
+    `| Read-only agents (\`tools:\` restricted) | **${readOnlyAgents} / ${T.agents}** |`,
+    `| Agents declaring \`model:\` | **${modelAgents} / ${T.agents}** |`,
+    `| Agents carrying prompt-injection defense | **${defendedAgents} / ${T.agents}** |`,
     `| Skills citing >= 1 other skill | **${report.skillsWithOutgoing} / ${T.skills}** |`,
     `| Skill leaves (no outgoing edge) | **${leaves.length} / ${T.skills}** |`,
     `| Skills cited by nothing (orphans) | **${orphans.length}** |`,
@@ -118,6 +166,8 @@ function renderRows() {
     `| Declared \`invoke\` cycles | **${report.invokeCycles.length}** |`,
     `| Skills over the ~150-line budget | **${overBudget.length}** |`,
     `| Skills carrying a resource file | **${withResources.length} / ${T.skills}** |`,
+    `| Skills payload (\`SKILL.md\`, LF bytes) | **${B(skillsPayload)}** |`,
+    `| Agents payload (LF bytes) | **${B(agentsPayload)}** |`,
     `| Living docs in this repo | **${livingDocs}** |`,
   ];
 }
@@ -137,12 +187,12 @@ if (process.argv.includes('--check')) {
   const committed = fs.readFileSync(doc, 'utf8').split(/\r?\n/).map((l) => l.trim());
   const missing = renderRows().filter((l) => !committed.includes(l.trim()));
   if (missing.length) {
-    console.error('graph-audit: docs/structural-analysis.md §0.2 is out of date. Missing rows:\n');
+    console.error('graph-audit: the fact panel in docs/structural-analysis.md is out of date. Missing rows:\n');
     for (const l of missing) console.error(`  ${l}`);
     console.error('\nRegenerate with: node scripts/graph-audit.js --md');
     process.exit(1);
   }
-  console.log('graph-audit: docs/structural-analysis.md §0.2 matches the measured graph.');
+  console.log('graph-audit: the fact panel in docs/structural-analysis.md matches the measured repo.');
   process.exit(0);
 }
 
