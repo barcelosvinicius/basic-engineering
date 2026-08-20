@@ -16,6 +16,35 @@
 
 ## Process
 
+### [2026-08] A pull rewrites the files it touches — so "re-clone, not update" is a guarantee, not a rule
+
+**Context:** the same day the line-endings lesson below concluded that an
+affected machine must be **re-cloned** rather than updated, the Windows machine
+was updated 2.0.0 → 3.1.0 — and 3.1.0 is the release that added
+`.gitattributes`.
+
+**Problem:** the earlier phrasing is too strong. `.gitattributes` does not
+retroactively rewrite a working tree, but a pull *does* write every file that
+changed in the pulled range, and those writes apply the pin. `hooks.json`
+changed between 2.0.0 and 3.1.0 (250 B → 719 B), so the very file at the centre
+of the investigation was probably normalised by the update itself. An update
+therefore *may* fix an affected machine — silently, partially, and only for the
+files that happened to change.
+
+**Rule:** distinguish the guarantee from the accident. **Re-cloning** normalises
+every file and is the fix you can state; **updating** normalises only what the
+range touched, so it repairs some files and leaves others as they were. When a
+machine's symptom disappears after an update, do not conclude the class is
+fixed there — untouched files still carry the old bytes. And when a measurement
+depends on the broken state, take it before you update: the repair and the
+readout compete for the same machine.
+
+**Evidence:** measured 2026-08-20 — installed `hooks.json` sizes across cached
+versions (2.0.0: 250 B on the affected machine, 236 B where LF; 3.1.0/3.1.1:
+719 B), and `.gitattributes` first shipped in 3.1.0. Whether the Windows hooks
+now fire is the open observation recorded in P-08.
+**Scope:** method — any repo shipping files to machines that clone it.
+
 ### [2026-08] When one cure kills every candidate, the diagnosis is optional
 
 **Context:** P-08 (hooks not firing on Windows) had been narrowed to two

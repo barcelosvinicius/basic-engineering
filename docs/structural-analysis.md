@@ -149,11 +149,28 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   `* text=auto eol=lf` into target projects (never touching an existing file),
   and `npm run validate` fails if this repo loses its own pin (v3.1.1). The
   cause is deliberately left unnamed; both candidates die of the same cure.
-- **Done when:** on the Windows machine, `/plugin marketplace remove
-  basic-engineering` + `/plugin marketplace add barcelosvinicius/basic-engineering`
-  (fresh clone → LF **and** current version, killing both candidates at once)
-  and `npx @barcelosvinicius/basic-engineering@latest doctor` there reports
-  3.1.1 with three hook events firing.
+- **Update 2026-08-20 (end of session): the Windows install moved 2.0.0 →
+  3.1.0**, and goes to 3.1.1 on its next session. This **ends the experiment
+  as a readout** — exactly the mixing the earlier note warned about — and the
+  decision above already accepted that. It also changes what the fix probably
+  requires: 3.1.0 is the release that *added* `.gitattributes`, and pulling it
+  into the existing clone rewrote every file that changed in that range.
+  `hooks.json` is one of them (250 B at 2.0.0 against 719 B at 3.1.0), so it was
+  very likely rewritten **as LF** by the same pull that brought the pin. If so,
+  both candidates are already dead on that machine and the re-clone is
+  unnecessary.
+- **The one observation still worth taking, and it is free:** whether the next
+  Windows session shows the `be` SessionStart summary. Firing at 3.1.0/3.1.1
+  says the update sufficed; still silent says a **fresh clone** is required and
+  that updating an affected machine is not enough — which is the reusable half
+  of this whole item.
+- **Done when:** a session on the Windows machine shows the `be` SessionStart
+  summary and `npx @barcelosvinicius/basic-engineering@latest doctor` there
+  reports 3.1.1 with three hook events. If it is still silent after 3.1.1, run
+  `/plugin marketplace remove basic-engineering` + `/plugin marketplace add
+  barcelosvinicius/basic-engineering` — a fresh clone gets LF in *every* file,
+  not only the ones a pull happened to touch — and record which of the two
+  sufficed.
 - **Meanwhile:** `be doctor` reports the gap, including which hook events are
   not running — the outage is visible even with its cause unnamed.
 

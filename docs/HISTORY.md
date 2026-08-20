@@ -51,17 +51,18 @@ energy went into prevention rather than a diagnosis that gated nothing.
 
 ### Blockers
 
-- **The plugin's hooks do not run on the Windows machine** — still true there,
-  now with a decided remedy instead of a pending diagnosis. Two hypotheses were
-  refuted earlier (the `shell` field defaults to bash; `${CLAUDE_PLUGIN_ROOT}`
-  is substituted by Claude Code, not by a shell). Two candidates remained: CRLF
-  in the cached `hooks.json`, and the install being **v2.0.0 from 2026-06-10**
-  (1 hook script of 5). The isolating experiment was **not readable from the
-  WSL session** — that is a separate Claude Code installation whose cache was
-  always LF, so its hooks firing proves nothing about Windows. Rather than hold
-  the item open on a readout only the user can take, the session closed it with
-  prevention (v3.1.1, below): a fresh marketplace clone on Windows kills both
-  candidates at once. See P-08 in `structural-analysis.md`.
+- **The plugin's hooks may still not run on the Windows machine** — one cheap
+  observation away from settled, and no longer blocking anything. Two hypotheses
+  were refuted earlier (the `shell` field defaults to bash;
+  `${CLAUDE_PLUGIN_ROOT}` is substituted by Claude Code, not by a shell). Two
+  candidates remained: CRLF in the cached `hooks.json`, and the install being
+  v2.0.0. The isolating experiment was **not readable from the WSL session** —
+  a separate Claude Code installation whose cache was always LF, so its hooks
+  firing proves nothing about Windows. That machine has since been **updated to
+  3.1.0** (3.1.1 on its next session), which ends the experiment and probably
+  also fixes it: 3.1.0 is the release that added `.gitattributes`, and the pull
+  that brought it also rewrote `hooks.json`, which changed in that range —
+  likely as LF. **Next Windows session answers it by simply opening.** See P-08.
 - *(machine-scoped, resolved on the Linux machine)* The push credential gap of
   the earlier session was fixed there with a user-local `gh` install
   (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
@@ -70,15 +71,16 @@ energy went into prevention rather than a diagnosis that gated nothing.
 
 ### Priority next steps
 
-1. **Re-clone the marketplace on the Windows machine** — `/plugin marketplace
-   remove basic-engineering` then `/plugin marketplace add
-   barcelosvinicius/basic-engineering`. A plain `/plugin update` is **not
-   enough there**: the existing clone keeps CRLF in files git has no reason to
-   rewrite, and the pin only acts on a fresh checkout. **Done when:**
-   `npx @barcelosvinicius/basic-engineering@latest doctor` on that machine
-   reports 3.1.1 with three hook events, and a session there shows the
-   SessionStart summary · **blocked by:** only the user can run it — the WSL
-   session cannot reach that `~/.claude`.
+1. **Just open the next session on the Windows machine and look** — it is now
+   on 3.1.0 and will take 3.1.1 on start. **Done when:** either the `be`
+   SessionStart summary appears there (P-08 resolved — and the reusable fact is
+   that *updating* an affected machine sufficed), or it does not, in which case
+   run `/plugin marketplace remove basic-engineering` + `/plugin marketplace add
+   barcelosvinicius/basic-engineering` for a fresh clone and record that
+   updating was **not** enough · **blocked by:** nothing; it costs one glance at
+   session start. Confirm with
+   `npx @barcelosvinicius/basic-engineering@latest doctor` → 3.1.1, three hook
+   events.
 2. **Any other machine:** refresh the marketplace *before* updating the plugin
    (the clone is per machine and pinned to the commit it last fetched, so
    `/plugin update` alone can answer "already up to date" and be wrong), then
@@ -129,11 +131,13 @@ unset.
   overwriting it to enforce our rule would be exactly the class of damage the
   installer promises not to do.
 
-**Next steps:** the Windows re-clone (`/plugin marketplace remove` + `add`),
-then `doctor` there should report 3.1.1 with three hook events.
+**Next steps:** open the next session on the Windows machine (updated to 3.1.0
+during this session, 3.1.1 on start) and observe whether the `be` SessionStart
+summary appears. Re-clone only if it does not.
 
-**Blockers:** none in the repository; P-08 remains open on the Windows machine
-until that re-clone runs.
+**Blockers:** none in the repository. P-08 stays open on the Windows machine,
+but nothing waits on it — and its remaining question is now answered by
+opening a session rather than by running anything.
 
 **Verified:** `npm run validate` clean · `npm test` 68/68 · guard proven to
 fail without the pin and pass with it · `node bin/be.js install <tmpdir>` wrote
