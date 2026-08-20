@@ -109,7 +109,24 @@ function companionStatus(cwd) {
   return out;
 }
 
-try {
+/**
+ * Is the installed copy the latest published one? Bounded, cached, silent on
+ * failure, and opt-out via BE_UPDATE_CHECK=off. Returns a notice or null.
+ * Kept behind its own try/catch: a version check must never be the reason a
+ * session fails to start.
+ */
+async function updateNotice(pluginRoot) {
+  try {
+    const check = require('./_update-check.js').check;
+    const manifest = path.join(pluginRoot, '.claude-plugin', 'plugin.json');
+    const installedVersion = JSON.parse(fs.readFileSync(manifest, 'utf8')).version;
+    return await check({ pluginRoot, installedVersion });
+  } catch {
+    return null;
+  }
+}
+
+async function main() {
   const cwd = process.cwd();
   const parts = [];
 
@@ -165,7 +182,14 @@ try {
     );
   }
 
-  if (!parts.length) process.exit(0);
+  // Is this machine running the latest base? Asked once per session; the answer
+  // is cached for a day, so this costs one bounded request per machine per day.
+  if (pluginRoot) {
+    const notice = await updateNotice(pluginRoot);
+    if (notice) parts.push(notice);
+  }
+
+  if (!parts.length) return;
 
   parts.push(
     'Reminder: follow the proc-session-continuity skill — /be:session-start to begin, /be:session-end before committing.'
@@ -179,7 +203,10 @@ try {
       },
     })
   );
-} catch {
-  // A hook must never break the session.
 }
-process.exit(0);
+
+main()
+  .catch(() => {
+    // A hook must never break the session.
+  })
+  .finally(() => process.exit(0));

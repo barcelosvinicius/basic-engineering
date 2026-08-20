@@ -35,7 +35,7 @@ and no derived number is restated in prose.
 | Fact | Value |
 |------|-------|
 | Skills · agents · commands | **29 · 18 · 11** |
-| Hook scripts · events wired | **5 · 3** (SessionStart, PreToolUse, Stop) |
+| Hook scripts · events wired | **6 · 3** (SessionStart, PreToolUse, Stop) |
 | Doc templates · config data files | **11 · 2** |
 | Read-only agents (`tools:` restricted) | **12 / 18** |
 | Agents declaring `model:` | **18 / 18** |
