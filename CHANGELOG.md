@@ -55,6 +55,48 @@ project adheres to [Semantic Versioning](https://semver.org/).
   supersession, damage, unreachability), a `// NB:` note on whatever survives,
   and a verification protocol for relocations. Reachable from
   `proc-impact-analysis`.
+- **The session start asks whether this machine is running the latest base.**
+  One bounded request to the npm registry (2s timeout, cached for a day, opt-out
+  via `BE_UPDATE_CHECK=off`, and silent on every failure — offline, malformed,
+  unwritable cache). When a newer version exists, the notice states the version
+  delta, **what this machine gains** — derived by comparing the published
+  description's counts against what is actually on disk here, never
+  hand-written — and which hook events the installed copy currently runs. Hooks
+  have no terminal, so it does not prompt: it asks the assistant to put the
+  question to the user, with both update commands ready (`/plugin update` must
+  be typed by the user; `npx … update` can be run for a project's `.be/`).
+  Declining persists nothing — `SessionStart` fires once per session, so the
+  next session asks again and the notice disappears the day the versions match.
+  `be doctor` does the same lookup live, bypassing the cache; `--offline` skips
+  it. Because the notice reads counts from the published description,
+  `package.json`'s description now carries them and the stale-count guard checks
+  it — a wrong count there would become a wrong promise.
+- **`be doctor` — the base can now say whether it is actually running here.**
+  Three pieces of state are **per machine** and invisible from the repository:
+  which plugin version is installed, whether its hook scripts exist on disk, and
+  whether the checkout pins `eol=lf`. This base is operated from several
+  machines, and on one of them the installed plugin sat at v2.0.0 for two months
+  — 25 skills against 29, one hook script against five — so the secret scan, the
+  linter-config protection, the `--no-verify` block and the session-end reminder
+  simply did not run. Hooks fail open by design (correct), which is exactly why a
+  total outage is indistinguishable from a quiet session. `be doctor` names the
+  gap, including **which hook events** are missing on this machine, and exits 1
+  when there is something to act on.
+- **`.gitattributes` pins `* text=auto eol=lf`.** Without it a Windows checkout
+  holds CRLF while git and CI (`ubuntu-latest`) store LF, and `wc -c` over the
+  same commit answers 142,752 here and 139,253 there. Invariance beats
+  per-platform branching: a value that is the same everywhere needs no
+  adaptation.
+- **Three technique agents close the last open backlog item (18).**
+  `qa-comment-analyzer` judges whether the prose inside the code earns its place
+  — noise, a comment standing in for a rename, and rot, which is the severe one
+  because nothing fails when a comment stops being true. `qa-type-design-analyzer`
+  asks which invalid states the types still allow, and **declares itself
+  inapplicable** in a dynamically typed codebase with no schema layer rather than
+  manufacturing findings. `mgmt-spec-miner` recovers the specification a codebase
+  already implements, in EARS form, citing `file:line` for every requirement and
+  labelling the rest `UNVERIFIED`; it returns text instead of writing files, so
+  several miners can read in parallel without colliding on one document.
 - **The parallel-work rule is stated: read in a fan-out, write in series.**
   Three files absorb 179 of 200 commits' writes and every session close touches
   all three, so N agents closing in parallel collide on exactly those. Parallel
@@ -145,6 +187,27 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **The backlog audit measured the operating system, not the backlog.** Its
+  probes were shell one-liners run through `execSync`, which spawns `cmd.exe` on
+  Windows — where `'...'` does not quote, so every probe containing a `|` was
+  split into a real pipe, and `$(...)` was never substituted. Five of 26 probes
+  failed for that alone: the audit reported shipped work as *not started*
+  (12·3·5 against the true 16·2·2) and, because `scripts/release.js` runs
+  `--check` as a pre-flight guard, **`npm run release` refused to run from
+  Windows at all** — while CI stayed green on Linux. The probes are now
+  filesystem predicates (`scripts/lib/probes.js`) that never touch a shell, and
+  a test fails if a process spawner is reintroduced.
+- **Two rows of the fact panel changed value with the reader's git config.**
+  `cat … | wc -c` returns one extra byte per line on a CRLF checkout — 142,752
+  against 139,253 for the same commit. The payload rows moved into the generated
+  §0.2 block and are now counted with CR stripped, so the number matches what
+  git stores on every platform. The skills row had also gone stale by 7,752 B
+  (5.9%) in the time it was kept by hand.
+- **The stale-count guard did not read the manifests** — the one place where a
+  wrong count is published. Both `plugin.json` and `marketplace.json` still
+  claimed "28 skills" three commits after the 29th shipped, and that description
+  is what the marketplace listing and the npm page show. Manifest descriptions
+  are now checked alongside `README.md`, `CLAUDE.md` and `BOOTSTRAP.md`.
 - **Two skills prescribed incompatible schemas for the same section.**
   `proc-structural-analysis` Phase 4 carried a YAML domain schema while
   `proc-domain-mapping` prescribed Markdown tables — both for `## Domain map` in

@@ -273,6 +273,36 @@ From `TRIAGEM.md`; U1–U3 landed on 2026-08-19. Ordered by effect/cost, unchang
 
 ---
 
+## Phase 6 ✅ done 2026-08-19 — What only another machine could see
+
+Opened by the first session ever run from the **Windows** workstation. Every
+finding below existed for weeks and was invisible from Linux, which is where all
+prior sessions and CI run.
+
+| # | Finding | Fix | Guard |
+|---|---------|-----|-------|
+| D-1 | Backlog probes ran through `cmd.exe`; every probe with a `\|` broke, reporting shipped work as not started and **blocking `npm run release`** from this machine | filesystem predicates, no shell | `test/probes.test.js`, proven by a real mutation |
+| D-2 | `Skills payload` stale by 7,752 B (5.9%) | row generated | `graph-audit --check` |
+| D-3 | Payload proof command changed value with `core.autocrlf` (142,752 vs 139,253) | counted with CR stripped; `.gitattributes` pins `eol=lf` | `test/doctor.test.js` |
+| D-6 | Both manifests claimed "28 skills" with 29 shipped — the marketplace/npm description | descriptions corrected | count guard extended to manifests |
+| D-7 | Four hand-kept panel rows went stale **inside this session** while the generated rows failed the build | panel generated end to end | `graph-audit --check` as a test |
+| P-08 | The plugin's hooks never execute on this machine (v2.0.0 installed, 1 hook script of 5) | **open** — see `structural-analysis.md` | `be doctor` makes the outage visible meanwhile |
+
+**Item 18 was also closed here** — `qa-comment-analyzer`,
+`qa-type-design-analyzer`, `mgmt-spec-miner`. The intake filter argued for
+declining all three (23 proposals from real use asked for none of them); the
+user chose to ship them. Recorded as a decision, not an oversight.
+
+**The principle this phase adds to the one at the top of this plan:** *normalise
+before adapting.* Where a value differed by platform, the fix was to make it the
+same everywhere — LF-normalised bytes, shell-free predicates — not to branch per
+platform. Branching multiplies the states you must test; normalising removes
+them. Adaptation was reserved for what is genuinely per-machine (which plugin
+version is installed), and even there the answer was a **diagnosis**, not a
+branch.
+
+---
+
 ## Sequencing
 
 **Phase 1 → Phase 2 (+2.4) → Phase 3.1 → Phase 4 — done on 2026-08-19**, in ten

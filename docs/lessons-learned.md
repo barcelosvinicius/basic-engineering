@@ -16,6 +16,97 @@
 
 ## Process
 
+### [2026-08] A fact about tooling belongs to a machine, not to a project
+
+**Context:** the first session run from the Windows workstation, reading a
+`HISTORY.md` written entirely on a Linux machine.
+
+**Problem:** the recorded resolution of a blocker said the `gh` CLI was
+installed at `~/.local/bin` without `sudo`. On this machine that path does not
+exist and `gh` is the system install — so a true, useful note read as a false
+claim, and the first instinct was to treat it as drift and "fix" it. The same
+shape hides worse: the installed plugin version, which hooks exist, whether the
+checkout normalises line endings, and which shell `execSync` spawns are all
+**per machine**, and the repository cannot see any of them.
+
+**Rule:** when a living doc records a fact about tooling, paths, credentials or
+installed versions, **name the machine or environment it holds for**. An
+unscoped environment fact is a claim about every machine, and it will be false
+on the next one. Where the fact matters operationally, do not record it at all —
+have a command report it, which is why `be doctor` exists.
+
+**Evidence:** measured — `~/.local/bin` absent, `gh` at `/c/Program Files/GitHub CLI`,
+`wsl -l -v` shows no user distro, and this project's transcript directory held
+exactly one session (this one) on 2026-08-19.
+**Scope:** method — belongs in the base's session-continuity protocol.
+
+### [2026-08] A guard that shells out measures the shell
+
+**Context:** `scripts/backlog-audit.js` decided each backlog item by running a
+shell one-liner through `execSync`.
+
+**Problem:** on Windows `execSync` spawns `cmd.exe`, where `'…'` is not a
+quoting construct. Every probe containing a `|` — a regex alternation like
+`'pin|version'` — was split into a real pipe, and `$(…)` was never substituted.
+Five of 26 probes failed for that reason alone. The audit then reported shipped
+work as **not started**, and because a release guard reads it, `npm run release`
+refused to run from that machine. On Linux, and therefore in CI, everything was
+green. The failure was silent, inverted, and shaped like the platform.
+
+**Rule:** a check that decides a fact must not delegate to a shell. Read the
+filesystem, parse the file, compare in the language you already have. Where a
+shell is unavoidable, the verdict must be proven on every platform that runs it
+— otherwise the check measures the interpreter, not the corpus.
+
+**Evidence:** measured — `12 done · 3 partial · 5 not started` from the shell
+version against `16 · 2 · 2` from the predicates, same commit, same day.
+**Scope:** method.
+
+### [2026-08] Fail-open plus silence makes absence indistinguishable from calm
+
+**Context:** the plugin's guardrail hooks — secret scanning, linter-config
+protection, `--no-verify` blocking, the session-end reminder.
+
+**Problem:** hooks are fail-open by design, and that design is right: a
+guardrail must never break the session. But the installed plugin on this machine
+was v2.0.0 from two months earlier, carrying **one hook script of five**. So
+four guardrails simply did not exist, every session looked exactly as it should,
+and the base that prescribes verification had no way to report its own absence.
+Nothing was broken; nothing was running either.
+
+**Rule:** fail-open is correct for the guardrail and insufficient for the
+system. Anything that degrades silently needs a second channel that can be
+**asked** — a diagnosis that states what is installed, what is declared, and
+what is consequently not running. Keep the failure silent; make the state
+interrogable.
+
+**Evidence:** measured — session transcript shows zero hook records for `be`
+against four for a plugin installed the same way, and `be doctor` names the two
+hook events (`PreToolUse`, `Stop`) not running here.
+**Scope:** method.
+
+### [2026-08] The same document, one session: generated rows held, hand-kept rows drifted
+
+**Context:** adding three agents while the fact panel of
+`docs/structural-analysis.md` had a generated half and a hand-kept half.
+
+**Problem:** the generated rows **failed the build** until every count was
+corrected. The hand-kept rows beside them — agents shipped, read-only agents,
+`model:` declared, prompt-injection defense — kept claiming the inventory of an
+hour earlier and said nothing. Four wrong rows, produced inside the very session
+whose subject was drift.
+
+**Rule:** this is the controlled version of the lesson recorded above about
+counts restated in prose — same file, same session, same author, and the only
+variable was whether a command produced the row. Stop arguing the point: if a
+number is derivable, generate it; if it is not derivable, do not write it as a
+number. The panel is now generated end to end, and what remains hand-kept are
+verdicts (`PASS`, `0 failures`), which do not go stale the way counts do.
+
+**Evidence:** measured — 2026-08-19, `graph-audit --check` failed on the
+generated rows while the hand-kept table stayed silently wrong.
+**Scope:** method.
+
 ### [2026-08] A ruler written from the rule's wording measures the wording
 
 **Context:** measuring the plugin's activation graph, its trigger conformance,

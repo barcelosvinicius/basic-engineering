@@ -11,55 +11,135 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-19 (session close)
+> ⚡ Last updated: 2026-08-19 (portability session, work uncommitted)
 
-**Project phase:** the session's work is merged into `main` (unreleased; version
-deliberately still 3.0.0 — `release.yml` publishes on push to `main` only when
-the version changes).
+**Project phase:** `main` is published at 3.0.0 and CI is green. A second
+session on 2026-08-19 — the first ever run from the **Windows** workstation —
+found and fixed a class of defect the Linux-side sessions could not see. That
+work is **in the working tree, not committed**.
+
+> **Environment note.** This base is operated from more than one machine: a
+> Linux environment (where every session up to 2026-08-19 ran, and where CI runs
+> on `ubuntu-latest`) and a Windows workstation with Git Bash. Any fact about
+> tooling, paths or installed versions is **machine-scoped** and must name its
+> machine — see the lesson recorded for this in `lessons-learned.md`.
 
 ### In progress
 
-- Nothing in flight. Every planned unit is delivered; what remains is a
-  decision, not implementation.
+- The portability work is complete and verified but **uncommitted**: 5 drifts
+  closed, `be doctor` added, 3 agents shipped. Nothing is half-done.
 
 ### Recently completed
 
-- Activation graph wired: orphans 3 → 0, hub out-degree 1 → 7, cycles 0.
-- Doc templates carry the fields their rules demand.
-- Drift sweep: 4 findings closed, each with a guard behind it.
-- Size rule replaced by a trigger-keyed test; all 7 over-budget skills treated.
-- Feedback queue U1–U10 complete.
-- Three further holes found by measurement and closed: dangling names, stale
-  inventory counts, and `companions` having no mechanical trigger.
+- **The audits stopped measuring the operating system.** Backlog probes were
+  shell strings run through `cmd.exe` on Windows; they are filesystem
+  predicates now (`scripts/lib/probes.js`).
+- **The fact panel is generated end to end.** Its hand-kept half went stale
+  *within one session* while the generated half failed the build — same file,
+  same author, same hour.
+- **`be doctor`** reports the per-machine state the repository cannot see.
+- **Backlog item 18 closed** with `qa-comment-analyzer`,
+  `qa-type-design-analyzer` and `mgmt-spec-miner`: 17 done · 1 partial · 2 not
+  started.
+- Earlier the same day: activation graph wired (orphans 3 → 0, hub out-degree
+  1 → 7), size rule replaced by a trigger-keyed test, feedback queue U1–U10.
 
 ### Blockers
 
-- No active blockers. The push credential gap from earlier the same day was
-  resolved: `gh` CLI installed user-local (`~/.local/bin`, no `sudo`), device-flow
-  login as `barcelosvinicius`, `gh auth setup-git` wired it into `git`. All 37
-  commits were rewritten (author/committer → `viniciusbsilva10@gmail.com`,
-  `Co-Authored-By` trailers stripped) and fast-forwarded directly into `main` —
-  the feature branch was deleted, local and remote, once its tip matched
-  `main`'s.
+- **The plugin's hooks do not run on the Windows machine.** Proven by the
+  session transcript: zero hook records for `be`, against four for another
+  plugin in the same session, so failures *are* recorded and this was an
+  absence. Two hypotheses were refuted (the `shell` field already defaults to
+  bash; `${CLAUDE_PLUGIN_ROOT}` is substituted by Claude Code, not by a shell).
+  The remaining candidate is the install itself: **v2.0.0 from 2026-06-10** on
+  this machine against 3.0.0 in the repo, with 1 hook script of 5. The
+  experiment that separates "stale install" from "environment" — registering a
+  probe hook in `.claude/settings.local.json` — was **blocked by the permission
+  classifier** and needs the user's authorisation.
+- *(machine-scoped, resolved on the Linux machine)* The push credential gap of
+  the earlier session was fixed there with a user-local `gh` install
+  (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
+  on the Windows machine**, where `gh` is the system install — the original note
+  read as a false claim until it was scoped.
 
 ### Priority next steps
 
-1. Confirm CI is green on `origin/main` for this push — **done when:** the
-   GitHub Actions run for commit `69216d7` shows passing · **blocked by:**
-   nothing; `release.yml` will run but should not publish, since the version
-   did not change (3.0.0 → 3.0.0).
-2. Decide whether to cut a release — **done when:** either `npm run release`
-   has run or a note here records the decision to wait · **blocked by:**
-   nothing.
-3. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
-   a session records whether the §0 fact panel answered *"what else must
-   change?"* on its own · **blocked by:** a few sessions of real use.
+1. **Commit this session's work** — **done when:** the tree is clean and
+   `npm run validate`, `npm test`, both `--check`s pass on the commit ·
+   **blocked by:** nothing.
+2. **Settle the hook outage (D-5)** — **done when:** either the probe-hook
+   experiment has run and named the cause, or `/plugin update be@basic-engineering`
+   brings this machine to 3.0.0 and a later session shows the `be` SessionStart
+   context on screen · **blocked by:** user authorisation for the settings
+   experiment, or the user running the update.
+3. **Decide whether to cut a release** — **done when:** either `npm run release`
+   has run or a note here records the decision to wait · **blocked by:** nothing;
+   the guard that blocked it from Windows is fixed and proven by a dry run.
+4. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
+   a session records whether the fact panel answered *"what else must change?"*
+   on its own · **blocked by:** a few sessions of real use.
 
 ---
 
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-08-19] The first session from Windows, and what only Windows could see
+
+**Owner:** vinicius + Claude Opus 5 · **Machine:** Windows workstation, Git Bash
+(MINGW64). Every previous session ran on a Linux machine; CI runs `ubuntu-latest`.
+
+**Deliveries:**
+- **The backlog audit measured the operating system.** Its probes were shell
+  one-liners run through `execSync`, which spawns `cmd.exe` on Windows — where
+  `'…'` does not quote, so every probe containing a `|` was split into a real
+  pipe and `$(…)` was never substituted. Five of 26 probes failed for that
+  alone; the audit reported shipped work as *not started* (12·3·5 against the
+  true 16·2·2) and, since `release.js` runs `--check` as a pre-flight guard,
+  **`npm run release` could not run from this machine at all** — while CI stayed
+  green. Probes are now filesystem predicates (`scripts/lib/probes.js`).
+- **The fact panel is generated end to end.** Two payload rows carried a proof
+  command (`cat … | wc -c`) whose value changes with `core.autocrlf`, and the
+  skills row had drifted 7,752 B. Everything derivable is now generated with CR
+  stripped; §0.2 became a *delivery surface* of verdicts, not counts.
+- **`.gitattributes` pins `* text=auto eol=lf`** — the root of that whole class.
+- **The stale-count guard now reads the manifests.** Both `plugin.json` and
+  `marketplace.json` claimed "28 skills" with 29 shipped — the description the
+  marketplace and npm show.
+- **`be doctor`** reports what the repository cannot see: which plugin version
+  is installed *on this machine*, which hook events are consequently not
+  running, and whether the checkout normalises line endings.
+- **The session start now asks whether this machine is on the latest base** —
+  one bounded npm lookup (2s, cached a day, `BE_UPDATE_CHECK=off` to disable,
+  silent on any failure). The "what you gain" line is derived by comparing the
+  published description's counts with what is on disk, so it cannot drift; when
+  the published description carries no counts the line is simply omitted rather
+  than guessed, which is what happens today until the next release.
+- **Backlog item 18 closed** — `qa-comment-analyzer`, `qa-type-design-analyzer`,
+  `mgmt-spec-miner`. Backlog: 17 done · 1 partial · 2 not started.
+
+**Decisions:**
+- **Normalise, do not adapt.** Where a value differed by platform the fix was to
+  make it the same everywhere (LF-normalised bytes, shell-free predicates), not
+  to branch per platform. Adaptation was reserved for what is genuinely
+  per-machine — and that got a diagnosis command instead of a branch.
+- **The three technique agents were built, not declined.** The intake filter
+  argued for declining (six weeks of use produced 23 proposals asking for none
+  of them); the user chose to ship them, and that decision is recorded here
+  rather than re-litigated later.
+- `be doctor` **exits 1 when it finds something**, matching `be check`.
+
+**Next steps:** commit this work; settle the hook outage; decide on the release.
+
+**Blockers:** the hook outage (see Current State) — its decisive experiment
+needs user authorisation.
+
+**Verified:** `npm run validate` passes · `npm test` **55 pass · 0 fail** (was
+39) · `node scripts/graph-audit.js --check` and `node scripts/backlog-audit.js
+--check` both match · installer smoke test installs 18 agents · every new guard
+exercised against a known positive, including a real mutation that reintroduced
+`require('child_process')` and made the suite fail.
 
 ### [2026-08-19] Push, identity, and unification into `main`
 

@@ -108,6 +108,30 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟠 Important
 
+#### P-08 — The plugin's hooks do not run on the Windows machine
+- **Where:** the installed plugin at `~/.claude/plugins/cache/basic-engineering/be/2.0.0`
+  (machine-scoped: the Windows workstation, not the repository).
+- **Measured 2026-08-19:** the session transcript records **zero** hook
+  executions for `be` and four for another plugin installed the same way — one
+  of which failed, proving failures are recorded and this was an absence, not a
+  silent error. The plugin itself loads: skills, commands and agents all work.
+- **Refuted, and worth keeping refuted:** (a) that `cmd.exe` broke
+  `${CLAUDE_PLUGIN_ROOT}` — the `shell` field defaults to bash when Git Bash is
+  present, and Claude Code substitutes that variable itself, before any shell
+  sees it; (b) that the manifest was malformed — it matches the documented
+  schema exactly. Both were checked against the official documentation before
+  any "fix" was written.
+- **Remaining candidate:** the install is **v2.0.0 from 2026-06-10** while the
+  repo ships 3.0.0 — 25 skills against 29, and 1 hook script against 5.
+- **Done when:** a session on this machine shows the `be` SessionStart context
+  on screen, or the cause is named and recorded here.
+- **Blocked by:** the decisive experiment (registering a probe hook in
+  `.claude/settings.local.json`) was refused by the permission classifier and
+  needs the user's authorisation; alternatively the user runs
+  `/plugin update be@basic-engineering` and the next session settles it.
+- **Meanwhile:** `be doctor` reports the gap, including which hook events are
+  not running — the outage is now visible even while its cause is unknown.
+
 #### P-04 ✅ — This repo now follows its own protocol
 - **Problem:** `docs/HISTORY.md`, `docs/lessons-learned.md` do not exist; this
   file is the first living doc. The repo prescribing session continuity did not
@@ -199,6 +223,10 @@ Recorded because the temptation in any review is to discard what works.
 
 | # | Description | File(s) | Date |
 |---|---|---|---|
+| A-13 | `be doctor` — the per-machine state the repo cannot see: installed plugin version, which hook events are consequently not running, line-ending normalisation | `lib/doctor.js`, `bin/be.js`, `test/doctor.test.js` | 2026-08-19 |
+| A-12 | Stale-count guard extended to the manifests — both claimed "28 skills" with 29 shipped, in the description the marketplace and npm display | `scripts/validate.js`, `scripts/lib/inventory.js` | 2026-08-19 |
+| A-11 | Fact panel generated end to end and made platform-invariant: payload counted with CR stripped, `.gitattributes` pins `eol=lf`, §0.2 reduced to verdicts | `scripts/graph-audit.js`, `.gitattributes`, `docs/structural-analysis.md` | 2026-08-19 |
+| A-10 | **Backlog audit stopped measuring the operating system** — shell probes replaced by filesystem predicates; the release guard that read it works from Windows again | `scripts/lib/probes.js`, `scripts/backlog-audit.js`, `test/probes.test.js` | 2026-08-19 |
 | A-01 | First structural analysis of the repo itself; §0 fact panel established | `docs/structural-analysis.md` | 2026-08-19 |
 | A-02 | Graph audit made reproducible instead of ad-hoc grep | `scripts/graph-audit.js` | 2026-08-19 |
 | A-03 | **P-01/P-02 closed** — hub declares 7 typed activation edges; orphans 3 → 0; promotion channel back to the base added at session end | `skills/proc-session-continuity`, `skills/sec-secrets-management` | 2026-08-19 |
