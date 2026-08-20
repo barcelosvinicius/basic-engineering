@@ -30,6 +30,7 @@ const dryRun  = args.includes('--dry-run');
 const force   = args.includes('--force');
 const silent  = args.includes('--silent');
 const claude  = args.includes('--claude');
+const offline = args.includes('--offline'); // doctor: skip the npm lookup
 const profileArg = args.find(a => a.startsWith('--profile='));
 const profile = profileArg ? profileArg.slice('--profile='.length) : undefined;
 
@@ -87,6 +88,61 @@ switch (command) {
     break;
   }
 
+  case 'doctor': {
+    // Three pieces of state are per machine and invisible from the repository:
+    // which plugin version is installed here, whether its hooks are actually on
+    // disk, and whether this checkout normalises line endings. This base is
+    // operated from several machines; one of them ran a two-month-old plugin
+    // with four of five hook scripts missing, and nothing ever said so.
+    const { diagnose } = require('../lib/doctor.js');
+    const pluginManifest = path.join(__dirname, '..', 'plugins', 'be', '.claude-plugin', 'plugin.json');
+    let pluginVersion = null;
+    try {
+      pluginVersion = JSON.parse(fs.readFileSync(pluginManifest, 'utf8')).version;
+    } catch { /* running from an npm install without the plugin tree */ }
+
+    // `doctor` is an explicit request, so it asks npm live instead of reading
+    // the once-a-day cache the session-start hook keeps. Offline: silent.
+    const lookupLatest = async () => {
+      if (offline) return null;
+      try {
+        return await require('../plugins/be/hooks/scripts/_update-check.js').fetchLatest();
+      } catch {
+        return null;
+      }
+    };
+
+    lookupLatest().then((latestPublished) => {
+    const { facts, findings } = diagnose({
+      cwd: targetDir,
+      packageVersion: PACKAGE_VERSION,
+      pluginVersion,
+      repoPluginRoot: path.join(__dirname, '..', 'plugins', 'be'),
+      latestPublished,
+    });
+
+    console.log('');
+    console.log('┌─────────────────────────────────────────────────────┐');
+    console.log('│          basic-engineering — Doctor                 │');
+    console.log('└─────────────────────────────────────────────────────┘');
+    for (const [k, v] of facts) console.log(`  ${String(k).padEnd(24)}: ${v}`);
+    console.log('');
+
+    if (!findings.length) {
+      console.log('✅  Nothing to act on here.');
+      console.log('');
+      process.exit(0);
+    }
+
+    console.log(`⚠️   ${findings.length} finding(s):`);
+    console.log('');
+    for (const f of findings) console.log(`  - ${f}`);
+    console.log('');
+    process.exit(1);
+    });
+    break;
+  }
+
   case 'install':
   case 'update': {
     if (claude) {
@@ -124,6 +180,7 @@ switch (command) {
     console.error('  install [dir]   Install or update the base (default: current dir)');
     console.error('  update  [dir]   Alias for install');
     console.error('  check   [dir]   Check installed vs package version');
+    console.error('  doctor  [dir]   Diagnose this machine: plugin version, hooks, line endings');
     console.error('  version         Print this package version');
     console.error('');
     console.error('Options:');
@@ -131,6 +188,7 @@ switch (command) {
     console.error('  --force         Reinstall even if versions already match');
     console.error('  --silent        Suppress output');
     console.error('  --claude        Print Claude Code plugin install instructions');
+    console.error('  --offline       doctor: skip the npm version lookup');
     console.error('  --profile=<n>   Skill subset: full|minimal|backend|frontend (default full)');
     process.exit(2);
 }
