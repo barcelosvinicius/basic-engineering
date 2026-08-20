@@ -121,8 +121,21 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   sees it; (b) that the manifest was malformed — it matches the documented
   schema exactly. Both were checked against the official documentation before
   any "fix" was written.
-- **Remaining candidate:** the install is **v2.0.0 from 2026-06-10** while the
-  repo ships 3.0.0 — 25 skills against 29, and 1 hook script against 5.
+- **Remaining candidates, in order of evidence:**
+  1. **Line endings in the plugin cache.** The plugin whose hooks *do* fire on
+     this machine ships a `.gitattributes` pinning `* text=auto eol=lf`, and its
+     installed `hooks.json` is LF. `be` shipped none until 2026-08-19, so its
+     cached `hooks.json` is **CRLF** — the only mechanical difference left after
+     manifest shape, schema, scope, enablement and script presence were all
+     checked and matched. Not proven: `JSON.parse` tolerates `\r\n`. **An
+     experiment is running:** the cached file was rewritten to LF with nothing
+     else changed, so the next session on this machine answers it either way.
+  2. The install is **v2.0.0 from 2026-06-10** while the repo ships 3.1.0 — 25
+     skills against 29, and 1 hook script against 5.
+- **Note for whichever is true:** `.gitattributes` now ships in 3.1.0, so a
+  *fresh* marketplace clone checks out LF. An existing clone keeps CRLF in files
+  git has no reason to rewrite, so a machine that has hit this may need the
+  marketplace removed and re-added rather than merely updated.
 - **Done when:** a session on this machine shows the `be` SessionStart context
   on screen, or the cause is named and recorded here.
 - **Blocked by:** the decisive experiment (registering a probe hook in

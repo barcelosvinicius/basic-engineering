@@ -11,14 +11,14 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-19 (portability session, committed, not pushed)
+> ⚡ Last updated: 2026-08-20 (v3.1.0 released)
 
-**Project phase:** `main` is published at 3.0.0 and CI is green. A second
-session on 2026-08-19 — the first ever run from the **Windows** workstation —
-found and fixed a class of defect the Linux-side sessions could not see. That
-work is **committed to local `main` in eight commits and not yet pushed**. No
-version bump: `release.yml` publishes on push to `main` only when the version
-changes, so pushing this does not release it.
+**Project phase:** **v3.1.0 is published on both channels** — npm
+(`latest: 3.1.0`, via OIDC with provenance) and the Claude Code marketplace
+(which follows `main`), with tag `v3.1.0` and a GitHub release at `076d11c`.
+Both workflows green. The release carries the portability work found by the
+first session ever run from the **Windows** workstation: defects that existed
+for weeks and were invisible from Linux, where every prior session and CI run.
 
 > **Environment note.** This base is operated from more than one machine: a
 > Linux environment (where every session up to 2026-08-19 ran, and where CI runs
@@ -67,19 +67,22 @@ changes, so pushing this does not release it.
 
 ### Priority next steps
 
-1. **Push `main`** — **done when:** `git rev-parse main` equals
-   `git rev-parse origin/main` and the GitHub Actions run is green ·
-   **blocked by:** nothing. The version is unchanged, so `release.yml` runs and
-   deliberately publishes nothing.
-2. **Settle the hook outage (D-5)** — **done when:** either the probe-hook
-   experiment has run and named the cause, or `/plugin update be@basic-engineering`
-   brings this machine to 3.0.0 and a later session shows the `be` SessionStart
-   context on screen · **blocked by:** user authorisation for the settings
-   experiment, or the user running the update.
-3. **Decide whether to cut a release** — **done when:** either `npm run release`
-   has run or a note here records the decision to wait · **blocked by:** nothing;
-   the guard that blocked it from Windows is fixed and proven by a dry run.
-4. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
+1. **Read the running P-08 experiment** — the installed v2.0.0's `hooks.json`
+   was rewritten from CRLF to LF in the plugin cache, **changing nothing else**,
+   because that line-ending difference is the only mechanical difference left
+   between this plugin and one whose hooks do fire on this machine.
+   **Done when:** the next session on this machine either shows the `be`
+   SessionStart summary — naming CRLF as the cause — or does not, which rules it
+   out · **blocked by:** opening a new session, and *not* updating the plugin
+   first, which would mix two variables. Backup of the original file is in the
+   session scratchpad.
+2. **Update the other machines to 3.1.0** — **done when:**
+   `npx @barcelosvinicius/basic-engineering@latest doctor` reports 3.1.0 and
+   three hook events on each · **blocked by:** nothing. Refresh the marketplace
+   *before* updating the plugin: the clone is per machine and pinned to the
+   commit it last fetched, so `/plugin update` alone can answer "already up to
+   date" and be wrong.
+3. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
    a session records whether the fact panel answered *"what else must change?"*
    on its own · **blocked by:** a few sessions of real use.
 
