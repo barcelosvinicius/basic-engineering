@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.1.0] — 2026-08-20
+
 ### Added
 
 - **`proc-session-continuity` declares its activation edges.** The skill that
