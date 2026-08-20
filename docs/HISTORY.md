@@ -11,12 +11,14 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-19 (portability session, work uncommitted)
+> ⚡ Last updated: 2026-08-19 (portability session, committed, not pushed)
 
 **Project phase:** `main` is published at 3.0.0 and CI is green. A second
 session on 2026-08-19 — the first ever run from the **Windows** workstation —
 found and fixed a class of defect the Linux-side sessions could not see. That
-work is **in the working tree, not committed**.
+work is **committed to local `main` in eight commits and not yet pushed**. No
+version bump: `release.yml` publishes on push to `main` only when the version
+changes, so pushing this does not release it.
 
 > **Environment note.** This base is operated from more than one machine: a
 > Linux environment (where every session up to 2026-08-19 ran, and where CI runs
@@ -26,8 +28,9 @@ work is **in the working tree, not committed**.
 
 ### In progress
 
-- The portability work is complete and verified but **uncommitted**: 5 drifts
-  closed, `be doctor` added, 3 agents shipped. Nothing is half-done.
+- Nothing half-done. The portability work is committed in eight function-grouped
+  commits, **each re-checked out in a separate worktree and verified on its
+  own** — validate, the full suite, and both `--check`s.
 
 ### Recently completed
 
@@ -64,9 +67,10 @@ work is **in the working tree, not committed**.
 
 ### Priority next steps
 
-1. **Commit this session's work** — **done when:** the tree is clean and
-   `npm run validate`, `npm test`, both `--check`s pass on the commit ·
-   **blocked by:** nothing.
+1. **Push `main`** — **done when:** `git rev-parse main` equals
+   `git rev-parse origin/main` and the GitHub Actions run is green ·
+   **blocked by:** nothing. The version is unchanged, so `release.yml` runs and
+   deliberately publishes nothing.
 2. **Settle the hook outage (D-5)** — **done when:** either the probe-hook
    experiment has run and named the cause, or `/plugin update be@basic-engineering`
    brings this machine to 3.0.0 and a later session shows the `be` SessionStart
@@ -135,11 +139,18 @@ work is **in the working tree, not committed**.
 **Blockers:** the hook outage (see Current State) — its decisive experiment
 needs user authorisation.
 
-**Verified:** `npm run validate` passes · `npm test` **55 pass · 0 fail** (was
+**Verified:** `npm run validate` passes · `npm test` **65 pass · 0 fail** (was
 39) · `node scripts/graph-audit.js --check` and `node scripts/backlog-audit.js
 --check` both match · installer smoke test installs 18 agents · every new guard
 exercised against a known positive, including a real mutation that reintroduced
-`require('child_process')` and made the suite fail.
+`require('child_process')` and made the suite fail · **each of the seven commits
+re-checked out in a separate worktree and verified on its own**.
+
+*(This line first said 55 — the count at the moment it was written, stale two
+commits later. Corrected, and noted rather than quietly patched: it is the
+fourth instance this session of the rule that a derived number restated in prose
+goes stale by construction. A `Verified:` line is a record of an instant, so the
+number belongs to the instant the entry closes, which is now.)*
 
 ### [2026-08-19] Push, identity, and unification into `main`
 
