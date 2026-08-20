@@ -2,7 +2,7 @@
 
 # `be` — o que esta base faz por você
 
-Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 15 agentes especializados, 29 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
+Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 18 agentes especializados, 29 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
 
 ## Comece por aqui
 
@@ -70,13 +70,16 @@ Delegue trabalho especializado a estes subagentes (eles leem as convenções do 
 | `mgmt-domain-expert` _(model: opus)_ | Use for business-domain questions — defining business rules, formulas, metrics, alert thresholds, and validating that implementations match the domai… |
 | `mgmt-product-owner` _(model: sonnet)_ | Use for requirements and backlog work — writing/refining user stories with testable acceptance criteria, prioritizing by impact × effort, and keeping… |
 | `mgmt-project-manager` _(model: sonnet)_ | Use for coordination work — sequencing multi-agent features, maintaining API contracts before development, removing blockers, and running the sprint… |
+| `mgmt-spec-miner` _(model: sonnet)_ | Use when a project adopts spec-driven development on top of code that already exists, or when the written spec has drifted from what actually runs —… |
 | `ops-sre` _(model: sonnet)_ | Use for reliability and operations work — defining SLOs, configuring monitoring and alerts, writing runbooks, incident response coordination, and pos… |
+| `qa-comment-analyzer` _(model: sonnet)_ | Use when reviewing the comments and docstrings a change introduces — comments that restate the code, a comment standing in for a rename, stale commen… |
 | `qa-engineer` _(model: sonnet)_ | Use for test design and implementation — unit, integration, and E2E tests, coverage analysis, and bug reproduction. Rule: a bug becomes a failing tes… |
 | `qa-pentest-engineer` _(model: sonnet)_ | Use for offensive runtime security validation of the project's own application in authorized test environments — IDOR, JWT attacks, brute force, mali… |
 | `qa-pr-test-analyzer` _(model: sonnet)_ | Use before merging a PR or finishing a change to judge whether the tests are adequate for what changed — new/changed logic covered, edge cases and er… |
 | `qa-release-sanitizer` _(model: sonnet)_ | Use before making a repository public, open-sourcing a fork, or cutting a release — independently audits the working tree AND git history for leaked… |
 | `qa-security-reviewer` _(model: opus)_ | Use for defensive security review — OWASP Top 10 analysis of PRs, authentication/authorization changes, and sensitive-data handling. Read-only: repor… |
 | `qa-silent-failure-hunter` _(model: sonnet)_ | Use to review a change (or a file/module) specifically for silent failures — swallowed exceptions, empty catch blocks, errors converted to null/empty… |
+| `qa-type-design-analyzer` _(model: sonnet)_ | Use when reviewing types, schemas, or data models in a statically typed codebase — booleans that should be enums, optional fields encoding mutually e… |
 
 ## Skills
 

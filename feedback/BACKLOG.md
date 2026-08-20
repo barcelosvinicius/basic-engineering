@@ -101,11 +101,11 @@ especialistas mas só carregar o que casa com o projeto. Especialista sem inchar
 | 15 | Provenance + prune-by-evidence | ✅ done | 2/2 |
 | 16 | Cost governance (/be:cost-report + model-route) | ⚠️ partial | 1/2 |
 | 17 | Always-on rules/ layer | ❌ todo | 0/1 |
-| 18 | More technique agents (4 named) | ⚠️ partial | 1/4 |
+| 18 | More technique agents (4 named) | ✅ done | 4/4 |
 | 19 | Memory boundary declared | ✅ done | 1/1 |
 | 20 | SDD explicitly optional | ✅ done | 1/1 |
 
-**16 done · 2 partial · 2 not started** — of 20.
+**17 done · 1 partial · 2 not started** — of 20.
 
 > Regerar com `node scripts/backlog-audit.js --md` (ou `npm run audit:backlog` para o
 > detalhe do que falta em cada item parcial). A release recusa rodar contra tabela desatualizada.

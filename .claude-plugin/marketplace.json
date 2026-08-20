@@ -12,7 +12,7 @@
     {
       "name": "be",
       "source": "./plugins/be",
-      "description": "Engineering base: 28 skills (process, backend, frontend, QA, security, ops), 15 specialized agents, live guardrail hooks, stack-aware quality gate, session-continuity automation, ADR/SDD/release workflows.",
+      "description": "Engineering base: 29 skills (process, backend, frontend, QA, security, ops), 18 specialized agents, live guardrail hooks, stack-aware quality gate, session-continuity automation, ADR/SDD/release workflows.",
       "version": "3.0.0",
       "author": {
         "name": "barcelosvinicius"

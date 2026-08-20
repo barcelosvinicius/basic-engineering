@@ -15,10 +15,13 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 | `qa-` | qa-pr-test-analyzer | Whether a PR's tests are adequate for what changed |
 | `qa-` | qa-silent-failure-hunter | Swallowed exceptions, errors turned into null, logs without context |
 | `qa-` | qa-release-sanitizer | Secrets, PII and internal refs before going public or releasing |
+| `qa-` | qa-comment-analyzer | Comments that mislead: noise, rot, a comment standing in for a rename |
+| `qa-` | qa-type-design-analyzer | Invalid states the types still allow (typed codebases only) |
 | `mgmt-` | mgmt-product-owner | Requirements, backlog |
 | `mgmt-` | mgmt-domain-expert | Domain business rules |
 | `mgmt-` | mgmt-project-manager | Coordination, API contracts |
 | `mgmt-` | mgmt-architect | ADRs, technical debt, technical governance |
+| `mgmt-` | mgmt-spec-miner | Recovering EARS requirements from code that already exists |
 | `infra-` | infra-devops | CI/CD, Docker, GitHub Actions |
 | `ops-` | ops-sre | Observability, SLOs, runbooks, incidents |
 
