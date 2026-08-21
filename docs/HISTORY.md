@@ -11,7 +11,7 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-20 (v3.1.1 — LF ships with the base)
+> ⚡ Last updated: 2026-08-21 (P-08 closed — CRLF confirmed, on the machine)
 
 **Project phase:** **v3.1.1 published on both channels** — npm
 (`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace, tag and
@@ -19,9 +19,11 @@ GitHub release at `20fd7de`, both workflows green — closing the line-endings
 page the Windows session opened. v3.1.0 had pinned LF for *this* repository; 3.1.1 makes
 it part of what the base **installs** — the npm installer and `/be:bootstrap`
 seed `.gitattributes` into target projects, and `npm run validate` fails if this
-repo ever loses its own pin. P-08's cause is deliberately left unnamed: both
-remaining candidates die of the same cure (a fresh marketplace clone), so the
-energy went into prevention rather than a diagnosis that gated nothing.
+repo ever loses its own pin. **P-08's cause is no longer unnamed** — the first
+session back on the Windows machine, 2026-08-21, read the experiment intact and
+it came back positive: **CRLF in the cached `hooks.json` was the cause**, and the
+v2.0.0 install was innocent. Closing with prevention was still the right call —
+the prevention shipped is exactly what the diagnosis says it should be.
 
 > **Environment note.** This base is operated from more than one machine: a
 > Linux environment (where every session up to 2026-08-19 ran, and where CI runs
@@ -51,18 +53,11 @@ energy went into prevention rather than a diagnosis that gated nothing.
 
 ### Blockers
 
-- **The plugin's hooks may still not run on the Windows machine** — one cheap
-  observation away from settled, and no longer blocking anything. Two hypotheses
-  were refuted earlier (the `shell` field defaults to bash;
-  `${CLAUDE_PLUGIN_ROOT}` is substituted by Claude Code, not by a shell). Two
-  candidates remained: CRLF in the cached `hooks.json`, and the install being
-  v2.0.0. The isolating experiment was **not readable from the WSL session** —
-  a separate Claude Code installation whose cache was always LF, so its hooks
-  firing proves nothing about Windows. That machine has since been **updated to
-  3.1.0** (3.1.1 on its next session), which ends the experiment and probably
-  also fixes it: 3.1.0 is the release that added `.gitattributes`, and the pull
-  that brought it also rewrote `hooks.json`, which changed in that range —
-  likely as LF. **Next Windows session answers it by simply opening.** See P-08.
+- **None.** P-08 is **resolved** — see below and in `structural-analysis.md`.
+  The previous entry here predicted the experiment had been spoiled because "the
+  Windows install moved to 3.1.0". It had not: that session could not see this
+  machine, which is still on v2.0.0 with its marketplace clone still pinned to
+  the v2.0.0 commit. The experiment was intact and it answered.
 - *(machine-scoped, resolved on the Linux machine)* The push credential gap of
   the earlier session was fixed there with a user-local `gh` install
   (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
@@ -71,16 +66,17 @@ energy went into prevention rather than a diagnosis that gated nothing.
 
 ### Priority next steps
 
-1. **Just open the next session on the Windows machine and look** — it is now
-   on 3.1.0 and will take 3.1.1 on start. **Done when:** either the `be`
-   SessionStart summary appears there (P-08 resolved — and the reusable fact is
-   that *updating* an affected machine sufficed), or it does not, in which case
-   run `/plugin marketplace remove basic-engineering` + `/plugin marketplace add
-   barcelosvinicius/basic-engineering` for a fresh clone and record that
-   updating was **not** enough · **blocked by:** nothing; it costs one glance at
-   session start. Confirm with
-   `npx @barcelosvinicius/basic-engineering@latest doctor` → 3.1.1, three hook
-   events.
+1. **Bring the Windows machine to 3.1.1 by re-cloning, not updating** — it is
+   still on **v2.0.0**, so `PreToolUse` and `Stop` do not exist here at all
+   (`be doctor` reports both gaps). Run `/plugin marketplace remove
+   basic-engineering`, `/plugin marketplace add
+   barcelosvinicius/basic-engineering`, then `/plugin install
+   be@basic-engineering`. Re-clone rather than update: now that CRLF is the
+   confirmed cause, a fresh clone is the only action that leaves no CRLF file in
+   a corner git had no reason to rewrite. **Done when:**
+   `npx @barcelosvinicius/basic-engineering@latest doctor` reports 3.1.1 with
+   three hook events, and the next session shows all three firing ·
+   **blocked by:** nothing — the two slash commands are the user's to run.
 2. **Any other machine:** refresh the marketplace *before* updating the plugin
    (the clone is per machine and pinned to the commit it last fetched, so
    `/plugin update` alone can answer "already up to date" and be wrong), then
@@ -95,6 +91,48 @@ energy went into prevention rather than a diagnosis that gated nothing.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-08-21] P-08 answered by opening a session: CRLF, and the version was innocent
+
+**Owner:** vinicius + Claude Opus 5 · **Machine:** Windows workstation, Git Bash
+— the machine the defect lives on, and the only one whose readout counts.
+
+**Deliveries:**
+
+- **P-08 resolved.** The `be` SessionStart hook **fired**, ending an outage first
+  measured on 2026-08-19. The experiment was still intact when it did, which is
+  what makes the result mean something: `hooks/hooks.json` LF with mtime
+  `2026-08-19 21:37` — the single mutation — against `session-start.js` and
+  `plugin.json` both at `2026-06-10 16:16`, the plugin still reporting
+  **2.0.0**, and the marketplace clone still pinned to `3beda00`, the v2.0.0
+  restructure. One byte-level difference changed; the outage ended.
+  - **CRLF in the cached `hooks.json` — confirmed as the cause.**
+  - **The v2.0.0 install — ruled out.** Still v2.0.0, hook runs.
+- **A prediction in the docs corrected.** The 2026-08-20 close recorded that
+  "the Windows install moved 2.0.0 → 3.1.0" and therefore that the experiment
+  was spoiled by mixed variables. Measured here: it never moved. The claim was
+  written by a session that had no way to see this machine — the same shape as
+  the `gh`/`~/.local/bin` note that opened the machine-scoping lesson, recurring
+  three weeks later in the file that records the lesson.
+
+**Decisions:**
+
+- **Re-clone, not update, remains the repair** — and now for a stated reason
+  rather than caution. The cause is the bytes, so the fix must reach *every*
+  file, not the ones a pull happened to touch.
+- **The v3.1.1 prevention stands unchanged.** Closing with prevention while the
+  cause was unnamed was the right call: the diagnosis, arriving free one day
+  later, points at exactly what was already built.
+
+**Session goal — ✅ achieved.** Declared as closing P-08 with a recorded
+readout. It went further than the item was designed to yield: the question was
+"does updating an affected machine suffice?" and the answer is that updating was
+never necessary at all.
+
+**Next steps:** re-clone the marketplace and install 3.1.1 on this machine —
+two slash commands only the user can run — then confirm three hook events.
+
+**Blockers:** none.
 
 ### [2026-08-20] v3.1.1 — LF becomes something the base installs
 

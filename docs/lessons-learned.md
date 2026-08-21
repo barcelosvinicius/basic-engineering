@@ -76,6 +76,18 @@ v3.1.1 (installer + `/be:bootstrap` seed `.gitattributes`; `npm run validate`
 guards this repo's own pin) and is exercised by three installer tests.
 **Scope:** method — applies to any two-candidate defect with a shared cure.
 
+**Epilogue 2026-08-21 — the rule held, and the diagnosis arrived free anyway.**
+The next session on the affected machine read the experiment intact (the cache
+untouched apart from the rewritten `hooks.json`, the install still 2.0.0) and
+the hook fired: **CRLF was the cause**. Two things are worth keeping from that.
+The prevention already shipped was aimed correctly, so nothing was lost by
+closing early — which is the rule working. But the diagnosis was *not* worthless
+once it came: it said the version gap never caused this, and therefore that
+fixing the bytes is what matters, which is a sharper reason for "re-clone, not
+update" than the caution the item was closed on. **Refinement:** close with
+prevention, yes — but leave the experiment physically intact and say what would
+read it, because a free readout later can still upgrade a caution into a reason.
+
 ### [2026-08] If you distribute files, you own how they land on the other machine
 
 **Context:** the plugin's hooks never executed on the Windows workstation, while
@@ -127,6 +139,20 @@ have a command report it, which is why `be doctor` exists.
 `wsl -l -v` shows no user distro, and this project's transcript directory held
 exactly one session (this one) on 2026-08-19.
 **Scope:** method — belongs in the base's session-continuity protocol.
+
+**Recurrence 2026-08-21, in the file that records this lesson.** The 2026-08-20
+close wrote that "the Windows install moved 2.0.0 → 3.1.0" into both `HISTORY.md`
+and `structural-analysis.md`, and drew a conclusion from it — that the running
+experiment was spoiled by mixed variables. The session writing it was on a third
+machine and had no way to observe the Windows install. Measured on 2026-08-21:
+still `2.0.0 · installed 2026-06-10`, marketplace clone still at the v2.0.0
+commit. The prediction was false and it had nearly discarded a valid experiment.
+**Sharpening:** the scope tag is not enough by itself. A machine-scoped
+statement about a machine the session is **not running on** is a *prediction*,
+and must be written as one — "expected to be", with what would confirm it —
+never as an observation. The tell is tense: this lesson's original form was
+about facts inherited from another machine; this recurrence is about facts
+*asserted* about one.
 
 ### [2026-08] A guard that shells out measures the shell
 

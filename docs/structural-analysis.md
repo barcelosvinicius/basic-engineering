@@ -111,7 +111,7 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟠 Important
 
-#### P-08 — The plugin's hooks do not run on the Windows machine
+#### P-08 ✅ — The plugin's hooks did not run on the Windows machine: CRLF, confirmed
 - **Where:** the installed plugin at `~/.claude/plugins/cache/basic-engineering/be/2.0.0`
   (machine-scoped: the Windows workstation, not the repository).
 - **Measured 2026-08-19:** the session transcript records **zero** hook
@@ -149,30 +149,45 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   `* text=auto eol=lf` into target projects (never touching an existing file),
   and `npm run validate` fails if this repo loses its own pin (v3.1.1). The
   cause is deliberately left unnamed; both candidates die of the same cure.
-- **Update 2026-08-20 (end of session): the Windows install moved 2.0.0 →
-  3.1.0**, and goes to 3.1.1 on its next session. This **ends the experiment
-  as a readout** — exactly the mixing the earlier note warned about — and the
-  decision above already accepted that. It also changes what the fix probably
-  requires: 3.1.0 is the release that *added* `.gitattributes`, and pulling it
-  into the existing clone rewrote every file that changed in that range.
-  `hooks.json` is one of them (250 B at 2.0.0 against 719 B at 3.1.0), so it was
-  very likely rewritten **as LF** by the same pull that brought the pin. If so,
-  both candidates are already dead on that machine and the re-clone is
-  unnecessary.
-- **The one observation still worth taking, and it is free:** whether the next
-  Windows session shows the `be` SessionStart summary. Firing at 3.1.0/3.1.1
-  says the update sufficed; still silent says a **fresh clone** is required and
-  that updating an affected machine is not enough — which is the reusable half
-  of this whole item.
-- **Done when:** a session on the Windows machine shows the `be` SessionStart
-  summary and `npx @barcelosvinicius/basic-engineering@latest doctor` there
-  reports 3.1.1 with three hook events. If it is still silent after 3.1.1, run
-  `/plugin marketplace remove basic-engineering` + `/plugin marketplace add
-  barcelosvinicius/basic-engineering` — a fresh clone gets LF in *every* file,
-  not only the ones a pull happened to touch — and record which of the two
-  sufficed.
-- **Meanwhile:** `be doctor` reports the gap, including which hook events are
-  not running — the outage is visible even with its cause unnamed.
+- **Update 2026-08-20 (end of session), and it was wrong:** the closing note
+  recorded that "the Windows install moved 2.0.0 → 3.1.0", and concluded the
+  experiment was therefore spoiled by mixing variables. That session could not
+  see this machine. It never moved — see the readout below.
+- **RESOLVED 2026-08-21, first session back on the Windows machine — the cause
+  is CRLF in the cached `hooks.json`.** The `be` SessionStart hook **fired**,
+  printing its continuity summary, and the experiment was still intact when it
+  did:
+
+  | What | State at the readout | Meaning |
+  |---|---|---|
+  | `hooks/hooks.json` | LF · mtime **2026-08-19 21:37** | the experiment's single mutation |
+  | `hooks/scripts/session-start.js` | mtime **2026-06-10 16:16** | untouched since install |
+  | `.claude-plugin/plugin.json` | mtime **2026-06-10 16:16** · `"version": "2.0.0"` | untouched since install |
+  | marketplace clone | `3beda00` (the v2.0.0 restructure) | never refreshed |
+  | `be doctor` | `2.0.0 · installed 2026-06-10` | never updated |
+
+  One byte-level difference was changed and the outage ended, with the install,
+  the clone and every script identical. That discriminates the two candidates
+  cleanly:
+  1. **CRLF in the plugin cache — confirmed as the cause.**
+  2. **The v2.0.0 install — ruled out.** It is still v2.0.0 and the hook runs.
+     Being two minor versions behind was a real gap, but it was never *this*
+     gap.
+- **The reusable fact is sharper than the one the item was set up to get.** It
+  was framed as "does *updating* an affected machine suffice?" The answer is
+  that updating was never required: the defect was the bytes, so fixing the
+  bytes fixed it. A fresh clone remains the right *operational* repair because
+  it corrects every file at once rather than the one someone thought to edit —
+  a guarantee, not a different cause.
+- **Prevention already shipped** in v3.1.1 (installer and `/be:bootstrap` seed
+  `* text=auto eol=lf`; `npm run validate` guards this repo's own pin). Nothing
+  in this readout changes it — it confirms it was aimed at the right thing.
+- **Residual, and it is the ordinary gap, not this defect:** this machine still
+  runs 2.0.0, so `PreToolUse` and `Stop` do not exist here at all. `be doctor`
+  reports it. Repair: `/plugin marketplace remove basic-engineering` +
+  `/plugin marketplace add barcelosvinicius/basic-engineering`, then
+  `/plugin install be@basic-engineering` — re-clone rather than update, so no
+  CRLF file survives in a corner git had no reason to rewrite.
 
 #### P-04 ✅ — This repo now follows its own protocol
 - **Problem:** `docs/HISTORY.md`, `docs/lessons-learned.md` do not exist; this
