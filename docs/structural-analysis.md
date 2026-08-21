@@ -7,7 +7,7 @@
 >
 > Reference: `engineering-principles.md` §11.1 (Conscious Technical Debt).
 
-**Last updated:** 2026-08-20. The version this was measured against is the first
+**Last updated:** 2026-08-21. The version this was measured against is the first
 row of the generated panel below — it used to be written here, and went stale
 the moment 3.1.0 shipped.
 
@@ -182,12 +182,21 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 - **Prevention already shipped** in v3.1.1 (installer and `/be:bootstrap` seed
   `* text=auto eol=lf`; `npm run validate` guards this repo's own pin). Nothing
   in this readout changes it — it confirms it was aimed at the right thing.
-- **Residual, and it is the ordinary gap, not this defect:** this machine still
-  runs 2.0.0, so `PreToolUse` and `Stop` do not exist here at all. `be doctor`
-  reports it. Repair: `/plugin marketplace remove basic-engineering` +
-  `/plugin marketplace add barcelosvinicius/basic-engineering`, then
-  `/plugin install be@basic-engineering` — re-clone rather than update, so no
-  CRLF file survives in a corner git had no reason to rewrite.
+- **Repaired the same day.** The machine was re-cloned to 3.1.1 *after* the
+  readout was banked, so the evidence above was never at risk. `be doctor`:
+  `3.1.1 · installed 2026-08-21`, three hook events, no findings.
+- **And the repair verified the prevention where it counts.** The fresh clone
+  ran on Windows with `core.autocrlf=true` — the configuration that wrote CRLF
+  into the v2.0.0 cache — and `hooks.json` plus all six hook scripts checked out
+  **LF**. v3.1.1's `.gitattributes` is confirmed on the hardware that produced
+  the defect, not only in CI.
+- **Operational note for the next machine:** `/plugin` does **not exist in the
+  VS Code extension** (`/plugin isn't available in this environment`). Use the
+  standalone CLI — `npm i -g @anthropic-ai/claude-code` — whose `claude plugin`
+  subcommand is non-interactive and scriptable: `marketplace remove`,
+  `marketplace add <owner>/<repo>`, `install <plugin> -y`.
+- **Still unobserved, and it needs a restart:** the hooks *firing*. Claude Code
+  loads them at session start, so the session that installs cannot confirm them.
 
 #### P-04 ✅ — This repo now follows its own protocol
 - **Problem:** `docs/HISTORY.md`, `docs/lessons-learned.md` do not exist; this

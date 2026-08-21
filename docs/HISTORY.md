@@ -11,7 +11,7 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-21 (P-08 closed — CRLF confirmed, on the machine)
+> ⚡ Last updated: 2026-08-21 (P-08 closed, and the machine is on 3.1.1)
 
 **Project phase:** **v3.1.1 published on both channels** — npm
 (`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace, tag and
@@ -33,8 +33,10 @@ the prevention shipped is exactly what the diagnosis says it should be.
 
 ### In progress
 
-- Nothing half-done. v3.1.1 is committed and released; what remains is the
-  Windows re-clone, which only the user's machine can run.
+- Nothing half-done. v3.1.1 is committed, released, and now **installed on the
+  Windows machine** — `be doctor` there reports 3.1.1 with three hook events and
+  no findings. The one thing still unobserved is the hooks *firing*, which needs
+  a session started after the install.
 
 ### Recently completed
 
@@ -56,8 +58,10 @@ the prevention shipped is exactly what the diagnosis says it should be.
 - **None.** P-08 is **resolved** — see below and in `structural-analysis.md`.
   The previous entry here predicted the experiment had been spoiled because "the
   Windows install moved to 3.1.0". It had not: that session could not see this
-  machine, which is still on v2.0.0 with its marketplace clone still pinned to
-  the v2.0.0 commit. The experiment was intact and it answered.
+  machine, which **at the readout** was still on v2.0.0 with its marketplace
+  clone still pinned to the v2.0.0 commit. The experiment was intact and it
+  answered. (It has since been re-cloned to 3.1.1 — same session, after the
+  readout.)
 - *(machine-scoped, resolved on the Linux machine)* The push credential gap of
   the earlier session was fixed there with a user-local `gh` install
   (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
@@ -66,17 +70,12 @@ the prevention shipped is exactly what the diagnosis says it should be.
 
 ### Priority next steps
 
-1. **Bring the Windows machine to 3.1.1 by re-cloning, not updating** — it is
-   still on **v2.0.0**, so `PreToolUse` and `Stop` do not exist here at all
-   (`be doctor` reports both gaps). Run `/plugin marketplace remove
-   basic-engineering`, `/plugin marketplace add
-   barcelosvinicius/basic-engineering`, then `/plugin install
-   be@basic-engineering`. Re-clone rather than update: now that CRLF is the
-   confirmed cause, a fresh clone is the only action that leaves no CRLF file in
-   a corner git had no reason to rewrite. **Done when:**
-   `npx @barcelosvinicius/basic-engineering@latest doctor` reports 3.1.1 with
-   three hook events, and the next session shows all three firing ·
-   **blocked by:** nothing — the two slash commands are the user's to run.
+1. ✅ **Windows machine re-cloned and on 3.1.1** — done 2026-08-21. `be doctor`
+   reports 3.1.1, three hook events, no findings. **What is left of it is one
+   glance:** the next session started on this machine should show the
+   SessionStart summary *and* now have `PreToolUse` and `Stop`, which did not
+   exist here before. Hooks load at startup, so the install cannot be confirmed
+   by the session that performed it.
 2. **Any other machine:** refresh the marketplace *before* updating the plugin
    (the clone is per machine and pinned to the commit it last fetched, so
    `/plugin update` alone can answer "already up to date" and be wrong), then
@@ -114,6 +113,21 @@ the prevention shipped is exactly what the diagnosis says it should be.
   written by a session that had no way to see this machine — the same shape as
   the `gh`/`~/.local/bin` note that opened the machine-scoping lesson, recurring
   three weeks later in the file that records the lesson.
+- **The machine was then brought to 3.1.1 by a fresh clone**, in the same
+  session and after the readout was banked. `be doctor`: `3.1.1 · installed
+  2026-08-21`, three hook events, **no findings** — from three at session start.
+- **The v3.1.1 prevention is now verified on the machine that produced the
+  defect**, which is stronger than the tests that shipped with it. A fresh clone
+  on Windows with `core.autocrlf=true` — the exact configuration that wrote CRLF
+  into the v2.0.0 cache — checked out `hooks.json` and all six hook scripts as
+  **LF**. The pin does what it was built to do, on the hardware that needed it.
+- **How the update was actually run, because the documented route does not exist
+  everywhere:** `/plugin` is **not available in the VS Code extension** — it
+  answers `/plugin isn't available in this environment`. The working path is the
+  standalone CLI (`npm i -g @anthropic-ai/claude-code`), which carries a
+  **non-interactive** `claude plugin` subcommand: `marketplace remove`,
+  `marketplace add`, `install -y`. That is the supported route, scriptable, with
+  no hand-editing of `installed_plugins.json`.
 
 **Decisions:**
 
@@ -129,8 +143,9 @@ readout. It went further than the item was designed to yield: the question was
 "does updating an affected machine suffice?" and the answer is that updating was
 never necessary at all.
 
-**Next steps:** re-clone the marketplace and install 3.1.1 on this machine —
-two slash commands only the user can run — then confirm three hook events.
+**Next steps:** one glance at the next session on this machine — SessionStart
+should print its summary, and `PreToolUse`/`Stop` should exist for the first
+time. Hooks load at startup, so the install cannot confirm itself.
 
 **Blockers:** none.
 
