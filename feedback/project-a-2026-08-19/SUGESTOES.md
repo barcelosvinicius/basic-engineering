@@ -676,3 +676,54 @@ Duas violações reais foram achadas e corrigidas na mesma passagem.
 não é possível** — o que se validou foi **conformidade**, que é outra coisa. O efeito só se mede
 comparando a taxa de drift antes e depois, daqui a algumas sessões, com o mesmo comando. Essa
 medição fica registrada como pendente, e **o comando dela já existe** — é o desta rodada.
+
+---
+---
+
+# Quarta rodada — 2026-09-16 · o `/be:check` não olha pra documentação nem pra cobertura por arquivo
+
+**Pergunta de origem:** ao entrar numa lista de itens de dívida técnica (IMP-10, IMP-14, MIN-17,
+MIN-14/15), o dono perguntou se falhas do tipo "endpoint sem doc" e "controller sem teste" — achadas
+só porque alguém fez auditoria manual — não são, na verdade, falha do próprio `be`, e se cabe
+melhoria.
+
+**Fato medido:** neste projeto, uma auditoria manual de 2026-08-24 (MIN-14) achou **9 endpoints
+existentes no código e citados em lugar nenhum da documentação**, e um décimo apareceu de carona
+nesta sessão (`GET /admin/diagnostics`, criado em 09-14, depois da auditoria — caiu no mesmo buraco
+na mesma semana em que nasceu). A mesma auditoria achou **5 de 8 controllers (62,5%) sem nenhuma
+classe de teste** — e o padrão não é aleatório: só ganhou teste o que foi tocado nas frentes
+recentes; o que nunca foi mexido nunca ganhou cobertura. **`/be:check` (`commands/check.md`) não
+cobre nenhuma das duas coisas** — as 6 fases são build→type→lint→test→security→diff; coerência
+doc↔código e cobertura por arquivo não são fase nenhuma.
+
+**A mesma auditoria (MIN-15, ficha própria do projeto) já projetou a automação e documentou duas
+armadilhas medidas, as duas custando retrabalho no mesmo dia:**
+
+1. `mvn test` **sem** `clean` conta lixo do `target/surefire-reports` — uma suíte que hoje é 146/146
+   apareceu como 147/147 por um XML de classe de teste que já não existe;
+2. um script que reescreve arquivo inteiro pode **trocar fim de linha sem intenção** — uma limpeza
+   de 64 linhas virou um diff de 978 deleções porque 7 arquivos eram CRLF puro. Já custou revert uma
+   vez, em outro repositório do mesmo par.
+
+**Proposta:** acrescentar ao `/be:check` (ou a uma skill que ele chama, no molde de
+`qa-verification-loop`) duas checagens novas, condicionadas a existir controller REST no stack
+detectado:
+
+- **Coerência doc↔código:** `@*Mapping` de todos os controllers × o que a documentação do projeto
+  cita — sinal de parada é diferença zero. Precisa resolver constantes de path (`PATH_*`), não só
+  ler o literal do `@Mapping`.
+- **Cobertura por arquivo (não por linha):** controllers (ou equivalente do stack) sem nenhuma
+  classe de teste — sinal de parada é lista vazia, ou não crescer.
+
+As duas rodam depois de `clean` (armadilha 1) e **nunca reescrevem arquivo** — só leem e comparam
+(armadilha 2 não se aplica a uma checagem read-only, mas vale como regra geral para qualquer futura
+auto-correção que o `be` vier a oferecer nessas categorias).
+
+**Por que entra no `/be:check` e não fica como auditoria avulsa:** o próprio MIN-15 mede o motivo —
+o custo da varredura manual foi alto e o resultado tem prazo de validade; em dois meses o mesmo
+levantamento acha coisas novas, e ninguém refaz por conta própria. Rodar a cada sessão, barato, é o
+que impede a auditoria de virar evento raro.
+
+**O que NÃO propor:** correção automática de nenhuma das duas — endpoint sem doc e controller sem
+teste são sinais pra decisão humana (documentar? testar agora ou depois?), não defeito que o `be`
+deva corrigir sozinho.
