@@ -17,9 +17,11 @@ the moment 3.1.0 shipped.
 
 ### §0.1 — Inventory and activation graph
 
-**Every row below is generated.** Regenerate with `node scripts/graph-audit.js --md`;
-`--check` fails the build when it no longer matches, and a test runs `--check` on
-every push.
+**Every row below is generated.** Rewrite it in place with
+`node scripts/graph-audit.js --write` (`--md` prints it instead, to paste by
+hand); `--check` fails the build when it no longer matches, a test runs
+`--check` on every push, and `npm run release` rewrites the block after the
+version bump so the panel cannot ship naming the previous release.
 
 Nothing here is kept by hand any more, and the reason is measured rather than
 argued. This panel used to have two halves. On 2026-08-19, three agents were
