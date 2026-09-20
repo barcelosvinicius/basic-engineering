@@ -52,6 +52,8 @@ jobs:
         if: steps.gate.outputs.publish == 'true'
         run: |
           node scripts/validate.js
+          node scripts/graph-audit.js --check
+          node scripts/backlog-audit.js --check
           node --test
 
       - name: Publish to npm (OIDC, public, with provenance)

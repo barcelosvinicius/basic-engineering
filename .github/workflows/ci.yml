@@ -20,3 +20,37 @@ jobs:
         run: node scripts/validate.js
       - name: Run installer tests
         run: node --test
+
+  # The audits existed with a `--check` mode from the day they were written, and
+  # nothing ran them: `graph-audit --check` appeared in zero automated places and
+  # `backlog-audit --check` only at release time. Both were green whenever
+  # someone remembered — which is the failure this base exists to remove.
+  # Measured 2026-09-20.
+  audits:
+    name: generated docs still match the repo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: The fact panel of structural-analysis.md is still true
+        run: node scripts/graph-audit.js --check
+      - name: The backlog status table is still true
+        run: node scripts/backlog-audit.js --check
+
+  # We ship Semgrep rules and a skill that requires SAST of every project, and
+  # ran neither here. A rule that nothing executes is a rule nobody can trust:
+  # it can be syntactically broken for months and look exactly like a working
+  # one.
+  sast:
+    name: our own Semgrep rules, on ourselves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Semgrep
+        run: pipx install semgrep
+      - name: The shipped rules are valid
+        run: semgrep --validate --config plugins/be/semgrep/
+      - name: The shipped rules run against this repository
+        run: semgrep --config plugins/be/semgrep/ --error --quiet .
