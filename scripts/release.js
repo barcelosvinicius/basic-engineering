@@ -83,6 +83,19 @@ try {
   fail('feedback/BACKLOG.md is out of date — run `node scripts/backlog-audit.js --md` and commit it');
 }
 
+// ── guard: the fact panel still matches the repo it describes ────────────────
+// It has a `--check` mode since the day it was written, and until 2026-09-20
+// nothing ran it: not CI, not this script. It was green whenever somebody
+// remembered to run it by hand, which is the state this base exists to remove.
+try {
+  execSync('node scripts/graph-audit.js --check', { cwd: ROOT, stdio: 'inherit' });
+} catch {
+  fail(
+    'the fact panel in docs/structural-analysis.md no longer matches the repo — ' +
+    'run `node scripts/graph-audit.js --md` and commit it'
+  );
+}
+
 // ── guard: clean tree (so the release commit is pure) ────────────────────────
 if (!dryRun && shOut('git status --porcelain')) {
   fail('working tree is dirty — commit your changes first (or pass --dry-run)');
@@ -126,7 +139,11 @@ if (cl.includes('## [Unreleased]')) {
   console.warn('  warn: no "## [Unreleased]" header in CHANGELOG.md — add the section by hand');
 }
 
-// ── 4) regenerate guides, then validate + test ───────────────────────────────
+// ── 4) regenerate the generated docs, then validate + test ───────────────────
+// The fact panel names the version it was measured against, and the bump above
+// just changed it. Without this line the release fails its own test suite every
+// time — which is what happened at v3.1.1, patched by hand, recorded nowhere.
+sh('node scripts/graph-audit.js --write');
 sh('node scripts/gen-capabilities.js');
 sh('node scripts/validate.js');
 sh('node --test');
@@ -139,6 +156,10 @@ const RELEASE_FILES = [
   'CHANGELOG.md',
   'plugins/be/BE-GUIDE.md',
   'plugins/be/BE-GUIDE.pt.md',
+  // Regenerated in step 4 because the bump changes the version it reports. Left
+  // out of this list it would stay behind as an uncommitted change and the next
+  // release would refuse to start on a dirty tree.
+  'docs/structural-analysis.md',
 ];
 
 if (dryRun) {
