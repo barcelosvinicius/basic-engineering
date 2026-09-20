@@ -59,6 +59,15 @@ SCA finds *known-vulnerable* versions; it misses *known-malicious* ones
   (`npm ci --ignore-scripts`) so a malicious `postinstall` cannot run in CI.
 - **Pin + review new deps** before adding (`proc-dependency-management`); pin
   transitive versions via the lockfile.
+- **Pin the pipeline's own actions by commit SHA**, not by tag — a tag is
+  mutable, so whoever owns the action can move it and the pipeline runs code
+  nobody reviewed. Keep the version in a comment beside it
+  (`uses: org/action@<sha> # v4`). This matters most in jobs that hold write or
+  publish credentials.
+- **Declare least privilege in the workflow file** (`permissions:`), plus a
+  `timeout-minutes` so a hung job dies instead of burning the default
+  allowance. An account-level default is a setting that changes elsewhere,
+  without passing through review.
 
 ## Static application security testing (SAST)
 
