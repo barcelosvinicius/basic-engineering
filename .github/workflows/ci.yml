@@ -5,15 +5,35 @@ on:
     branches: [main]
   pull_request:
 
+# Least privilege, written down. The account default is already `read`, but an
+# account default is a setting that changes somewhere else, without passing
+# through this file and without telling anyone. Written here, the minimum
+# travels with the repository.
+permissions:
+  contents: read
+
+# Three pushes in a row otherwise pay for three full runs and only the last one
+# matters.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-and-test:
     runs-on: ubuntu-latest
+    # The suite takes seconds. Ten minutes is wide margin, and it exists so a
+    # hung test dies instead of burning the default six-hour allowance.
+    timeout-minutes: 10
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18, 20]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Actions pinned by SHA, not by tag: a tag is mutable, so whoever controls
+      # the action's repository can move it to another commit and your CI starts
+      # running code you never saw. The comment keeps the line human-readable.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Validate structure (frontmatter, manifests, versions)
@@ -29,9 +49,10 @@ jobs:
   audits:
     name: generated docs still match the repo
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
       - name: The fact panel of structural-analysis.md is still true
@@ -46,8 +67,9 @@ jobs:
   sast:
     name: our own Semgrep rules, on ourselves
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Install Semgrep
         run: pipx install semgrep
       - name: The shipped rules are valid
