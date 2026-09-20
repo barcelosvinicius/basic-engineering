@@ -7,6 +7,56 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The `--no-verify` guardrail no longer blocks writing about `--no-verify`.**
+  The check tested the flag against the whole Bash command, so any command that
+  merely mentioned the string — writing documentation, echoing a message,
+  grepping for it — was refused as if it were bypassing git hooks. It surfaced
+  by refusing this repo's own written analysis of the rule. The check is now
+  scoped to a segment git actually runs (leading env assignments and
+  `sudo`/`command`/`time` wrappers included), and quoted text is treated as
+  data, so `git commit -m "document the --no-verify rule"` passes while
+  `git commit --no-verify` and `git commit -n` still block. Tests pin both
+  directions; the old suite only ever asserted the true positives, which is why
+  a detector that blocked everything would have passed it.
+- **`npm run release` could not complete a clean run.** The generated fact panel
+  names the version it was measured against, the release bumps that version, and
+  nothing regenerated the panel before `node --test` checked it — so step 4
+  failed by construction. The v3.1.1 release had already hit this and been
+  patched by hand, with no record. The release now rewrites the panel after the
+  bump and commits it with the other release files.
+
+### Added
+
+- **`scripts/graph-audit.js --write`** rewrites the fact panel in
+  `docs/structural-analysis.md` in place. `--md` only ever printed the block for
+  a human to paste, which is fine for a hand edit and wrong for the one moment
+  the panel is guaranteed to go stale. It refuses a document with no generated
+  block marker rather than guessing where the block belongs.
+- **CI runs the audits that already had a `--check` mode.**
+  `graph-audit --check` ran in *zero* automated places and `backlog-audit
+  --check` only at release time; both were green whenever someone remembered to
+  run them. They now run on every push and pull request, and at release.
+- **CI runs the Semgrep rules this base ships**, and validates them. A rule that
+  nothing executes can be broken for months and look exactly like a working one.
+- **Release asks what the README reader needs to know.** When a release changes
+  `plugins/be/commands/`, `plugins/be/hooks/`, `bin/` or `lib/installer.js` and
+  `README.md` did not change since the previous tag, the release stops and names
+  the files. Either the README changes, or the reason it does not is recorded
+  with `--readme-ok="<reason>"`. Derived from a measured miss: v3.1.0 and v3.1.1
+  shipped `be doctor`, the session-start update check and the `.gitattributes`
+  seeding, and the README named none of them while `validate.js` passed — it
+  checks that what is written is true, never that what exists is described.
+
+### Changed
+
+- **This repo's workflows now follow the skill it ships.** Actions pinned by
+  commit SHA instead of mutable tags, least-privilege `permissions:`,
+  `timeout-minutes` and `concurrency` on CI. `infra-ci-cd` gained the two rules
+  it was missing (pin actions by SHA; declare permissions and a timeout in the
+  workflow file) — the practice gap was also a gap in the advice.
+
 ## [3.1.1] — 2026-08-20
 
 ### Added
