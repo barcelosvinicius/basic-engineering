@@ -96,6 +96,69 @@ try {
   );
 }
 
+// ── guard: a release that changes what users see must not leave README behind ─
+// v3.1.0 and v3.1.1 shipped `be doctor`, the session-start update check and the
+// `.gitattributes` seeding. README.md had last changed before both and named
+// none of them, and `validate.js` passed the whole time — it checks that what is
+// WRITTEN is true (counts, names that resolve), never that what EXISTS is
+// described. No count had changed, so it had nothing to fail on.
+//
+// The question a machine can decide is not "does this deserve a README line?"
+// (judgment, and a gate that judges becomes noise) but "the surface the README
+// describes changed, and the README did not". The three capabilities that got
+// missed landed in exactly these paths — the rule is derived from the incident,
+// not guessed.
+const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/installer.js'];
+{
+  const flag = args.find((a) => a.startsWith('--readme-ok='));
+  let lastTag = '';
+  try {
+    lastTag = shOut('git describe --tags --abbrev=0 --match "v*"');
+  } catch {
+    lastTag = '';
+  }
+  if (!lastTag) {
+    console.log('release: no previous version tag — README guard skipped (nothing to compare against).');
+  } else {
+    let changed;
+    try {
+      changed = shOut(`git diff --name-only ${lastTag}..HEAD`).split(/\r?\n/).filter(Boolean);
+      // A real release runs on a clean tree, so HEAD is the whole story. A dry
+      // run is the opposite case — it exists to be run with work still
+      // uncommitted, and a guard that answered "nothing changed" there would
+      // preview a release different from the one being rehearsed.
+      // NB: shOut trims, so the first line has already lost its leading status
+      // space — match the status field rather than counting columns (same
+      // reason as the `dirtyBefore` note below).
+      for (const line of shOut('git status --porcelain').split(/\r?\n/)) {
+        const file = line.replace(/^[ MADRCU?!]{1,2}\s+/, '').split(' -> ').pop().trim();
+        if (file && !changed.includes(file)) changed.push(file);
+      }
+    } catch {
+      // Could not MEASURE. That is not a pass — see the exit-code taxonomy note
+      // in docs/lessons-learned.md.
+      changed = null;
+      fail(`could not diff against ${lastTag}; the README guard could not run, and that is not a green`);
+    }
+    const touched = changed.filter((f) => USER_FACING.some((p) => f.startsWith(p)));
+    if (touched.length && !changed.includes('README.md')) {
+      if (flag) {
+        const reason = flag.slice('--readme-ok='.length).trim();
+        if (!reason) fail('--readme-ok needs a reason: it is the record of why the README stayed as it is');
+        console.log(`release: README unchanged by decision — "${reason}"`);
+      } else {
+        fail(
+          `this release changes what users see, and README.md did not change since ${lastTag}:\n` +
+          touched.map((f) => `        ${f}`).join('\n') +
+          '\n\n  Answer the question before releasing: does a README reader need to know\n' +
+          '  something new? Either edit README.md, or record why not with\n' +
+          '  `--readme-ok="<reason>"` and put the same line in the CHANGELOG entry.'
+        );
+      }
+    }
+  }
+}
+
 // ── guard: clean tree (so the release commit is pure) ────────────────────────
 if (!dryRun && shOut('git status --porcelain')) {
   fail('working tree is dirty — commit your changes first (or pass --dry-run)');
