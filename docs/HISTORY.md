@@ -11,19 +11,23 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-08-21 (P-08 closed, and the machine is on 3.1.1)
+> ⚡ Last updated: 2026-09-20 (first wave from the reference-repo analysis, unreleased)
 
-**Project phase:** **v3.1.1 published on both channels** — npm
-(`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace, tag and
-GitHub release at `20fd7de`, both workflows green — closing the line-endings
-page the Windows session opened. v3.1.0 had pinned LF for *this* repository; 3.1.1 makes
-it part of what the base **installs** — the npm installer and `/be:bootstrap`
-seed `.gitattributes` into target projects, and `npm run validate` fails if this
-repo ever loses its own pin. **P-08's cause is no longer unnamed** — the first
-session back on the Windows machine, 2026-08-21, read the experiment intact and
-it came back positive: **CRLF in the cached `hooks.json` was the cause**, and the
-v2.0.0 install was innocent. Closing with prevention was still the right call —
-the prevention shipped is exactly what the diagnosis says it should be.
+**Project phase:** **work sitting on `main`, unreleased.** Nine commits on
+2026-09-20 closed the first wave of findings from an external analysis (see the
+Delivery History entry below). Nothing is published: `release.yml` publishes on
+push to `main` only when the version changes, and the version has not moved. The
+next release is expected soon and now has to pass two guards that did not exist
+before it — one of which already refuses the current state of the tree, on
+purpose, because the README has not yet been updated for this work.
+
+*Superseded state, kept because it is still true:* **v3.1.1 is what users have**
+— npm (`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace,
+tag and GitHub release at `20fd7de`. **P-08's cause is no longer unnamed** — the
+first session back on the Windows machine, 2026-08-21, read the experiment intact
+and it came back positive: **CRLF in the cached `hooks.json` was the cause**, and
+the v2.0.0 install was innocent.
+
 
 > **Environment note.** This base is operated from more than one machine: a
 > Linux environment (where every session up to 2026-08-19 ran, and where CI runs
@@ -33,29 +37,38 @@ the prevention shipped is exactly what the diagnosis says it should be.
 
 ### In progress
 
-- Nothing half-done. v3.1.1 is committed, released, and now **installed on the
-  Windows machine** — `be doctor` there reports 3.1.1 with three hook events and
-  no findings. The one thing still unobserved is the hooks *firing*, which needs
-  a session started after the install.
+- Nothing half-done, but **one thing deliberately left undone**: the README has
+  not been updated for the first wave. That was the owner's call — *"o readme
+  como teremos atualizações ajustaremos ao final"* — and it is now enforced
+  rather than remembered: `npm run release` refuses while it stays that way.
+- **Waiting on evidence, not on work:** the owner is bringing lessons-learned
+  cases about analyses that were too large leaking drifts. They seed
+  `proc-analysis-blocks` (action-plan Phase 8.1), which is not to be written
+  before they arrive.
 
 ### Recently completed
 
-- **The audits stopped measuring the operating system.** Backlog probes were
-  shell strings run through `cmd.exe` on Windows; they are filesystem
-  predicates now (`scripts/lib/probes.js`).
-- **The fact panel is generated end to end.** Its hand-kept half went stale
-  *within one session* while the generated half failed the build — same file,
-  same author, same hour.
-- **`be doctor`** reports the per-machine state the repository cannot see.
-- **Backlog item 18 closed** with `qa-comment-analyzer`,
-  `qa-type-design-analyzer` and `mgmt-spec-miner`: 17 done · 1 partial · 2 not
-  started.
-- Earlier the same day: activation graph wired (orphans 3 → 0, hub out-degree
-  1 → 7), size rule replaced by a trigger-keyed test, feedback queue U1–U10.
+- **The first wave of the `nao-depende-de-lembrar` analysis**, nine commits, each
+  verified alone in a throwaway worktree. See the Delivery History entry below.
+- **The bypass guard stopped blocking documentation about itself** — a false
+  positive found by being blocked while writing the analysis of that very rule.
+- **`npm run release` completes a clean run again** — it could not, by
+  construction, since 2026-08-19.
+- **The audits that had a `--check` mode and nothing executed now run in CI.**
 
 ### Blockers
 
-- **None.** P-08 is **resolved** — see below and in `structural-analysis.md`.
+- **None for the work; one for the release, and it is intentional.** The release
+  guard added today refuses while `README.md` is untouched. It is the first
+  thing the next session removes, by updating the README — not by passing
+  `--readme-ok=`.
+- **Two things are unmeasured rather than broken** (P-09, P-10): the new CI jobs
+  have never run, and this machine's installed plugin still carries the guard
+  defect this session fixed in the repository. By the taxonomy being adopted
+  here, *could not measure* is not a pass — so they are written down instead of
+  assumed green.
+- *(historical, resolved)* P-08 is **resolved** — see below and in
+  `structural-analysis.md`.
   The previous entry here predicted the experiment had been spoiled because "the
   Windows install moved to 3.1.0". It had not: that session could not see this
   machine, which **at the readout** was still on v2.0.0 with its marketplace
@@ -70,18 +83,24 @@ the prevention shipped is exactly what the diagnosis says it should be.
 
 ### Priority next steps
 
-1. ✅ **Windows machine re-cloned and on 3.1.1** — done 2026-08-21. `be doctor`
-   reports 3.1.1, three hook events, no findings. **What is left of it is one
-   glance:** the next session started on this machine should show the
-   SessionStart summary *and* now have `PreToolUse` and `Stop`, which did not
-   exist here before. Hooks load at startup, so the install cannot be confirmed
-   by the session that performed it.
-2. **Any other machine:** refresh the marketplace *before* updating the plugin
-   (the clone is per machine and pinned to the commit it last fetched, so
-   `/plugin update` alone can answer "already up to date" and be wrong), then
-   `npx @barcelosvinicius/basic-engineering@latest update` for npm-installed
-   bases. **Done when:** `doctor` reports 3.1.1 and three hook events.
-3. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
+1. **Cut the next release**, which is what this work was for. The order matters:
+   update `README.md` for what the first wave changed (`--write`, the CI jobs,
+   the release guards), *then* `npm run release`. **Done when:** the release
+   completes without `--readme-ok=`, because the README genuinely changed.
+   **Note:** the release guard will name `plugins/be/hooks/scripts/_lib.js` until
+   it does — that is the guard working, not a defect.
+2. **Read the first CI run** (P-09). The `audits` and `sast` jobs have never
+   executed; semgrep is not installed on this machine, so their green is unproven.
+   **Done when:** the push to `main` shows both green, or names what they found.
+3. **After the release, re-clone on this machine** (P-10) — the installed plugin
+   still carries the guard defect fixed in A-14. **Done when:** `be doctor`
+   reports the new version and a command that merely mentions the bypass flag is
+   allowed.
+4. **Phase 8** (action-plan): `proc-analysis-blocks` once the owner's cases
+   arrive, and the three trigger-narrowing items that decide better together —
+   the stack map gaining a trigger, the gateguard narrowing, and the written
+   entry criterion for a rule becoming a gate.
+5. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
    a session records whether the fact panel answered *"what else must change?"*
    on its own · **blocked by:** a few sessions of real use.
 
@@ -90,6 +109,69 @@ the prevention shipped is exactly what the diagnosis says it should be.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-09-20] An outside repository measured us back, and the first wave shipped
+
+**Owner:** vinicius + Claude Opus 5 · **Machine:** Windows workstation, Git Bash.
+
+**Goal declared at session start:** a de-para against
+`oliveirarenanfelipe/nao-depende-de-lembrar` classifying each capability as ours
+/ theirs / both with file-level evidence, an analysis of their hooks and process
+wiring, and a prioritised adoption list that must include a proposal for the
+README drift. **Achieved ✅**, and then extended by decision: the owner approved
+implementing the first wave, which shipped in nine commits.
+
+**Deliveries:**
+
+- **The de-para** (`feedback/nao-depende-de-lembrar-2026-09-20/DE-PARA.md`). The
+  repository is not a stranger: it **cites this base** as the source of its
+  structure check, quotes a lesson from here in its code, and **refuses our
+  `_gateguard.js`** with measured reasons (`DECISOES.md §10`). The exchange was
+  already two-way.
+- **Their ladder of enforcement, adopted as an instrument** — prose · keyword
+  recall · periodic sweep · gate at the door. Measured against us: **1 skill of
+  29** is referenced by a hook, and as a reminder rather than a block.
+- **A-14 — the bypass guard stopped blocking documentation about itself.** It
+  tested the flag against the whole Bash command; writing this session's own
+  analysis of the rule was refused. Found by being blocked, twice: once writing
+  the document, once writing the commit message that describes the fix.
+- **A-15 — `npm run release` could not complete a clean run, and nobody knew.**
+  The panel names the version, the release bumps it, nothing regenerated it
+  before `node --test` checked it. The v3.1.1 release had hit this and been
+  patched by hand with no record. `--write` added; the release calls it after
+  the bump and commits the panel with the release files.
+- **A-16 — the audits that had a `--check` mode and nothing executed.**
+  `graph-audit --check` ran in **zero** automated places; `backlog-audit --check`
+  only at release. Both were green whenever someone remembered. They now run on
+  push, on pull request, and at release. The Semgrep rules this base ships — one
+  rule, never executed anywhere — are validated and run against this repo.
+- **A-17 — the workflows now follow the skill we ship**, and the skill gained
+  the two rules it was missing. The practice gap was also an advice gap.
+- **A-18 — the release asks what a README reader needs to know**, over paths
+  derived from the actual miss.
+- **Action-plan Phase 8** records the second wave.
+
+**Decisions:**
+
+- **`proc-analysis-blocks` is not written yet, on purpose.** The owner's
+  observation — analyses that are too large always leak drifts — is the better
+  axis, broader than the investigation method first proposed. It waits for the
+  cases the owner is bringing, because a rule without a measured case gets
+  pruned rather than shipped.
+- **The gateguard is not switched on; its trigger is what must narrow.** Their
+  third objection is correct, and our gate already retries on the second attempt
+  — the difference is scope, not semantics.
+- **Divide-and-conquer cannot be a gate**, by the entry criterion adopted the
+  same day: partitioning an analysis is judgment, and a gate that judges becomes
+  noise. Degree 2 is its legitimate ceiling.
+- **Nothing was disabled to get work done.** When the installed guard blocked a
+  commit message, the message went through a file.
+
+**Next steps:** README, then release; read the first CI run; re-clone this
+machine afterwards.
+
+**Blockers:** the release guard refuses until the README is updated — which is
+the guard working.
 
 ### [2026-08-21] P-08 answered by opening a session: CRLF, and the version was innocent
 

@@ -7,7 +7,7 @@
 >
 > Reference: `engineering-principles.md` §11.1 (Conscious Technical Debt).
 
-**Last updated:** 2026-08-21. The version this was measured against is the first
+**Last updated:** 2026-09-20. The version this was measured against is the first
 row of the generated panel below — it used to be written here, and went stale
 the moment 3.1.0 shipped.
 
@@ -226,6 +226,27 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟡 Minor
 
+#### P-09 — The CI jobs added on 2026-09-20 have never executed
+- **Where:** `.github/workflows/ci.yml`, jobs `audits` and `sast`.
+- **State:** written and syntactically checked here; **not measured**. Semgrep is
+  not installed on this machine, so `--validate` and the scan over this repo are
+  unproven, and `pipx` on the runner is assumed rather than verified. By the
+  taxonomy this repo is adopting, *could not measure* is not a pass.
+- **Done when:** the first push to `main` shows both jobs green — or names what
+  they found, which is equally a result.
+- **Blocked by:** nothing; the next push answers it.
+
+#### P-10 — *(machine-scoped: the Windows workstation)* the installed plugin still carries the guard defect fixed in A-14
+- **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1`.
+- **State:** the fix lives in this repository; the hook that runs in a session is
+  the **installed** one, which still refuses any Bash command that merely
+  mentions the bypass flag. Observed twice on 2026-09-20 — writing the analysis
+  and writing the commit message that describes the fix. The workaround used was
+  to pass the message through a file, never to disable the guard.
+- **Done when:** a release ships and this machine re-clones the marketplace —
+  `be doctor` reports the new version and a command mentioning the flag passes.
+- **Blocked by:** the next release.
+
 #### P-07 — Typed activation edges are declared by 4 skills of 29 *(not a defect)*
 - **Where:** `## Activation edges` sections across `plugins/be/skills/`
 - **State:** 22 skills cite another skill in prose; 4 declare typed edges. The
@@ -291,6 +312,11 @@ Recorded because the temptation in any review is to discard what works.
 
 | # | Description | File(s) | Date |
 |---|---|---|---|
+| A-18 | **Release refuses to ship a user-facing change with README untouched** — the paths watched are derived from the actual miss (`commands/`, `hooks/`, `bin/`, `lib/installer.js`), and the reason for not touching it is recorded rather than assumed | `scripts/release.js` | 2026-09-20 |
+| A-17 | **This repo's workflows follow the skill it ships** — actions pinned by SHA, least-privilege `permissions:`, `timeout-minutes`, `concurrency`; `infra-ci-cd` gained the two rules it was missing, so the practice gap and the advice gap closed together | `.github/workflows/*`, `skills/infra-ci-cd` | 2026-09-20 |
+| A-16 | **CI runs the audits that already had a `--check` mode and nothing executed**, plus the Semgrep rules this base ships and never ran on itself | `.github/workflows/ci.yml`, `.github/workflows/release.yml` | 2026-09-20 |
+| A-15 | **`npm run release` could not complete a clean run** — the panel names the version, the release bumps it, nothing regenerated it before the test. `--write` added to the generator, called after the bump, and the panel travels in the release commit | `scripts/graph-audit.js`, `scripts/release.js`, `test/graph.test.js` | 2026-09-20 |
+| A-14 | **The bypass guard stopped blocking documentation about itself** — it tested the flag against the whole command, and refused this repo's own written analysis of the rule. Scoped to segments git actually runs; both directions pinned, where the old suite asserted only the true positives | `hooks/scripts/_lib.js`, `test/hooks.test.js` | 2026-09-20 |
 | A-13 | `be doctor` — the per-machine state the repo cannot see: installed plugin version, which hook events are consequently not running, line-ending normalisation | `lib/doctor.js`, `bin/be.js`, `test/doctor.test.js` | 2026-08-19 |
 | A-12 | Stale-count guard extended to the manifests — both claimed "28 skills" with 29 shipped, in the description the marketplace and npm display | `scripts/validate.js`, `scripts/lib/inventory.js` | 2026-08-19 |
 | A-11 | Fact panel generated end to end and made platform-invariant: payload counted with CR stripped, `.gitattributes` pins `eol=lf`, §0.2 reduced to verdicts | `scripts/graph-audit.js`, `.gitattributes`, `docs/structural-analysis.md` | 2026-08-19 |
@@ -320,6 +346,6 @@ Recorded because the temptation in any review is to discard what works.
 
 ---
 
-*Last updated: 2026-08-20 · Reference: `engineering-principles.md` · The fact
-panel re-runs itself (`npm run audit:graph -- --check`, wired as a test); §2 and
+*Last updated: 2026-09-20 · Reference: `engineering-principles.md` · The fact
+panel re-runs itself (`npm run audit:graph -- --check`, wired as a test and as a CI job); §2 and
 §4 are read and revised by hand at each session close.*

@@ -317,10 +317,80 @@ subject was portability and a rule shipped in a hurry is the next drift.
 | A guard that shells out measures the shell | `proc-skill-creator` checklist — a check that decides a fact reads the filesystem, it does not delegate to a shell | the checklist item exists and names the cmd.exe quoting case |
 | If you distribute files, you own their line endings | `infra-ci-cd` — `.gitattributes` from the first commit for any repo that ships files | the skill says it, with the re-clone-not-update caveat |
 | Generated rows held while hand-kept rows drifted | already enforced here by `graph-audit --check`; the *rule* belongs in `proc-structural-analysis` | the skill tells authors to generate the panel, not to write it |
+| *(2026-09-20)* A guard's suite that only asserts what must block never measures what must pass | `qa-verification-loop` and `proc-skill-creator` — the known-positive checklist item gains its mirror: the nearest case that must be **allowed** | the checklist asks for both directions, with the bypass-guard false positive as the worked example |
+| *(2026-09-20)* A check nobody automated was green because nobody ran it | `infra-ci-cd` — a `--check` mode is wired the day it is written, and a check that needs a manual step first is a defect in the check | the skill states it, with `--write` as the worked answer |
+| *(2026-09-20)* We shipped the rule and exempted ourselves | `proc-skill-creator` — a skill that tells others to run something is tried against this repo before it ships; the failure usually names the missing half of the rule | the checklist item exists and cites the SHA-pinning case, where the advice gap and the practice gap were the same gap |
 
 **Blocked by:** nothing. **Effort:** low each; they are sentences, not systems.
 **Do not batch them into one commit** — a rule per commit, each with the case
 that makes it fail, is the discipline the base itself prescribes.
+
+---
+
+## Phase 8 — the second wave from the `nao-depende-de-lembrar` analysis
+
+Source: `feedback/nao-depende-de-lembrar-2026-09-20/DE-PARA.md`. The first wave
+shipped on 2026-09-20 (nine commits). What is left divides into one item waiting
+on evidence and three that **decide better together than apart** — all three are
+the same conversation about narrowing a trigger until it can be left on.
+
+### 8.1 — Divide to conquer, as a skill
+
+| | |
+|---|---|
+| **What** | `proc-analysis-blocks` — the general rule for splitting an analysis into blocks that each close with a verifiable verdict. Not a new review: `proc-code-review` (by layer) and `proc-impact-analysis` (by fixed axes) are instances of it for questions whose axes are already known; both would declare an activation edge to it rather than duplicate it. |
+| **Why** | Stated by the owner from repeated observation: analyses that are too large always left drifts and obvious errors behind. This session is evidence on both sides — the seven-finding sweep worked because it was partitioned by surface, and the two silly errors of the same session (a blocked heredoc, a panel that drifted mid-session) happened in the stretches worked as one block. |
+| **The six rules, provisional** | declare the blocks before looking · a block is what closes in one verifiable statement (that is the size rule, and the only non-arbitrary one) · every block closes with verdict + evidence, never "looks fine" · report where the guard already works, or the output becomes an alarm list people learn to skip · name the class before fixing the case, then re-sweep the other blocks for siblings · re-measure at the end, because the object may have changed during the analysis — possibly by you |
+| **Blocked by** | **the owner's lessons-learned cases**, which are coming. Each rule must cite the measured case that produced it, the way the reference repo's gates do; rules without a case get pruned rather than shipped. |
+| **Done when** | the skill exists with a case per rule, passes the `proc-skill-creator` checklist, and at least one existing skill declares an edge to it. Rules 3 and 6 are the only two with a plausible mechanical check (over the shape of the report); the other four are discipline, and the skill says so instead of pretending otherwise. |
+
+### 8.2 — The map that already exists gains a trigger
+
+`plugins/be/config/stack-mappings.json` already maps **7 stacks → their skills**,
+detected by file indicators (`pom.xml` → five `be-*` skills, `tsconfig.json` →
+four, and so on). Measured 2026-09-20: it is read by `commands/check.md`,
+`commands/bootstrap.md`, `qa-verification-loop` and `BOOTSTRAP.md` — all markdown,
+all degree 2 — and by **zero hooks**. The catalog, the map and the detection
+indicators are already shipped; only the trigger is missing.
+
+The reference repo's form is `catalogo_na_porta`: the catalogue arrives at the
+second the piece is created, because *the trigger is the action, not the word*.
+Ours does not need to block — `_lib.js` already has `warn()`, which injects
+context and lets the tool through.
+
+**Done when:** a narrow trigger (first new code file per session, or the first
+touch of a known directory class) offers the mapped skills, and a measured real
+session shows **≤2 interruptions**. **Blocked by:** 8.3, which is the same
+narrowing question.
+
+### 8.3 — Narrow the gateguard trigger until it can ship on
+
+The fact-forcing gate is opt-in and off by default because it stops the first
+edit of *any* file. The reference repo refused it for exactly that reason
+(`DECISOES.md §10`, third objection), and the objection is correct. The fix is
+not to switch it on — it is to narrow the trigger to conditions a machine
+decides alone, the way their gates do.
+**Done when:** measured in a real session, interruptions ≤2 and the gate can be
+born on. **Blocked by:** nothing.
+
+### 8.4 — Write the entry criterion for "a rule becomes a gate"
+
+The ladder of enforcement (prose → keyword recall → periodic sweep → gate at the
+door), the entry test — *only a rule a machine decides alone; a gate that judges
+becomes noise, and noise trains people to ignore red* — and the division **gate
+at the start, watcher after**. Belongs in `engineering-principles` and
+`proc-skill-creator`.
+**Done when:** the next new skill declares which rung it operates on.
+**Blocked by:** nothing. **Effort:** low — these are sentences.
+
+### 8.5 — Queued, to judge with evidence first
+
+| Item | Note |
+|---|---|
+| PR template with the rite and a mandatory number | theirs refuses "improves performance" without a measurement |
+| `o_basico` executable, probably as `be doctor <projects>` | the largest capability gap: they **measure** seven basics across every project daily, we **advise** one project when asked. Carry over their split of *has tests* from *the CI runs the tests*, and their lesson that a detector ignorant of the house's shape measures itself |
+| Mutation testing for our own scripts | start with `validate.js` and the hooks — what breaks silently. The bypass-guard defect is the argument |
+| Gate at the commit, and a first-class place for refused decisions | a refusal with a reopen trigger does not come back as a new idea |
 
 ---
 

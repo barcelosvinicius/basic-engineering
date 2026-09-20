@@ -16,6 +16,76 @@
 
 ## Process
 
+### [2026-09] A guard's suite that only asserts what must block never measures what must pass
+
+**Context:** the `PreToolUse` rule that refuses a commit bypassing git hooks.
+Its test listed three commands that must block and two that must not — and both
+"must not" cases were ordinary commands with nothing resembling the flag.
+
+**Problem:** the detector tested the flag against the **whole command string**,
+so every command that merely *mentioned* it was refused: writing documentation
+about the rule, echoing a message, grepping for it. A detector that blocked
+literally everything containing the string would have passed that suite. It
+surfaced by refusing this repository's own written analysis of the rule, and
+again by refusing the commit message describing the fix.
+
+**Rule:** a guard has two failure directions and the suite must pin both. For
+every rule that blocks, write the nearest case that must be **allowed** — the
+one that looks like the target and is not. A false positive is not the milder
+failure: it is the one that stops real work, and a guard that stops real work is
+the one people switch off, after which it protects nothing at all.
+
+**Evidence:** measured 2026-09-20 — 2 false positives in 5 cases, fixed in A-14,
+both directions now pinned in `test/hooks.test.js`.
+**Scope:** method.
+
+### [2026-09] A check nobody automated was green because nobody ran it
+
+**Context:** `graph-audit --check` and `backlog-audit --check`, both written with
+a `--check` mode precisely so drift would fail a build.
+
+**Problem:** `graph-audit --check` appeared in **zero** automated places — not
+CI, not the release script — and `backlog-audit --check` only at release. Both
+answered green when run by hand, which reads exactly like a check that has been
+passing. Worse, the release path had been **broken by construction** since the
+day a version row joined the generated panel: the release bumps the version, and
+nothing regenerated the panel before the test that checks it. A release had
+already hit this and been patched by hand, leaving no record — so the next
+person meets it as a new problem.
+
+**Rule:** a `--check` that no pipeline invokes is not a guard, it is a
+convenience. Wire it the same day it is written, and prefer wiring it where the
+thing it guards actually changes. When a check must be satisfied by a manual
+step, that is a defect in the check, not a chore for the operator — give the
+generator a `--write` and call it.
+
+**Evidence:** measured 2026-09-20 — `grep -c graph-audit scripts/release.js` → 0;
+the first automated run caught a real drift created minutes earlier in the same
+session. Fixed in A-15 and A-16.
+**Scope:** method.
+
+### [2026-09] We shipped the rule and exempted ourselves, and nothing could have told us
+
+**Context:** the `infra-ci-cd` skill requires SCA and SAST of every project, and
+this repository ships a Semgrep rule for target projects to run.
+
+**Problem:** measured against our own repo, the base failed its own advice on
+three counts at once — the shipped Semgrep rule was executed by **nothing**, the
+workflows pinned actions by mutable tag, and no workflow declared `permissions:`
+or a timeout. The third one was not even hypocrisy: the skill **never asked** for
+SHA pinning, so the practice gap and the advice gap were the same gap, and each
+hid the other.
+
+**Rule:** for anything this base tells other projects to do, run the check on
+this repository first and treat the result as a review of the advice, not only
+of the practice. Advice we do not follow is usually advice that was never
+operationalised — and the fastest way to find the missing half of a rule is to
+try to obey it here.
+
+**Evidence:** measured 2026-09-20 — 1 rule shipped, 0 runs; 4 action references,
+0 pinned. Fixed in A-16 and A-17, the skill amended in the same pass.
+**Scope:** method.
+
 ### [2026-08] A pull rewrites the files it touches — so "re-clone, not update" is a guarantee, not a rule
 
 **Context:** the same day the line-endings lesson below concluded that an
