@@ -151,12 +151,31 @@ function pathExists(filePath) {
 
 // ── git --no-verify bypass ────────────────────────────────────────────────────
 
+// A command that merely MENTIONS the flag bypasses nothing. The first form of
+// this check tested the whole command string, so writing a file that documents
+// the flag was blocked as if it were running it — measured 2026-09-20, when it
+// refused this repo's own analysis of the rule. A gate that stops legitimate
+// work is the failure mode that teaches people to switch gates off, so the
+// check is now scoped to a segment git actually runs.
+//
+// Residual and accepted: a heredoc line that is itself a git command, and only
+// then, still reads as one. Narrowing further would need to parse the shell.
+const GIT_SEGMENT = /^(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+|sudo\s+|command\s+|time\s+)*git\b/;
+
 function isNoVerify(command) {
   if (!command) return false;
-  if (/--no-verify\b/.test(command)) return true;
-  // short form: `git commit -n` (also catches combined clusters like -an)
-  const m = String(command).match(/\bgit\s+commit\b([^\n;|&]*)/);
-  return !!(m && /(?:^|\s)-[a-zA-Z]*n[a-zA-Z]*\b/.test(m[1]));
+  // Split on shell separators: each segment is one command git may or may not run.
+  for (const raw of String(command).split(/\|\||&&|[;|&\n]/)) {
+    // Quoted text is data, not flags — `git commit -m "use --no-verify"` asks
+    // for nothing to be skipped.
+    const seg = raw.trim().replace(/"[^"]*"/g, '""').replace(/'[^']*'/g, "''");
+    if (!GIT_SEGMENT.test(seg)) continue;
+    if (/--no-verify\b/.test(seg)) return true;
+    // short form: `git commit -n` (also catches combined clusters like -an)
+    const m = seg.match(/\bgit\s+commit\b(.*)$/);
+    if (m && /(?:^|\s)-[a-zA-Z]*n[a-zA-Z]*\b/.test(m[1])) return true;
+  }
+  return false;
 }
 
 module.exports = {

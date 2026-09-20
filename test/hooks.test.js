@@ -35,8 +35,25 @@ test('isNoVerify catches hook-bypass forms', () => {
   assert.ok(lib.isNoVerify('git commit --no-verify -m x'));
   assert.ok(lib.isNoVerify('git commit -n -m x'));
   assert.ok(lib.isNoVerify('git push --no-verify'));
+  assert.ok(lib.isNoVerify('cd /repo && git commit --no-verify'));
+  assert.ok(lib.isNoVerify('HUSKY=0 git commit --no-verify'));
   assert.ok(!lib.isNoVerify('npm test'));
   assert.ok(!lib.isNoVerify('git commit -m "fix: bug"'));
+});
+
+// The first version of this rule tested the whole command string, so a command
+// that only MENTIONED the flag was blocked. It surfaced by refusing to write
+// this repo's own analysis of the rule (2026-09-20). The cases below are that
+// defect, pinned: a gate that stops legitimate work is what teaches people to
+// turn gates off.
+test('isNoVerify ignores commands that only mention the flag', () => {
+  const flag = '--no' + '-verify';
+  assert.ok(!lib.isNoVerify(`echo "the ${flag} flag exists"`));
+  assert.ok(!lib.isNoVerify(`cat > doc.md <<EOF\nuse ${flag} to skip\nEOF`));
+  assert.ok(!lib.isNoVerify(`grep -r "${flag}" docs/`));
+  assert.ok(!lib.isNoVerify(`git commit -m "document the ${flag} rule"`));
+  // and the true positive still fires when it is an actual git invocation
+  assert.ok(lib.isNoVerify(`git commit ${flag} -m x`));
 });
 
 test('hooksDisabled honors global and per-hook opt-out', () => {
