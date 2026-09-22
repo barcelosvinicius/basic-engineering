@@ -457,7 +457,7 @@ because a gate is an enumeration, and what nobody enumerated passes.
 
 **Shipped and measured on `project A`:** 6 of 8 controllers with no test
 class — hand-checked against an independent count, and the two that do have one
-(`OrderController`, `UserController`) are correctly absent from the list —
+are correctly absent from the list —
 and 0 of 27 routes undocumented, with 2 found only inside a longer path, counted
 apart. Building it against a real project corrected the ruler four times (a
 first-argument regex saw 32 of 38 annotations; the docs write the external path;

@@ -33,7 +33,7 @@ test('units of work with no test file, and the mirror: one that has it', () => {
   const root = project({
     'pom.xml': '<project/>',
     'src/main/java/app/EventController.java': controller('Evento', '  @GetMapping("/x") void x() {}'),
-    'src/main/java/app/UserController.java': controller('Me', '  @GetMapping("/y") void y() {}'),
+    'src/main/java/app/UserController.java': controller('User', '  @GetMapping("/y") void y() {}'),
     'src/test/java/app/UserControllerTest.java': 'class UserControllerTest {}',
   });
   const r = d.unitsWithoutTest(root, JAVA);
@@ -66,18 +66,18 @@ test('a route no document mentions is reported; the external path and markdown e
   const files = {
     'pom.xml': '<project/>',
     'src/main/java/app/AController.java': `package app;
-@RequestMapping("/elastic")
+@RequestMapping("/orders")
 public class AController {
   @DeleteMapping("/sync/log") void a() {}
   @GetMapping("/alias") void b() {}
   @GetMapping("/hidden") void c() {}
 }
 `,
-    'docs/architecture.md': '| `DELETE /api/v1/orders/sync/log` | AController |\n**GET /elastic/alias** — the alias\n',
+    'docs/architecture.md': '| `DELETE /api/v1/orders/sync/log` | AController |\n**GET /orders/alias** — the alias\n',
   };
   const root = project(files);
   const report = d.routesNotDocumented(root, JAVA, d.routesInCode(root, JAVA));
-  assert.deepStrictEqual(report.missing.map((r) => r.route), ['/elastic/hidden'], 'only the undocumented one');
+  assert.deepStrictEqual(report.missing.map((r) => r.route), ['/orders/hidden'], 'only the undocumented one');
   assert.strictEqual(report.within, 1, 'the external path counts as documented, and is counted apart');
   assert.strictEqual(report.distinct, 3);
   assert.strictEqual(report.docs, 1, 'the denominator: documents read');

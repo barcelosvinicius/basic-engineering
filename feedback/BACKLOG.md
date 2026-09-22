@@ -112,7 +112,7 @@ especialistas mas só carregar o que casa com o projeto. Especialista sem inchar
 
 ---
 
-## Fila vinda do feedback do `project A` (triado em 2026-08-19)
+## Fila vinda do feedback do `projeto A` (triado em 2026-08-19)
 
 > As 23 propostas de `project-a-2026-08-19/SUGESTOES.md` foram triadas e **colapsam em 10
 > unidades** — várias são a mesma mudança vista de ângulos diferentes. Veredito por proposta,

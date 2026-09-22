@@ -1,4 +1,4 @@
-# Sugestões de melhoria do `be` — origem: um projeto real (2026-06-14)
+# Sugestões de melhoria do `be` — de uso real (2026-06-14)
 
 > Geradas a partir do **uso real** do `be` num projeto (Java/Spring + Angular). Mão dupla:
 > o projeto usou o plugin e devolve observações. Filtro: reforça a missão (prático + qualidade
@@ -92,4 +92,4 @@ sem virar burocracia?"* Se não, não entra.
 
 ---
 
-*Snapshot de feedback · projeto um projeto real · 2026-06-14*
+*Snapshot de feedback · uso real · 2026-06-14*

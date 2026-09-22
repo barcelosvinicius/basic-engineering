@@ -28,7 +28,7 @@ with provenance) and the marketplace, tag and GitHub release at `20fd7de`.
 > **Environment note.** This base is operated from **three** environments, not
 > two: a Linux machine (sessions up to 2026-08-19; CI runs on `ubuntu-latest`), a
 > Windows workstation with Git Bash, and — since this session — **WSL2 on that
-> Windows workstation** (`/home/user/basic-engineering`, user-local `gh`
+> Windows workstation** (the clone under the user home, user-local `gh`
 > in `~/.local/bin`). WSL and the Windows side have **separate `gh` tokens**: a
 > refresh run on one does not reach the other, measured 2026-09-22. Any fact about
 > tooling, paths or installed versions names its environment.
@@ -398,7 +398,7 @@ number belongs to the instant the entry closes, which is now.)*
   installed user-local (no `sudo`), authenticated via device flow as
   `barcelosvinicius` (the repo owner), `gh auth setup-git` wired it into `git`.
 - All 37 commits rewritten: author/committer unified to
-  `viniciusbsilva10@gmail.com` (was `the corporate identity`,
+  `viniciusbsilva10@gmail.com` (was the corporate identity of the machine,
   mismatched against this repo's prior history and the pushing account);
   `Co-Authored-By` trailers stripped from every message.
 - `main` fast-forwarded to the branch tip (no merge commit) and pushed to

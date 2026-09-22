@@ -16,7 +16,7 @@ cross-repo · **Status:** 29 propostas, cada uma com linha **Estado:** sob o tí
 ## Direção — como ler este arquivo *(escrita em 2026-08-19)*
 
 **O que é:** 23 propostas para o `be`, levantadas ao longo de ~6 semanas de uso diário em um par de
-repositórios reais (`project A` + `project B`, Spring Boot + Angular + Elasticsearch, a public institution). Não é revisão de código do plugin — é **relatório de quem usou**.
+repositórios reais (`projeto A` + `projeto B`, Spring Boot + Angular + Elasticsearch). Não é revisão de código do plugin — é **relatório de quem usou**.
 
 **Não leia as 23.** Elas estão em cinco rodadas cronológicas porque foi assim que apareceram, mas o
 peso é muito desigual.
@@ -69,7 +69,7 @@ escrevi para validar uma regra errou por duas ordens de grandeza **e passou verd
 ## Diagnóstico: o `be` está sendo usado, e é por isso que o efeito aparece
 
 Evidência objetiva de uso: `/be:session-start` e `/be:session-end` são o ritual de toda sessão (os
-commits `docs(session-end)` provam); existem **8 ADRs** no project A e **8** no project B;
+commits `docs(session-end)` provam); existem **8 ADRs** no projeto A e **8** no projeto B;
 `analise-estrutural.md`, `lessons-learned.md`, `LEARNING-TRAIL.md` e `diretrizes-tecnicas.md`
 existem e estão correntes nos **dois** repos. Nada disso existiria sem o protocolo.
 
@@ -79,7 +79,7 @@ recebe itens. Nada no protocolo manda **apagar** ou **substituir**.
 
 ### O número que sustenta o diagnóstico
 
-| Data | `project A/docs/HISTORICO.md` |
+| Data | `projeto A/docs/HISTORICO.md` |
 |---|--:|
 | 2026-06-16 | 435 linhas |
 | 2026-07-03 | 830 |
@@ -119,8 +119,8 @@ seguem recuperáveis por `git log`/`git show`.
 
 **Estado:** implantada em 2026-08-19, fundida na 4 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
 
-**Fato medido:** o enunciado *"a API do project B é pública"* estava registrado de **três formas
-contraditórias dentro do mesmo arquivo** (`project B/docs/analise-estrutural.md`) — cabeçalho da
+**Fato medido:** o enunciado *"a API do projeto B é pública"* estava registrado de **três formas
+contraditórias dentro do mesmo arquivo** (`projeto B/docs/analise-estrutural.md`) — cabeçalho da
 §3 (12/06), painel de Rastreio (02/07), itens SEC-C1/SEC-M3 (15/06 e 08/07). **Duas das três eram
 falsas.** Cada correção foi registrada como linha nova; ninguém voltou às anteriores.
 
@@ -234,7 +234,7 @@ O dado muda a prioridade da proposta 1 de *"vale a pena"* para *"é o item que s
 
 **Estado:** implantada em 2026-08-19 (U7) — `companions:`, lido por `plugins/be/hooks/scripts/session-start.js` · `50be4bb`
 
-**Fato medido** — `project B`, os três artefatos do protocolo:
+**Fato medido** — `projeto B`, os três artefatos do protocolo:
 
 | Artefato | Último commit | Atraso | Regra no `session-end` |
 |---|---|---|---|
@@ -242,12 +242,12 @@ O dado muda a prioridade da proposta 1 de *"vale a pena"* para *"é o item que s
 | `HISTORICO.md` | 2026-08-06 | 12 dias | passo 2, **incondicional** |
 | `lessons-learned.md` | **2026-07-08** | **65 commits** | passo 3, ***"if applicable"*** |
 
-No `project A` — o diretório em que as sessões rodam — o mesmo `lessons-learned` está corrente
+No `projeto A` — o diretório em que as sessões rodam — o mesmo `lessons-learned` está corrente
 até **2026-08-18**, com 169 entradas contra 26. **A regra funciona; ela só não alcança o repo ao
 lado.**
 
 E o atraso ordena-se pela força do enunciado: o passo condicional é o mais atrasado, e o único
-artefato corrente do `project B` só está corrente porque uma auditoria sob demanda o tocou.
+artefato corrente do `projeto B` só está corrente porque uma auditoria sob demanda o tocou.
 
 **Proposta:** o `session-end` responde por comando *"em quais repositórios esta sessão commitou?"* —
 `git log --since` em cada diretório declarado — e roda o fechamento em **cada um**. Hoje o protocolo
@@ -320,7 +320,7 @@ timestamp do artefato testado, arquivos varridos. Zero sem denominador não é r
 **Estado:** implantada em 2026-08-19 (U9) — skill `plugins/be/skills/proc-safe-removal/` · `46a8e20`
 
 **Fato medido:** o ADR-005 deste projeto existe porque *"0 callers"* quase apagou código vivo
-(`createIndex`/`index` no project B, 02/07) — o framework reagia à **classe**, não ao import. A
+(`createIndex`/`index` no projeto B, 02/07) — o framework reagia à **classe**, não ao import. A
 regra que nasceu dali exige **quatro eixos** antes de apagar: proveniência, supersessão, dano e
 inalcançabilidade.
 
@@ -477,7 +477,7 @@ contradição vive na **prosa**, que é onde ninguém procura.
 **Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Blocked by` em `plugins/be/templates/docs/` · `2f52d17`
 
 **Fato medido:** o gatilho de remoção da guarda de transição foi escrito como *"quando o pipeline do
-project B fechar verde"*. Verificável por comando — e **impossível**: o pipeline falha por causa do
+projeto B fechar verde"*. Verificável por comando — e **impossível**: o pipeline falha por causa do
 **INC-07**, que é outro item aberto. O critério dependia da resolução de um bloqueio que o item não
 controlava.
 
@@ -585,7 +585,7 @@ E cada falha de processo medida nas rodadas anteriores corresponde a **uma arest
 
 | Falha vivida (medida) | Aresta faltante |
 |---|---|
-| `lessons-learned` do project B **65 commits** atrasado | `session-continuity` → `proc-learning-trail` |
+| `lessons-learned` do projeto B **65 commits** atrasado | `session-continuity` → `proc-learning-trail` |
 | `session-start` manda ler **244 KB** e derruba o terminal | `session-continuity` → `proc-context-budget` |
 | Fechamento sem conferir o que foi afirmado | `session-continuity` → `qa-verification-loop` |
 | `analise-estrutural` do repo irmão parado | `session-continuity` → `proc-structural-analysis` |
@@ -828,7 +828,7 @@ prova de que a medição aconteceu) e a 24 acima — a 24 conserta a **forma** d
 
 # Sexta rodada — 2026-09-21 · a regra existia, era normativa, e não vinculou
 
-**Origem:** revisão do documento de requisitos do portal em 11 lotes, contra o código
+**Origem:** revisão de um documento de requisitos em 11 lotes, contra o código
 medido. Três propostas, todas nascidas de defeito próprio cometido **contra regra já escrita**.
 
 ## O fato que abre a rodada

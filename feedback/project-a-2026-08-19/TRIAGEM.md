@@ -51,7 +51,7 @@ o resultado é **28/28**: o autor estava certo e a régua estava errada.
 **O que ficou pior do que o relatado — e é achado novo:** três skills não são citadas por
 **nada** (nenhuma skill, agente ou comando) — `proc-learning-trail`, `proc-skill-creator`,
 `sec-agent-security`. São **órfãs do grafo**: só ativam se o usuário lembrar o nome.
-`proc-learning-trail` órfã é a causa mecânica exata do `lessons-learned` do `project B` estar
+`proc-learning-trail` órfã é a causa mecânica exata do `lessons-learned` do `projeto B` estar
 **65 commits atrasado** — o recurso existe, nada aponta para ele.
 
 **O que ficou melhor:** o hub tem out-degree **1**, não 0, e todos os 15 agentes delegam.
@@ -165,7 +165,7 @@ e o próprio fato é um caso da proposta 8. Medido em 2026-08-19:
 - **Proposta 21 = BACKLOG 11.** O `gateguard` está pronto e desligado por decisão. O que a
   proposta acrescenta não é a ideia — é **o caso medido para ligá-lo** (três defeitos da sessão
   de 18/08 são exatamente o alvo dele). Ação: nenhuma mudança de código; registrar o caso na
-  documentação do gateguard como *"quando ligar"*, e o `project A` roda o experimento.
+  documentação do gateguard como *"quando ligar"*, e o `projeto A` roda o experimento.
 - **Proposta 12 encosta no BACKLOG 9** (`/be:context-budget`, implementado). O que falta lá,
   como o autor diz, **é a aresta a partir do `session-start`** — ou seja, é **U1**, não uma
   ferramenta nova.
@@ -196,7 +196,7 @@ lembra — não bloqueia.**
   depois de U2 rodar algumas sessões: se o painel de fatos com `comando`+`data` já responder
   *"o que mais precisa mudar?"*, a 13 perde razão de ser; se não responder, ela volta com o
   caso medido.
-- **O efeito das diretrizes §15–§18 do `project A` ainda não é mensurável** — quatro delas
+- **O efeito das diretrizes §15–§18 do `projeto A` ainda não é mensurável** — quatro delas
   nasceram em 2026-08-18. O que foi validado lá foi **conformidade**, não efeito. A comparação
   de taxa de drift antes/depois fica pendente, e o comando dela já existe.
 - **Nada aqui altera `plugins/be/` ainda.** Conforme o `feedback/README.md`: rascunho revisado
