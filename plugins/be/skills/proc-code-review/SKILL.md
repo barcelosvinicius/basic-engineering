@@ -37,6 +37,11 @@ a quality gate before merge.
 
 ## What to review — by layer
 
+Every item is answerable from **the diff alone** — "not added", "not introduced";
+never a state of the tree ("none in the project"). A tree-state item turns false
+for every later commit once one occurrence lands anywhere, so everyone ticks it
+in good faith. Tree state belongs in the debt record, with a count and a date.
+
 ### Backend
 
 **Correctness:**
@@ -50,7 +55,7 @@ a quality gate before merge.
 - [ ] Is authorization checked on the server, not only on the client?
 - [ ] Is input validated before use (Bean Validation, sanitization)?
 - [ ] Is the JPA entity not returned directly (use DTO)?
-- [ ] Are secrets out of the code?
+- [ ] Does every secret the change needs come from config or a vault, none added to the code?
 
 **Quality:**
 - [ ] Constructor injection used (not field `@Autowired`)?
@@ -82,8 +87,8 @@ a quality gate before merge.
 
 ### General
 
-- [ ] No `console.log` / `println` of sensitive data?
-- [ ] Comments explain *why*, not *what*; no stale or commented-out code? (see `proc-code-documentation`)
+- [ ] No `console.log` / `println` of sensitive data added?
+- [ ] Comments explain *why*, not *what*; no commented-out code added, no comment this change made stale? (see `proc-code-documentation`)
 - [ ] Naming consistent with the rest of the system?
 - [ ] Does the PR reference an issue with `Closes #N`?
 - [ ] Were docs updated if there was an architectural decision?

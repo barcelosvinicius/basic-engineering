@@ -61,8 +61,9 @@ security sections of `docs/`.
 ## Definition of Done (security review)
 
 - [ ] OWASP A01–A10 checked for all new endpoints
-- [ ] No secrets in code or versioned files (`sec-secrets-management`)
+- [ ] No secret added to code or versioned files by this change (`sec-secrets-management`)
 - [ ] Persistence entities not exposed directly in responses
-- [ ] No stack traces in error responses
-- [ ] No unmitigated critical/high CVEs
+- [ ] No error path added or changed that returns a stack trace
+- [ ] No dependency added or upgraded with an unmitigated critical/high CVE — the
+      tree-wide CVE status is the release's question (`proc-release-checklist`)
 - [ ] Findings documented before fixes; fixes re-validated after merge

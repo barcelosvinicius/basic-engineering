@@ -48,6 +48,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **A per-change checklist item is answerable from the diff alone.**
+  `proc-code-review` states the rule and its items now ask what the change
+  *added* ("no `console.log` of sensitive data added", "none added to the
+  code"); `qa-security-reviewer`'s definition of done does the same for secrets,
+  stack traces and CVEs. `proc-release-checklist` says why it is the exception —
+  a release is the whole system at one moment, so its items stay states. Derived
+  from a blocking pre-commit item phrased as a tree state ("no `console.log` in
+  production code") that sat ticked for five months over 55 occurrences:
+  everyone checked their own diff, found it clean, and signed a false box.
 - **The enforcement ladder, and the test for when a rule becomes a gate.**
   `engineering-principles.md` Appendix D: five rungs — prose, recall, periodic
   sweep, gate at the door, illegal state unrepresentable — and one entry test:

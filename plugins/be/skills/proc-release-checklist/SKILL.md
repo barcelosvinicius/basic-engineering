@@ -17,6 +17,11 @@ significant new version. Universal: adapt the sections to the project's context.
 > **Principle:** A release checklist is not bureaucracy. It is the last line of
 > defense before a problem reaches a real user.
 
+This is the one checklist whose items are **states, not diffs**: the release is
+the whole system at one moment, so "no open critical CVE" is the right question
+here. Per-change checklists (`proc-code-review`) ask the opposite — only what
+the diff added — and must not borrow these items as written.
+
 ---
 
 ## When to use it

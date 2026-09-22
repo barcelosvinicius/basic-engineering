@@ -51,10 +51,10 @@ and no derived number is restated in prose.
 | Agents delegating to another agent | **18 / 18** |
 | `proc-session-continuity` in-degree / declared out-degree | **23 / 7** |
 | Declared `invoke` cycles | **0** |
-| Skills over the ~150-line budget | **5** |
+| Skills over the ~150-line budget | **6** |
 | Skills carrying a resource file | **16 / 29** |
-| Skills payload (`SKILL.md`, LF bytes) | **140,238 B** |
-| Agents payload (LF bytes) | **60,714 B** |
+| Skills payload (`SKILL.md`, LF bytes) | **140,964 B** |
+| Agents payload (LF bytes) | **60,881 B** |
 | Living docs in this repo | **4** |
 
 > **Reading of the graph — the finding, and its fix.** As first measured today, the
