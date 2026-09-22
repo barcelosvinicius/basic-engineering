@@ -417,7 +417,7 @@ because a gate is an enumeration, and what nobody enumerated passes.
 |---|---|
 | PR template with the rite and a mandatory number | theirs refuses "improves performance" without a measurement |
 | `o_basico` executable, probably as `be doctor <projects>` | the largest capability gap: they **measure** seven basics across every project daily, we **advise** one project when asked. Carry over their split of *has tests* from *the CI runs the tests*, and their lesson that a detector ignorant of the house's shape measures itself |
-| Mutation testing for our own scripts | start with `validate.js` and the hooks — what breaks silently. The bypass-guard defect is the argument |
+| ~~Mutation testing for our own scripts~~ | **promoted to 8.9 on 2026-09-22** — the owner's decision, with the bypass-guard defect as its measured case |
 | Gate at the commit, and a first-class place for refused decisions | a refusal with a reopen trigger does not come back as a new idea |
 
 ### 8.6 — `/be:check` reports the measured distance
@@ -443,6 +443,26 @@ debt record, with a count and a measurement date.
 the 22nd's *the rule lives in the schema*. **Blocked by:** nothing. **Effort:**
 low — sentences.
 
+### 8.8 — `qa-test-strategy`: which verification a change needs, and whether the tests prove anything
+
+| | |
+|---|---|
+| **What** | One skill, not five. It decides, per change, which layers the change needs — unit, integration, end-to-end, load — and it carries **mutation as the ruler of test quality**: a test no mutant can kill passes without proving anything. Also: the TDD cycle where it pays (new behaviour with a clear contract), the integration/mock boundary, a few critical E2E journeys, and when a load test is required and against which number (the SLO of `ops-observability`). Stack commands as on-demand resources. |
+| **Why, with each evidence class named** | **Measured, here:** the bypass-guard suite asserted only what must block, so *a detector that blocked everything would have passed it* (A-14) — a surviving mutant in all but name. **Measured, in the field:** 5 of 8 controllers with no test class, and only what was touched recently had any (`project A` 29). **Reported by the owner:** mutation-shaped defects recur across past projects, and load becomes a problem as systems grow — no measured case in this repo yet, and the skill says so instead of borrowing one. |
+| **The owner's framing, which decides the design** | the aim is not tests that pass, but tests that improve the construction and take the automatic out of a bad implementation. So mutation is not a coverage number to reach: it is the question *would any test notice if this line were wrong?* |
+| **Done when** | the skill exists within the `proc-skill-creator` checklist (rung declared), `qa-verification-loop` phase 4 and `qa-engineer` reach it, and its mutation rule is exercised on this repo by 8.9 before it ships. |
+| **Blocked by** | nothing. Enters this version by the owner's decision of 2026-09-22. |
+
+### 8.9 — Mutation applied to ourselves first
+
+The ruler of 8.8, run on the base's own guards before it is recommended to anyone:
+a zero-dependency mutation pass over the modules whose failure is silent — the
+hook guards in `plugins/be/hooks/scripts/_lib.js` and the audits in `scripts/`.
+**Done when:** the pass reports mutants killed / survived per module, every
+survivor is either killed by a new test or recorded as equivalent with the
+reason, and the bypass-guard's old suite — restored in a scratch copy — shows
+the survivor that A-14 later found by hand. **Blocked by:** nothing.
+
 ---
 
 ## Sequencing
@@ -459,6 +479,8 @@ independent units, each small, none blocking the others.
 **Phase 8, as unified on 2026-09-22:** **8.0 first** — it stops the next proposal
 from getting lost. Then **8.4 with 8.7** (sentences that decide the rung the rest
 is born on) → **8.3** → **8.2** → **8.6**. **8.1** runs on its own, in lots.
+**8.8 with 8.9** (added the same day, owner's decision): the ruler is run on
+ourselves before the skill ships it.
 **Phase 7** in parallel, one rule per commit. Then the README, then the release.
 
 ## Explicitly not in this plan
