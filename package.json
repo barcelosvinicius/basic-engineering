@@ -41,7 +41,8 @@
     "gen:guide": "node scripts/gen-capabilities.js",
     "release": "node scripts/release.js",
     "audit:backlog": "node scripts/backlog-audit.js",
-    "audit:graph": "node scripts/graph-audit.js"
+    "audit:graph": "node scripts/graph-audit.js",
+    "audit:proposals": "node scripts/proposals-audit.js"
   },
   "engines": {
     "node": ">=18"

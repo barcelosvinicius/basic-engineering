@@ -48,6 +48,16 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **`scripts/proposals-audit.js` — a feedback proposal cannot lose its state
+  silently.** Every numbered proposal in a `feedback/<dir>/SUGESTOES.md` now
+  carries an `**Estado:**` line (`aberta` · `implantada` with date and commit ·
+  `descartada` with date and reason); numbers must be unique and gap-free. It
+  runs inside `node --test`, so CI and the release execute it. `--draft <file>
+  --from <ledger>` regenerates a status index at the top of a project's own
+  draft copy and lists what the draft has that the ledger lacks. Derived from a
+  measured miss: five proposals lived only in a project's unversioned draft, the
+  oldest from a fact of 2026-09-10, and the number 24 named two different proposals — the
+  triage of 2026-08-19 was a snapshot, and nothing said it had gone stale.
 
 ### Changed
 
