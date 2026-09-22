@@ -63,6 +63,17 @@ project adheres to [Semantic Versioning](https://semver.org/).
   called missing because the docs write the external path; `@GetMapping(produces
   = "…")` would have published `application/json` as an endpoint; and an
   unresolvable class prefix invented the route `/`.
+- **The stack's permissions are applied, not described.** `stack-mappings.json`
+  has carried `allow`/`deny` per stack since it was written — `mvn test`
+  allowed, `mvn deploy` denied — and **nothing applied them**: the file was read
+  by markdown and by zero hooks, so least privilege was advice.
+  `plugins/be/scripts/permissions.js` (Channel B: `.be/scripts/permissions.js`)
+  writes them into the project's `.claude/settings.json`, and `/be:bootstrap`
+  runs it. It is deliberately timid: it only ever adds; nothing the project
+  already decided is changed; a rule the project denies is never added to allow;
+  a settings file that does not parse is left untouched with the reason; and no
+  stack detected means no change, never an empty permissions block. `--dry-run`
+  shows what it would add.
 - **Continuity now exists at the two moments it is lost.** The base used 3 of
   the harness's 10 hook events, and the rule it exists to enforce sat on the
   weakest rung. `PreCompact` writes the session state — branch, last commit,

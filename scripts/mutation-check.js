@@ -37,6 +37,8 @@ const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_state.js', tests: ['test/continuity.test.js'] },
   { file: 'scripts/proposals-audit.js', tests: ['test/proposals.test.js'] },
   { file: 'plugins/be/scripts/distance.js', tests: ['test/distance.test.js'] },
+  { file: 'plugins/be/scripts/permissions.js', tests: ['test/permissions.test.js'] },
+  { file: 'plugins/be/scripts/_stacks.js', tests: ['test/permissions.test.js', 'test/distance.test.js'] },
   { file: 'scripts/lib/probes.js', tests: ['test/probes.test.js'] },
   { file: 'scripts/lib/edges.js', tests: ['test/graph.test.js'] },
   { file: 'scripts/lib/inventory.js', tests: ['test/inventory.test.js'] },

@@ -148,6 +148,12 @@ test('every reader returns null or empty when its rules are absent — never a m
   assert.strictEqual(d.routesNotDocumented(root, {}, []), null);
 });
 
+test('an indicator that is not a string matches nothing', () => {
+  const { detectStacks } = require('../plugins/be/scripts/_stacks.js');
+  assert.deepStrictEqual(detectStacks(project({ 'pom.xml': '' }), { stacks: [{ id: 'x', indicators: [null, 42] }] }), [], 'a malformed indicator is not a match');
+  assert.deepStrictEqual(detectStacks('', mappings), []);
+});
+
 test('indicators match by exact name or by glob, and the scan stops at 20 levels', () => {
   assert.deepStrictEqual(d.detectStacks(project({ 'App.csproj': '' }), mappings).map((s) => s.id), ['dotnet']);
   assert.deepStrictEqual(d.detectStacks(project({ 'my-pom.xml': '' }), mappings), [], 'an exact indicator is not a suffix');

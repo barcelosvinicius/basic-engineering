@@ -124,5 +124,12 @@
     "from": "if (!args.trim()) return { literal: '' };",
     "to": "if (false) return { literal: '' };",
     "reason": "equivalent: empty arguments produce no token, and the next guard returns the same { literal: '' }"
+  },
+  {
+    "file": "plugins/be/scripts/_stacks.js",
+    "op": "condition → true",
+    "from": "if (names === null) { try { names = fs.readdirSync(dir); } catch { names = []; } }",
+    "to": "if (true) { try { names = fs.readdirSync(dir); } catch { names = []; } }",
+    "reason": "equivalent: the cache only saves re-reading the same directory within one call"
   }
 ]

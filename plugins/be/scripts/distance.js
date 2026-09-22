@@ -26,18 +26,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const { loadMappings, detectStacks } = require('./_stacks.js');
 
-const HERE = __dirname;
-const MAPPINGS = [path.join(HERE, '..', 'config', 'stack-mappings.json'), path.join(HERE, '..', '..', 'config', 'stack-mappings.json')];
-
-function loadMappings() {
-  for (const p of MAPPINGS) {
-    try {
-      return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch { /* try the next layout */ }
-  }
-  return null;
-}
 
 /** Files under `dir` (relative to root) whose relative path matches `re`. */
 function walk(root, dir, re, out = [], depth = 0) {
@@ -60,17 +50,6 @@ function walk(root, dir, re, out = [], depth = 0) {
   return out;
 }
 
-/** Stacks whose indicator files exist at the root. */
-function detectStacks(root, mappings) {
-  if (!mappings || !Array.isArray(mappings.stacks)) return [];
-  let names = null;
-  const has = (ind) => {
-    if (!ind.includes('*')) return fs.existsSync(path.join(root, ind));
-    if (names === null) { try { names = fs.readdirSync(root); } catch { names = []; } }
-    return names.some((n) => n.endsWith(ind.replace(/^\*/, '')));
-  };
-  return mappings.stacks.filter((s) => Array.isArray(s.indicators) && s.indicators.some(has));
-}
 
 const baseName = (f) => path.basename(f).replace(/\.[^.]+$/, '');
 

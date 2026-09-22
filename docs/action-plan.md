@@ -554,13 +554,18 @@ trimming `git status --porcelain` eats the leading space of a fixed-width
 prefix, which silently turned `app.js` into `pp.js`; the test caught it before
 the hook shipped. Mutation on the new module: 15/15.
 
-### 9.2 — Permissions become configuration, not description
+### 9.2 ✅ done 2026-09-22 — Permissions become configuration, not description
 
 `config/stack-mappings.json` already carries `allow`/`deny` per stack — and
 **zero hooks or commands apply them**. `/be:bootstrap` writes them into the
 project's settings, so least privilege is the default rather than advice.
-**Done when:** a bootstrapped project has the detected stack's allow/deny in
-its settings, and a project that already has permissions is never overwritten.
+**Done:** `scripts/permissions.js` writes the detected stack's allow/deny into
+the project's `.claude/settings.json`, and `/be:bootstrap` step 6 runs it.
+It only ever adds: the project's own entries and its `deny` win, a settings
+file that does not parse is left untouched with the reason, and no stack means
+no change. The stack detector that was copied in two scripts now lives once,
+in `scripts/_stacks.js`. Mutation: permissions 48/48, detector 17/18 with one
+equivalent.
 
 ### 9.3 — The sweep the owner asked for, before the version
 

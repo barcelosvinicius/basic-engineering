@@ -32,9 +32,16 @@ derive it from the repository and ask only what cannot be inferred.
    run `/be:structural-analysis` to baseline the architecture.
 5. **SDD (optional):** if the project will span more than two weeks, offer to
    create the `.specify/specs|plans|tasks` structure per the `proc-sdd` skill.
-6. **MCP (optional):** mention `mcp.recommended.json` at the plugin root as a
+6. **Least privilege for the detected stack:** run
+   `node <plugin>/scripts/permissions.js` (Channel B: `.be/scripts/permissions.js`)
+   to write the stack’s `allow`/`deny` into the project’s `.claude/settings.json`.
+   Use `--dry-run` first and show the diff. It only ever **adds**: nothing the
+   project already decided is changed, and a rule the project denies is never
+   added to allow. The map has carried these rules per stack from the start;
+   this is what applies them.
+7. **MCP (optional):** mention `mcp.recommended.json` at the plugin root as a
    reviewed-by-the-user starting point for the project's `.mcp.json`.
-7. Finish by proposing the first commit
+8. Finish by proposing the first commit
    (`chore(setup): initialize documentation structure`) and reminding the
    user of the session protocol: `/be:session-start` and `/be:session-end`.
 
