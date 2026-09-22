@@ -39,22 +39,22 @@ and no derived number is restated in prose.
 | Fact | Value |
 |------|-------|
 | Measured against | **be 3.1.1** · `BASE_VERSION v20260820-122341` |
-| Skills · agents · commands | **29 · 18 · 11** |
+| Skills · agents · commands | **30 · 18 · 11** |
 | Hook scripts · events wired | **6 · 3** (SessionStart, PreToolUse, Stop) |
 | Doc templates · config data files | **11 · 2** |
 | Read-only agents (`tools:` restricted) | **12 / 18** |
 | Agents declaring `model:` | **18 / 18** |
 | Agents carrying prompt-injection defense | **18 / 18** |
-| Skills citing >= 1 other skill | **22 / 29** |
-| Skill leaves (no outgoing edge) | **7 / 29** |
+| Skills citing >= 1 other skill | **23 / 30** |
+| Skill leaves (no outgoing edge) | **7 / 30** |
 | Skills cited by nothing (orphans) | **0** |
 | Agents delegating to another agent | **18 / 18** |
 | `proc-session-continuity` in-degree / declared out-degree | **23 / 7** |
 | Declared `invoke` cycles | **0** |
 | Skills over the ~150-line budget | **6** |
-| Skills carrying a resource file | **16 / 29** |
-| Skills payload (`SKILL.md`, LF bytes) | **140,964 B** |
-| Agents payload (LF bytes) | **60,881 B** |
+| Skills carrying a resource file | **17 / 30** |
+| Skills payload (`SKILL.md`, LF bytes) | **148,215 B** |
+| Agents payload (LF bytes) | **61,090 B** |
 | Living docs in this repo | **4** |
 
 > **Reading of the graph — the finding, and its fix.** As first measured today, the

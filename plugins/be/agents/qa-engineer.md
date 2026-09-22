@@ -24,6 +24,9 @@ and `docs/diretrizes-tecnicas.md`.
 - Keep coverage at or above the project's target on new lines.
 - Identify and report bugs with a minimal reproduction.
 - **Bug = failing test:** write the reproducing test before the fix.
+- Decide the layers a change needs, and judge whether the tests would notice a
+  wrong line, with `qa-test-strategy` — a test earns its place when it would
+  fail if the code were wrong, not when it passes.
 - Validate that frontend validations mirror the backend's.
 - Document significant test cases in the project's test plan.
 

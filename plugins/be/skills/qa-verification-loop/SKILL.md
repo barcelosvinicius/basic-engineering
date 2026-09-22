@@ -34,13 +34,21 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
    (the config-protection hook blocks that) — fix the code.
 4. **Tests + coverage** — run the suite; report passed/failed and coverage vs
    the project's target. A bug fixed this session must have a failing test first
-   (see `qa-test-data-builders`).
+   (see `qa-test-data-builders`). Coverage says the lines ran, not that a test
+   would notice them wrong — which layers the change needs, and mutation on a
+   critical module, are `qa-test-strategy`.
 5. **Security scan** — no hardcoded secrets, no business data in `localStorage`,
    no `console.log`/`print` of sensitive data left in. Run Semgrep with the
    bundled rules if available (see `infra-ci-cd`), plus a quick grep.
 6. **Diff review** — `git diff --stat` and read each changed file for
    unintended changes, missing error handling, and edge cases (null, empty,
    zero, overflow, unauthorized).
+
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `consult` | `qa-test-strategy` | phase 4 — when judging whether the tests would notice a wrong line |
 
 ## Before you trust a ruler, make it fail
 

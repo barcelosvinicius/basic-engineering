@@ -2,7 +2,7 @@
 
 # `be` — o que esta base faz por você
 
-Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 18 agentes especializados, 29 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
+Seu projeto tem a base **basic-engineering (`be`)** instalada. Ela transforma a ajuda da IA em parceria de engenharia: 11 comandos, 18 agentes especializados, 30 skills sob demanda e guardrails ao vivo. Este arquivo é gerado — use como seu mapa.
 
 ## Comece por aqui
 
@@ -145,6 +145,7 @@ Carregadas sob demanda quando o gatilho casa — você raramente as invoca diret
 | Nome | O que faz |
 | --- | --- |
 | `qa-test-data-builders` | Use when writing unit or integration tests that need test data. Centralize object creation in fixture builders, follow the AAA pattern (Arrange, Act,… |
+| `qa-test-strategy` | Use when deciding which tests a change needs, judging whether the existing tests actually prove anything, or before a release that touches a hot path… |
 | `qa-verification-loop` | Use when finishing a change, before declaring work "done", or before opening a PR — a stack-agnostic verification loop (build, type-check, lint, test… |
 
 ### Security

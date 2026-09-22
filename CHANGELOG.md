@@ -49,6 +49,17 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **`qa-test-strategy` — which tests a change needs, and whether they prove
+  anything.** A new skill (30 skills now): the layers per kind of change (unit,
+  integration against the real dependency, one end-to-end test per critical
+  journey, load against the SLO), where TDD pays and where it does not, and
+  **mutation as the ruler of test quality** — the question is not whether a line
+  ran but whether any test would notice it wrong. It says what mutation cannot
+  do (find the case nobody wrote) and pairs it with the nearest boundary case.
+  Load criteria anticipate rather than react: a number first, the expected peak
+  and a growth horizon, production-sized data. Tools per stack (PIT, Stryker,
+  mutmut, Testcontainers, Playwright, k6, Gatling) in an on-demand resource.
+  Reached from `qa-verification-loop` phase 4 and the `qa-engineer` agent.
 - **`scripts/mutation-check.js` — the base's own guards are measured by whether
   their tests would notice a wrong line**, not by whether the lines ran. A
   zero-dependency pass over the hook guards and the audits: one small change at
