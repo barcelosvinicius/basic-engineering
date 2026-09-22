@@ -37,8 +37,9 @@ The plugin runs a few high-confidence checks **as code is generated** — blocki
 - **`git --no-verify`** (bypassing hooks) is blocked.
 - **Session-end reminder** when functional code changed without a docs update.
 - **Fact-forcing gate** (narrow by default; `BE_GATEGUARD=all` for every file, `off` to disable) — blocks the first edit of an existing high-impact file (schema/migration, security/auth, API contract, build manifest, CI/deploy) until you state importers / affected API / data shape / the user's instruction.
+- **Reminders at the gesture** (advisory, once per session each; `BE_HOOK_REMINDERS=off`) — the first code edit names the skills of the detected stack; a bulk rewrite (`sed -i`, `git mv`…) brings the lot rule; a removal (`git rm`, an edit deleting 15+ lines) brings `proc-safe-removal`.
 
-Opt out per session with `BE_HOOKS=off`, or a single check with e.g. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.
+Opt out per session with `BE_HOOKS=off`, or a single check with e.g. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off` / `BE_HOOK_REMINDERS=off`.
 
 ## Commands
 

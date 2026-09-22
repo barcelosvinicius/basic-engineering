@@ -106,6 +106,20 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **Rules arrive at the gesture, as one line.** The stack map that only markdown
+  read now has a trigger: the first code edit of a session names the skills of
+  the stack detected at the project root (`pom.xml` → the five Java backend
+  skills). A bulk rewrite — `sed -i`, `perl -i`, `git mv`, `find -exec sed`,
+  `rename` — brings the lot rule: run it on text already at rest, never in the
+  same step as new writing, and read the generated output. A removal — `git rm`,
+  or an edit that deletes 15+ lines — brings `proc-safe-removal`'s four axes.
+  Advisory, once per kind per session, logged, `BE_HOOK_REMINDERS=off`. Derived
+  from a written rule that named its own failure and did not prevent it, because
+  it was read at session start and the risk came hours later. Gestures are read
+  from the commands a line **runs**: the shell line is now split outside quotes,
+  as the shell splits it — the first version split inside them, so
+  `echo "a; sed -i x"` read `sed -i x` as a command, a defect the bypass guard
+  shared and no test had exercised.
 - **The fact-forcing gate is on by default, and narrow.** It used to gate the
   first edit of *every* file, so it shipped off. It now gates only the first
   edit of an **existing** file in a high-impact class — schema/migrations,

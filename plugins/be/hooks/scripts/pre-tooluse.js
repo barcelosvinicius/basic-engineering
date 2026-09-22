@@ -18,6 +18,31 @@
 const lib = require('./_lib.js');
 const gate = require('./_gateguard.js');
 
+// ── reminders: one advisory line when a gesture meets its rule (action plan 8.2) ─
+// Never a block; once per kind per session; opt-out BE_HOOK_REMINDERS=off.
+const ONCE = '(once per session; BE_HOOK_REMINDERS=off)';
+const REMIND = {
+  lot: (g) => `bulk rewrite (${g}): run it on text already at rest — never in the same step as new writing — and read the generated output before trusting the check that follows. A bulk renumber in the same pass as new text is how a correct pointer turns into a wrong one. ${ONCE}`,
+  removal: (g) => `removing code (${g}): clear proc-safe-removal's four axes first — who calls it, what depends on it, what it documented, and where the reason goes (// NB:). ${ONCE}`,
+  stack: (s) => `stack detected: ${s.map((x) => x.id).join(', ')} — skills for this code, consult when the change touches their topic: ${[...new Set(s.flatMap((x) => x.skills || []))].join(', ')}. ${ONCE}`,
+};
+
+function remindOnce(data, kind, detail, text) {
+  if (lib.hooksDisabled('reminders')) return;
+  const key = 'reminder:' + kind;
+  if (gate.isChecked(data, key) || !gate.markChecked(data, key)) return;
+  lib.logEvent(data, { kind: 'reminder', rule: kind, detail });
+  lib.warn('PreToolUse', text);
+}
+
+function stackMappings() {
+  try {
+    return require('../../config/stack-mappings.json');
+  } catch {
+    return null;
+  }
+}
+
 function main() {
   if (lib.hooksDisabled()) return lib.allow();
 
@@ -42,6 +67,10 @@ function main() {
         );
       }
     }
+    const bulk = lib.bulkGesture(cmd);
+    if (bulk) remindOnce(data, 'lot', bulk, REMIND.lot(bulk));
+    const removal = lib.removalGesture(cmd);
+    if (removal) remindOnce(data, 'removal', removal, REMIND.removal(removal));
     return lib.allow();
   }
 
@@ -93,6 +122,14 @@ function main() {
         lib.logEvent(data, { kind: 'gate', tool, file: rel, class: why || 'all files' });
         lib.block(gate.gateMessage(lib.basename(gp), action, why));
       }
+    }
+
+    const removed = lib.removedLines(input);
+    if (removed >= 15) remindOnce(data, 'removal', `${removed} lines removed`, REMIND.removal(`${removed} lines in one edit`));
+    const target = filePath || (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) || '';
+    if (lib.isCodeFile(target)) {
+      const stacks = lib.detectStacks(data.cwd || process.cwd(), stackMappings());
+      if (stacks.length) remindOnce(data, 'stack', stacks.map((s) => s.id).join(','), REMIND.stack(stacks));
     }
 
     return lib.allow();

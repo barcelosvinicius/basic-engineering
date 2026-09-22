@@ -374,6 +374,10 @@ second the piece is created, because *the trigger is the action, not the word*.
 Ours does not need to block — `_lib.js` already has `warn()`, which injects
 context and lets the tool through.
 
+**State (2026-09-22): implemented, awaiting the measurement** — with 8.3, in the
+same session. The first code edit per session offers the detected stack's skills;
+a bulk-rewrite gesture brings the lot rule; a removal gesture brings
+`proc-safe-removal`. Advisory, once per kind, logged beside the gate's fires.
 **Done when:** a narrow trigger (first new code file per session, or the first
 touch of a known directory class) offers the mapped skills, and a measured real
 session shows **≤2 interruptions**. **Blocked by:** 8.3, which is the same

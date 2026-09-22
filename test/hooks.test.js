@@ -189,7 +189,7 @@ test('the PreToolUse hook, run as Claude Code runs it: gates once, logs it, and 
   assert.strictEqual(run('Write', path.join(project, 'src/main/java/app/NewSecurityConfig.java')).status, 0, 'creating a file is not gated — even in a gated class');
   assert.strictEqual(run('Edit', pom, { BE_GATEGUARD: 'off' }).status, 0, 'off disables it');
 
-  const lines = fs.readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  const lines = fs.readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((l) => l.kind === 'gate');
   assert.strictEqual(lines.length, 1, 'exactly one interruption recorded');
   assert.deepStrictEqual({ kind: lines[0].kind, file: lines[0].file, class: lines[0].class }, { kind: 'gate', file: path.join('src', 'main', 'java', 'app', 'SecurityConfig.java'), class: 'security or auth' });
 });
@@ -330,6 +330,117 @@ test('gateguard state: a corrupt, malformed or expired state file starts clean, 
   fs.writeFileSync(tmpAsFile, 'x');
   const r = spawnSync(process.execPath, ['-e', `process.stdout.write(String(require(${JSON.stringify(require.resolve('../plugins/be/hooks/scripts/_gateguard.js'))}).markChecked({session_id:'x'}, '/a')))`], { env: { ...process.env, TMPDIR: tmpAsFile, TMP: tmpAsFile, TEMP: tmpAsFile }, encoding: 'utf8' });
   assert.strictEqual(r.stdout, 'false');
+});
+
+// ── 8.2: gestures that carry a rule, and the stack map with a trigger ──────────
+
+test('gestures are read from the commands a line runs — never from text that mentions them', () => {
+  const runs = {
+    "sed -i 's/a/b/' src/x.ts": 'sed in place',
+    "sed -E -i.bak 's/a/b/' f": 'sed in place',
+    "sed --in-place 's/a/b/' f": 'sed in place',
+    "cd docs && sed -i 's/5\\.6/5.5/' plan.md": 'sed in place',
+    "perl -pi -e 's/a/b/' f": 'perl in place',
+    'git mv old.ts new.ts': 'git mv',
+    "find . -name '*.md' -exec sed -i 's/a/b/' {} +": 'find -exec rewrite',
+    "LC_ALL=C sed -i 's/a/b/' f": 'sed in place',
+  };
+  for (const [cmd, g] of Object.entries(runs)) assert.strictEqual(lib.bulkGesture(cmd), g, cmd);
+  for (const cmd of ["sed -n '1,5p' f", "sed 's/a/b/' f > g", 'echo "use sed -i carefully"', 'grep "git mv" notes.md', 'npm test', '']) {
+    assert.strictEqual(lib.bulkGesture(cmd), null, cmd);
+  }
+  assert.strictEqual(lib.removalGesture('git rm src/old.js'), 'git rm');
+  assert.strictEqual(lib.removalGesture('git add . && git rm -r --cached build'), 'git rm');
+  for (const cmd of ['git remote -v', 'echo "git rm is permanent"', 'rm -rf /tmp/x', '']) assert.strictEqual(lib.removalGesture(cmd), null, cmd);
+  assert.deepStrictEqual(lib.commandSegments('a && b "c ; d" ; e'), ['a', 'b ""', 'e']);
+  assert.strictEqual(lib.bulkGesture('echo "a; sed -i x"'), null, 'a separator inside quotes does not start a command');
+  // An unpaired apostrophe is literal, so it cannot hide the command after it —
+  // the security guard reads the same segments.
+  const flag = '--no' + '-verify';
+  assert.deepStrictEqual(lib.commandSegments(`echo don't && git commit ${flag}`), ["echo don't", `git commit ${flag}`]);
+  assert.ok(lib.isNoVerify(`echo don't && git commit ${flag}`));
+  assert.ok(lib.isNoVerify(`git commit -m "a \\" b" && git commit ${flag}`), 'an escaped quote inside "…" does not end it');
+  assert.strictEqual(lib.bulkGesture('echo "a \\" ; sed -i x"'), null, '…so the separator after it is still quoted');
+  for (const sep of ['; ', ' | ', ' & ', '\n']) assert.strictEqual(lib.removalGesture(`true${sep}git rm x`), 'git rm', JSON.stringify(sep));
+});
+
+test('removedLines nets old against new over every edit; isCodeFile is for source, not docs', () => {
+  const lines = (n) => Array.from({ length: n }, (_, i) => `l${i}`).join('\n');
+  assert.strictEqual(lib.removedLines({ old_string: lines(20), new_string: lines(2) }), 18);
+  assert.strictEqual(lib.removedLines({ edits: [{ old_string: lines(10), new_string: lines(1) }, null, { old_string: lines(8), new_string: lines(2) }] }), 15);
+  assert.strictEqual(lib.removedLines({ content: lines(50) }), 0, 'a Write removes nothing by this measure');
+  assert.strictEqual(lib.removedLines(null), 0);
+  for (const f of ['A.java', 'x.ts', 'y.py', 'z.sql']) assert.ok(lib.isCodeFile(f), f);
+  for (const f of ['README.md', 'pom.xml', 'a.json', '']) assert.ok(!lib.isCodeFile(f), f);
+});
+
+test('detectStacks reads the indicators at the project root, globs included', () => {
+  const os = require('os');
+  const path = require('path');
+  const mappings = require('../plugins/be/config/stack-mappings.json');
+  const mk = (files) => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'be-stack-')); for (const f of files) fs.writeFileSync(path.join(d, f), ''); return d; };
+  assert.deepStrictEqual(lib.detectStacks(mk(['pom.xml']), mappings).map((s) => s.id), ['java-maven']);
+  assert.deepStrictEqual(lib.detectStacks(mk(['App.csproj']), mappings).map((s) => s.id), ['dotnet'], 'a *.csproj glob');
+  assert.deepStrictEqual(lib.detectStacks(mk(['README.md']), mappings), []);
+  assert.deepStrictEqual(lib.detectStacks(mk(['my-pom.xml']), mappings), [], 'a plain indicator is an exact name, not a suffix');
+  assert.deepStrictEqual(lib.detectStacks('', mappings), []);
+  assert.deepStrictEqual(lib.detectStacks(mk(['pom.xml']), null), []);
+  assert.deepStrictEqual(lib.detectStacks(path.join(os.tmpdir(), 'does-not-exist-be'), { stacks: [{ id: 'x', indicators: ['*.csproj'] }] }), [], 'an unreadable root is no stack');
+});
+
+test('reminders, run as Claude Code runs the hook: once per kind per session, logged, never a block', () => {
+  const os = require('os');
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
+  const project = fs.mkdtempSync(path.join(os.tmpdir(), 'be-remind-'));
+  fs.writeFileSync(path.join(project, 'pom.xml'), '<project/>');
+  const logDir = path.join(project, '.log');
+  const session = 'remind-' + Math.random().toString(36).slice(2);
+  const at = (tool, toolInput, extraEnv = {}, sid = session) => {
+    const env = { ...process.env, BE_HOOK_LOG_DIR: logDir, BE_GATEGUARD: 'off', ...extraEnv };
+    for (const k of Object.keys(env)) if (/^BE_HOOKS?_(?!LOG_DIR)|^BE_HOOKS$/.test(k) && !(k in extraEnv)) delete env[k];
+    const r = spawnSync(process.execPath, [hook], { input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }), env, encoding: 'utf8' });
+    assert.strictEqual(r.status, 0, 'a reminder never blocks');
+    return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput.additionalContext : '';
+  };
+  const code = path.join(project, 'src', 'App.java');
+
+  assert.match(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), /stack detected: java-maven — .*be-db-migrations/);
+  assert.strictEqual(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), '', 'the stack reminder comes once');
+  assert.strictEqual(at('Edit', { file_path: path.join(project, 'README.md'), old_string: 'a', new_string: 'b' }), '');
+  assert.match(at('Bash', { command: "sed -i 's/5.6/5.5/' docs/plan.md" }), /bulk rewrite \(sed in place\): run it on text already at rest/);
+  assert.strictEqual(at('Bash', { command: 'git mv a.md b.md' }), '', 'the lot reminder comes once, whatever the gesture');
+  assert.strictEqual(at('Bash', { command: 'echo "git rm"' }), '', 'a mention is not a gesture');
+  const block = Array.from({ length: 20 }, (_, i) => `line ${i}`).join('\n');
+  assert.match(at('Edit', { file_path: code, old_string: block, new_string: '' }), /removing code \(20 lines in one edit\): clear proc-safe-removal/);
+  assert.strictEqual(at('Bash', { command: 'git rm src/Old.java' }), '', 'the removal reminder comes once');
+  assert.strictEqual(at('Bash', { command: 'git rm x' }, { BE_HOOK_REMINDERS: 'off' }, 'optout-' + Math.random().toString(36).slice(2)), '', 'opt-out');
+
+  const log = fs.readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  assert.deepStrictEqual(log.map((l) => `${l.kind}:${l.rule}`), ['reminder:stack', 'reminder:lot', 'reminder:removal']);
+});
+
+test('reminders: each fires on its own gesture only — fresh sessions, one trigger at a time', () => {
+  const os = require('os');
+  const path = require('path');
+  const { spawnSync } = require('child_process');
+  const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
+  const withPom = fs.mkdtempSync(path.join(os.tmpdir(), 'be-remind2-'));
+  fs.writeFileSync(path.join(withPom, 'pom.xml'), '<project/>');
+  const noStack = fs.mkdtempSync(path.join(os.tmpdir(), 'be-remind3-'));
+  const at = (project, tool, toolInput) => {
+    const env = { ...process.env, BE_HOOK_LOG_DIR: path.join(project, '.log'), BE_GATEGUARD: 'off' };
+    for (const k of Object.keys(env)) if (/^BE_HOOKS?_(?!LOG_DIR)|^BE_HOOKS$/.test(k)) delete env[k];
+    const sid = 'fresh-' + Math.random().toString(36).slice(2);
+    const r = spawnSync(process.execPath, [hook], { input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }), env, encoding: 'utf8' });
+    return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput.additionalContext : '';
+  };
+  assert.strictEqual(at(withPom, 'Bash', { command: 'npm test' }), '', 'an ordinary command carries no rule');
+  assert.match(at(withPom, 'Bash', { command: 'git rm src/Old.java' }), /removing code \(git rm\)/);
+  assert.strictEqual(at(withPom, 'Edit', { file_path: path.join(withPom, 'README.md'), old_string: 'a', new_string: 'b' }), '', 'docs do not get the stack reminder');
+  assert.match(at(withPom, 'MultiEdit', { edits: [{ file_path: path.join(withPom, 'App.java'), old_string: 'a', new_string: 'b' }] }), /stack detected: java-maven/, 'the file can come from edits[0]');
+  assert.strictEqual(at(noStack, 'Edit', { file_path: path.join(noStack, 'App.java'), old_string: 'a', new_string: 'b' }), '', 'no indicator, no stack reminder');
 });
 
 test('gateguard remembers checked files per session', () => {

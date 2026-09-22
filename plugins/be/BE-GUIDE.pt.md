@@ -37,8 +37,9 @@ O plugin roda algumas checagens de alta confiança **enquanto o código é gerad
 - **`git --no-verify`** (burlar hooks) é bloqueado.
 - **Lembrete de fim de sessão** quando muda código funcional sem atualizar docs.
 - **Fact-forcing gate** (estreito por padrão; `BE_GATEGUARD=all` para todo arquivo, `off` para desligar) — bloqueia a 1ª edição de um arquivo existente de alto impacto (schema/migração, segurança/auth, contrato de API, manifesto de build, CI/deploy) até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.
+- **Lembretes no gesto** (avisos, uma vez por sessão cada; `BE_HOOK_REMINDERS=off`) — a 1ª edição de código aponta as skills do stack detectado; uma reescrita em massa (`sed -i`, `git mv`…) traz a regra do lote; uma remoção (`git rm`, edição que apaga 15+ linhas) traz o `proc-safe-removal`.
 
-Desligue por sessão com `BE_HOOKS=off`, ou uma checagem só com ex. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.
+Desligue por sessão com `BE_HOOKS=off`, ou uma checagem só com ex. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off` / `BE_HOOK_REMINDERS=off`.
 
 ## Comandos
 

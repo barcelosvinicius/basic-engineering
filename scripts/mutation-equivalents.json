@@ -68,5 +68,26 @@
     "from": "if (!s.checked.includes(key)) s.checked.push(key);",
     "to": "if (true) s.checked.push(key);",
     "reason": "equivalent: a duplicate entry leaves includes() true either way — the list grows, the answer does not change"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "|| → &&",
+    "from": "if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }",
+    "to": "if (two === '&&' && two === '||') { out.push(cur); cur = ''; i++; continue; }",
+    "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → false",
+    "from": "if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }",
+    "to": "if (false) { out.push(cur); cur = ''; i++; continue; }",
+    "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → true",
+    "from": "if (names === null) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
+    "to": "if (true) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
+    "reason": "equivalent: the cache only saves re-reading the same directory within one call"
   }
 ]

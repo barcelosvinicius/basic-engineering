@@ -191,13 +191,41 @@ function pathExists(filePath) {
 // then, still reads as one. Narrowing further would need to parse the shell.
 const GIT_SEGMENT = /^(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+|sudo\s+|command\s+|time\s+)*git\b/;
 
+/**
+ * The commands a shell line actually runs: split on `;`, `|`, `&`, `&&`, `||`
+ * and newlines **outside quotes**, with quoted text blanked — quoted text is
+ * data, not flags or commands. Quotes pair as the shell pairs them (no escapes
+ * inside '…'; backslash escapes inside "…"); a quote with no partner is taken
+ * literally, so an apostrophe cannot hide the command after it. Shared by every
+ * rule that reads a Bash command, so none of them fires on a mere mention.
+ *
+ * The first version split first and blanked after, so `echo "a; sed -i x"`
+ * read `sed -i x` as a command — found by the 8.2 mirror test.
+ */
+function commandSegments(command) {
+  const s = String(command || '');
+  const out = [];
+  let cur = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      while (j < s.length && s[j] !== c) j += c === '"' && s[j] === '\\' ? 2 : 1;
+      if (j < s.length) { cur += c + c; i = j; continue; } // paired: blank the content
+    }
+    const two = s.slice(i, i + 2);
+    if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }
+    if (c === ';' || c === '|' || c === '&' || c === '\n') { out.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  out.push(cur);
+  return out.map((x) => x.trim()).filter(Boolean);
+}
+
 function isNoVerify(command) {
   if (!command) return false;
-  // Split on shell separators: each segment is one command git may or may not run.
-  for (const raw of String(command).split(/\|\||&&|[;|&\n]/)) {
-    // Quoted text is data, not flags — `git commit -m "use --no-verify"` asks
-    // for nothing to be skipped.
-    const seg = raw.trim().replace(/"[^"]*"/g, '""').replace(/'[^']*'/g, "''");
+  // `git commit -m "use --no-verify"` asks for nothing to be skipped.
+  for (const seg of commandSegments(command)) {
     if (!GIT_SEGMENT.test(seg)) continue;
     if (/--no-verify\b/.test(seg)) return true;
     // short form: `git commit -n` (also catches combined clusters like -an)
@@ -205,6 +233,62 @@ function isNoVerify(command) {
     if (m && /(?:^|\s)-[a-zA-Z]*n[a-zA-Z]*\b/.test(m[1])) return true;
   }
   return false;
+}
+
+// ── gestures that carry a rule (action plan 8.2, project A proposal 26) ──
+// A rule read at session start does not reach the moment of risk hours later.
+// These recognise the gesture itself, so the rule arrives when it decides
+// something — as one advisory line, never a block.
+
+const LEAD = '^(?:[A-Za-z_][A-Za-z0-9_]*=\\S*\\s+|sudo\\s+|command\\s+|time\\s+)*';
+const BULK = [
+  ['sed in place', new RegExp(`${LEAD}sed\\s(?:.*\\s)?-(?:[a-zA-Z]*i[a-zA-Z]*|-in-place)(?:[=.]\\S*)?(?:\\s|$)`)],
+  ['perl in place', new RegExp(`${LEAD}perl\\s(?:.*\\s)?-[a-zA-Z]*i`)],
+  ['git mv', new RegExp(`${LEAD}git\\s+mv\\b`)],
+  ['find -exec rewrite', new RegExp(`${LEAD}find\\b.*-exec\\s+(?:sed|perl)\\b`)],
+  ['rename', new RegExp(`${LEAD}rename\\s`)],
+];
+
+/** The bulk-rewrite gesture a command runs, or null. */
+function bulkGesture(command) {
+  for (const seg of commandSegments(command)) {
+    for (const [name, re] of BULK) if (re.test(seg)) return name;
+  }
+  return null;
+}
+
+/** The removal gesture a command runs, or null (`git rm`; `git remote` is not one). */
+function removalGesture(command) {
+  const re = new RegExp(`${LEAD}git\\s+rm\\b`);
+  return commandSegments(command).some((seg) => re.test(seg)) ? 'git rm' : null;
+}
+
+/** Net lines an Edit/MultiEdit removes: old minus new, summed over edits. */
+function removedLines(input) {
+  const count = (s) => (typeof s === 'string' && s !== '' ? s.split('\n').length : 0);
+  const edits = Array.isArray(input && input.edits) ? input.edits : [input || {}];
+  return edits.reduce((n, e) => n + (e ? count(e.old_string) - count(e.new_string) : 0), 0);
+}
+
+const CODE = /\.(java|kt|kts|scala|groovy|js|jsx|mjs|cjs|ts|tsx|vue|svelte|py|go|rs|rb|php|cs|fs|swift|c|cc|cpp|h|hpp|sql)$/i;
+
+/** Whether a path is source code (the stack reminder is for code, not docs or config). */
+function isCodeFile(filePath) {
+  return CODE.test(String(filePath || ''));
+}
+
+/** Stacks whose indicator files exist at the project root, per config/stack-mappings.json. */
+function detectStacks(cwd, mappings) {
+  const path = require('path');
+  if (!cwd || !mappings || !Array.isArray(mappings.stacks)) return [];
+  let names = null;
+  const has = (ind) => {
+    if (!ind.includes('*')) return fs.existsSync(path.join(cwd, ind));
+    if (names === null) { try { names = fs.readdirSync(cwd); } catch { names = []; } }
+    const suffix = ind.replace(/^\*/, '');
+    return names.some((n) => n.endsWith(suffix));
+  };
+  return mappings.stacks.filter((s) => Array.isArray(s.indicators) && s.indicators.some(has));
 }
 
 module.exports = {
@@ -220,6 +304,12 @@ module.exports = {
   isProtectedConfig,
   pathExists,
   isNoVerify,
+  commandSegments,
+  bulkGesture,
+  removalGesture,
+  removedLines,
+  isCodeFile,
+  detectStacks,
   basename,
   PLACEHOLDER,
   SAFE_PATH,
