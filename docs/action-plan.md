@@ -340,7 +340,7 @@ instead of opening a new one, because four of the six were objects already here:
 26 is the ladder of 8.2–8.4 reached from another origin, 27 is the case 8.1 was
 waiting for, 21 was already 8.3. What is genuinely new is 8.0, 8.6 and 8.7.
 
-### 8.0 — The proposal ledger accuses a proposal without a state
+### 8.0 ✅ done 2026-09-22 (`a03262c`) — The proposal ledger accuses a proposal without a state
 
 | | |
 |---|---|

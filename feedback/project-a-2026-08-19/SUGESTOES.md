@@ -967,7 +967,7 @@ revisão atenta é dividido antes de executar, não depois de falhar.
 
 ## 28. A triagem é um retrato: ela não acompanha a proposta que nasce depois 🟠
 
-**Estado:** aberta — triada em 2026-09-22: aceita, primeiro → Phase 8.0 de `docs/action-plan.md`. Estas linhas de estado são a primeira metade; o comando que acusa proposta sem estado é a segunda
+**Estado:** implantada em 2026-09-22 (Phase 8.0) — `scripts/proposals-audit.js`, rodando em `node --test` · `a03262c`
 
 **Correção do próprio fato, feita antes de publicar:** escrevi este item afirmando que não existia
 controle de estado nenhum. **Falso, e medido depois:** o repo do `be` tem
