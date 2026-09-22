@@ -325,6 +325,11 @@ test('gateguard state: a corrupt, malformed or expired state file starts clean, 
   }
   fs.writeFileSync(file, JSON.stringify({ checked: ['/a'], ts: Date.now() }));
   assert.strictEqual(gate.isChecked(data, '/a'), true, 'a fresh, well-formed state is kept');
+  // Found by replaying recorded sessions: the idle expiry also reset the
+  // once-per-session reminders, so a long session repeated them every 30 minutes.
+  fs.writeFileSync(file, JSON.stringify({ checked: ['/a', 'reminder:lot', 7], ts: 1 }));
+  assert.strictEqual(gate.isChecked(data, '/a'), false, 'after the idle expiry a checked file is asked for again');
+  assert.strictEqual(gate.isChecked(data, 'reminder:lot'), true, '…but a reminder stays once per session');
   // An unwritable temp dir: markChecked reports false, so the dispatcher never blocks in a loop.
   const tmpAsFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'be-tmpfile-')), 'file');
   fs.writeFileSync(tmpAsFile, 'x');
@@ -336,17 +341,18 @@ test('gateguard state: a corrupt, malformed or expired state file starts clean, 
 
 test('gestures are read from the commands a line runs — never from text that mentions them', () => {
   const runs = {
-    "sed -i 's/a/b/' src/x.ts": 'sed in place',
-    "sed -E -i.bak 's/a/b/' f": 'sed in place',
-    "sed --in-place 's/a/b/' f": 'sed in place',
-    "cd docs && sed -i 's/5\\.6/5.5/' plan.md": 'sed in place',
-    "perl -pi -e 's/a/b/' f": 'perl in place',
+    "sed -i 's/a/b/' a.md b.md": 'sed in place',
+    "sed -E -i.bak 's/a/b/' src/*.ts": 'sed in place',
+    "cd docs && sed --in-place 's/5\\.6/5.5/' *.md": 'sed in place',
+    "perl -pi -e 's/a/b/' f1 f2": 'perl in place',
     'git mv old.ts new.ts': 'git mv',
     "find . -name '*.md' -exec sed -i 's/a/b/' {} +": 'find -exec rewrite',
-    "LC_ALL=C sed -i 's/a/b/' f": 'sed in place',
+    "LC_ALL=C sed -i 's/a/b/' a.md b.md": 'sed in place',
   };
   for (const [cmd, g] of Object.entries(runs)) assert.strictEqual(lib.bulkGesture(cmd), g, cmd);
-  for (const cmd of ["sed -n '1,5p' f", "sed 's/a/b/' f > g", 'echo "use sed -i carefully"', 'grep "git mv" notes.md', 'npm test', '']) {
+  // Narrowed after the replay: one file is an edit, scratch files are not project text.
+  for (const cmd of ["sed -n '1,5p' f", "sed 's/a/b/' f > g", 'echo "use sed -i carefully"', 'grep "git mv" notes.md', 'npm test', '',
+    "sed -i 's/somir/sumir/' src/app/page.component.ts", "sed -i 's/a/b/' /tmp/x/one.md /tmp/x/two.md"]) {
     assert.strictEqual(lib.bulkGesture(cmd), null, cmd);
   }
   assert.strictEqual(lib.removalGesture('git rm src/old.js'), 'git rm');
@@ -360,8 +366,41 @@ test('gestures are read from the commands a line runs — never from text that m
   assert.deepStrictEqual(lib.commandSegments(`echo don't && git commit ${flag}`), ["echo don't", `git commit ${flag}`]);
   assert.ok(lib.isNoVerify(`echo don't && git commit ${flag}`));
   assert.ok(lib.isNoVerify(`git commit -m "a \\" b" && git commit ${flag}`), 'an escaped quote inside "…" does not end it');
-  assert.strictEqual(lib.bulkGesture('echo "a \\" ; sed -i x"'), null, '…so the separator after it is still quoted');
+  // The narrowing made the earlier version of this case toothless (a one-file
+  // sed no longer fires either), so it now carries a real bulk command inside
+  // the quotes: an escaped quote must not end the string and free it.
+  assert.strictEqual(lib.bulkGesture('echo "a \\" ; sed -i \'s/x/y/\' a.md b.md"'), null, 'an escaped quote does not end the string');
+  // How the in-place operands are counted: flags, -e/-f scripts and the quoted
+  // or unquoted script itself are not files.
+  assert.strictEqual(lib.bulkGesture('sed -i s/a/b/ only.md'), null, 'an unquoted script is not a second file');
+  assert.strictEqual(lib.bulkGesture('sed -i s/a/b/ one.md two.md'), 'sed in place');
+  assert.strictEqual(lib.bulkGesture('sed -E -i \'s/a/b/\' only.md'), null, 'flags are not files');
+  assert.strictEqual(lib.bulkGesture('sed -i -e s/a/b/ -e s/c/d/ notes.md'), null, 'two -e scripts, one file');
+  assert.strictEqual(lib.bulkGesture('sed -i -f fix.sed one.md two.md'), 'sed in place', 'a -f script file is not a target');
   for (const sep of ['; ', ' | ', ' & ', '\n']) assert.strictEqual(lib.removalGesture(`true${sep}git rm x`), 'git rm', JSON.stringify(sep));
+});
+
+test('stacks are read from the file directory upward, and a test file asks for none', () => {
+  const os = require('os');
+  const path = require('path');
+  const mappings = require('../plugins/be/config/stack-mappings.json');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-nested-'));
+  fs.writeFileSync(path.join(root, 'pom.xml'), '');
+  fs.mkdirSync(path.join(root, 'src/main/frontend/src/app'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'src/main/java/app'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src/main/frontend/package.json'), '{}');
+  const ids = (p) => lib.detectStacksFor(path.join(root, p), root, mappings).map((s) => s.id);
+  assert.deepStrictEqual(ids('src/main/frontend/src/app/x.component.ts'), ['node-typescript'], 'the frontend has its own manifest');
+  assert.deepStrictEqual(ids('src/main/java/app/App.java'), ['java-maven'], 'the backend falls back to the project root');
+  assert.deepStrictEqual(lib.detectStacksFor('/elsewhere/App.java', root, mappings), [], 'a file outside the project has no stack');
+  assert.deepStrictEqual(lib.detectStacksFor('', root, mappings), []);
+  assert.deepStrictEqual(lib.detectStacksFor(root, root, mappings), [], 'the project root itself is not a file in it');
+  // A file outside the project is not judged by ITS repository's manifests.
+  assert.deepStrictEqual(lib.detectStacksFor(path.join(__dirname, '..', 'lib', 'installer.js'), root, mappings), []);
+  // Without a project root there is nothing to be inside of — not even the cwd.
+  assert.deepStrictEqual(lib.detectStacksFor(path.join(process.cwd(), 'x.ts'), '', mappings), []);
+  for (const p of ['src/test/java/app/AppTest.java', 'src/app/x.spec.ts', 'e2e/login.ts', 'tests/test_x.py']) assert.ok(lib.isTestFile(p), p);
+  for (const p of ['src/app/x.ts', 'src/main/java/app/App.java']) assert.ok(!lib.isTestFile(p), p);
 });
 
 test('removedLines nets old against new over every edit; isCodeFile is for source, not docs', () => {
@@ -409,7 +448,7 @@ test('reminders, run as Claude Code runs the hook: once per kind per session, lo
   assert.match(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), /stack detected: java-maven — .*be-db-migrations/);
   assert.strictEqual(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), '', 'the stack reminder comes once');
   assert.strictEqual(at('Edit', { file_path: path.join(project, 'README.md'), old_string: 'a', new_string: 'b' }), '');
-  assert.match(at('Bash', { command: "sed -i 's/5.6/5.5/' docs/plan.md" }), /bulk rewrite \(sed in place\): run it on text already at rest/);
+  assert.match(at('Bash', { command: "sed -i 's/5.6/5.5/' docs/*.md" }), /bulk rewrite \(sed in place\): run it on text already at rest/);
   assert.strictEqual(at('Bash', { command: 'git mv a.md b.md' }), '', 'the lot reminder comes once, whatever the gesture');
   assert.strictEqual(at('Bash', { command: 'echo "git rm"' }), '', 'a mention is not a gesture');
   const block = Array.from({ length: 20 }, (_, i) => `line ${i}`).join('\n');
@@ -439,6 +478,7 @@ test('reminders: each fires on its own gesture only — fresh sessions, one trig
   assert.strictEqual(at(withPom, 'Bash', { command: 'npm test' }), '', 'an ordinary command carries no rule');
   assert.match(at(withPom, 'Bash', { command: 'git rm src/Old.java' }), /removing code \(git rm\)/);
   assert.strictEqual(at(withPom, 'Edit', { file_path: path.join(withPom, 'README.md'), old_string: 'a', new_string: 'b' }), '', 'docs do not get the stack reminder');
+  assert.strictEqual(at(withPom, 'Edit', { file_path: path.join(withPom, 'src/test/java/AppTest.java'), old_string: 'a', new_string: 'b' }), '', 'nor does a test file');
   assert.match(at(withPom, 'MultiEdit', { edits: [{ file_path: path.join(withPom, 'App.java'), old_string: 'a', new_string: 'b' }] }), /stack detected: java-maven/, 'the file can come from edits[0]');
   assert.strictEqual(at(noStack, 'Edit', { file_path: path.join(noStack, 'App.java'), old_string: 'a', new_string: 'b' }), '', 'no indicator, no stack reminder');
 });

@@ -93,8 +93,13 @@ function stateFile(data) {
 function load(file) {
   try {
     const s = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (!s || !Array.isArray(s.checked) || Date.now() - (s.ts || 0) > TIMEOUT_MS) {
-      return { checked: [], ts: Date.now() };
+    if (!s || !Array.isArray(s.checked)) return { checked: [], ts: Date.now() };
+    // After 30 idle minutes the gate forgets the files it checked, so their facts
+    // are asked for again. Reminders are once per session and survive it —
+    // replaying 19 recorded sessions showed 31 of 54 reminders were repeats
+    // caused by this very expiry.
+    if (Date.now() - (s.ts || 0) > TIMEOUT_MS) {
+      return { checked: s.checked.filter((k) => typeof k === 'string' && k.startsWith('reminder:')), ts: Date.now() };
     }
     return s;
   } catch {

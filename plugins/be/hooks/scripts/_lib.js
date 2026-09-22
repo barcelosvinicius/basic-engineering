@@ -241,18 +241,50 @@ function isNoVerify(command) {
 // something — as one advisory line, never a block.
 
 const LEAD = '^(?:[A-Za-z_][A-Za-z0-9_]*=\\S*\\s+|sudo\\s+|command\\s+|time\\s+)*';
-const BULK = [
+const IN_PLACE = [
   ['sed in place', new RegExp(`${LEAD}sed\\s(?:.*\\s)?-(?:[a-zA-Z]*i[a-zA-Z]*|-in-place)(?:[=.]\\S*)?(?:\\s|$)`)],
   ['perl in place', new RegExp(`${LEAD}perl\\s(?:.*\\s)?-[a-zA-Z]*i`)],
+];
+const ALWAYS_BULK = [
   ['git mv', new RegExp(`${LEAD}git\\s+mv\\b`)],
   ['find -exec rewrite', new RegExp(`${LEAD}find\\b.*-exec\\s+(?:sed|perl)\\b`)],
   ['rename', new RegExp(`${LEAD}rename\\s`)],
 ];
+const TMP = /^(\/tmp\/|\/var\/tmp\/|\$TMPDIR|\$\{?TMPDIR|\$SP\b|\$\{?SP\}?\/)/;
 
-/** The bulk-rewrite gesture a command runs, or null. */
+/**
+ * The files an in-place sed/perl segment rewrites: operands after the flags,
+ * minus the script (blanked when quoted, or the first operand with no -e).
+ */
+function inPlaceTargets(seg) {
+  const tokens = seg.split(/\s+/).slice(1);
+  const out = [];
+  let scriptGiven = false;
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === '-e' || t === '--expression' || t === '-f') { scriptGiven = true; i++; continue; }
+    if (t.startsWith('-')) continue;
+    if (t === "''" || t === '""') { scriptGiven = true; continue; }
+    if (!scriptGiven) { scriptGiven = true; continue; } // an unquoted script
+    out.push(t);
+  }
+  return out;
+}
+
+/**
+ * The bulk-rewrite gesture a command runs, or null. Narrowed by replaying 19
+ * recorded sessions: a one-file `sed -i` is an edit, and a rewrite of scratch
+ * files touches no project text — both fired and neither carried the rule.
+ * Bulk means many targets: several files, a glob, find -exec, git mv, rename.
+ */
 function bulkGesture(command) {
   for (const seg of commandSegments(command)) {
-    for (const [name, re] of BULK) if (re.test(seg)) return name;
+    for (const [name, re] of ALWAYS_BULK) if (re.test(seg)) return name;
+    for (const [name, re] of IN_PLACE) {
+      if (!re.test(seg)) continue;
+      const targets = inPlaceTargets(seg).filter((t) => !TMP.test(t));
+      if (targets.length >= 2 || targets.some((t) => /[*?]/.test(t))) return name;
+    }
   }
   return null;
 }
@@ -277,7 +309,34 @@ function isCodeFile(filePath) {
   return CODE.test(String(filePath || ''));
 }
 
-/** Stacks whose indicator files exist at the project root, per config/stack-mappings.json. */
+const TEST_PATH = /((^|[\\/])(tests?|__tests__|__mocks__|spec|e2e)[\\/]|\.(test|spec)\.[a-z]+$|Tests?\.(java|kt|cs)$|_test\.(go|py)$|(^|[\\/])test_[^\\/]+\.py$)/i;
+
+/** Whether a path is a test (its stack's skills are about the code under test, not the test). */
+function isTestFile(filePath) {
+  return TEST_PATH.test(String(filePath || ''));
+}
+
+/**
+ * Stacks for one file: the nearest directory, from the file up to the project
+ * root, that holds a stack's indicators. Found by replay: detecting only at the
+ * root offered the Java backend skills for an Angular component whose own
+ * package.json sat two levels up. A file outside the project gets none.
+ */
+function detectStacksFor(fileAbs, projectRoot, mappings) {
+  const path = require('path');
+  if (!fileAbs || !projectRoot) return [];
+  const rel = path.relative(projectRoot, fileAbs);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return [];
+  let dir = path.dirname(fileAbs);
+  for (;;) {
+    const found = detectStacks(dir, mappings);
+    if (found.length) return found;
+    if (dir === projectRoot || path.dirname(dir) === dir) return [];
+    dir = path.dirname(dir);
+  }
+}
+
+/** Stacks whose indicator files exist in `cwd`, per config/stack-mappings.json. */
 function detectStacks(cwd, mappings) {
   const path = require('path');
   if (!cwd || !mappings || !Array.isArray(mappings.stacks)) return [];
@@ -309,7 +368,9 @@ module.exports = {
   removalGesture,
   removedLines,
   isCodeFile,
+  isTestFile,
   detectStacks,
+  detectStacksFor,
   basename,
   PLACEHOLDER,
   SAFE_PATH,

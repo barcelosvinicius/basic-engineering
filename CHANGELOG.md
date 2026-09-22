@@ -115,7 +115,17 @@ project adheres to [Semantic Versioning](https://semver.org/).
   or an edit that deletes 15+ lines — brings `proc-safe-removal`'s four axes.
   Advisory, once per kind per session, logged, `BE_HOOK_REMINDERS=off`. Derived
   from a written rule that named its own failure and did not prevent it, because
-  it was read at session start and the risk came hours later. Gestures are read
+  it was read at session start and the risk came hours later. **Narrowed by
+  measurement**, replaying 19 recorded sessions of a real project (5,949 tool
+  calls): the stack is read from the edited file's own directory upward — at the
+  root only, an Angular component was offered the Java backend skills — tests and
+  files outside the project ask for none; and a bulk rewrite now means *many*
+  targets (several files, a glob, `find -exec`, `git mv`, `rename`), because a
+  one-file `sed -i` is an edit, not a bulk rewrite. The same replay found that
+  the gate's 30-minute idle expiry also reset the once-per-session reminders, so
+  a long session repeated them: 31 of 54 fires were repeats. Reminders now
+  survive the expiry; the files the gate checked still do not. Result over the
+  same 19 sessions: 54 → 17 reminders, each one on a real gesture. Gestures are read
   from the commands a line **runs**: the shell line is now split outside quotes,
   as the shell splits it — the first version split inside them, so
   `echo "a; sed -i x"` read `sed -i x` as a command, a defect the bypass guard
@@ -128,7 +138,11 @@ project adheres to [Semantic Versioning](https://semver.org/).
   docs, tests and lockfiles pass. `BE_GATEGUARD=all` restores the old behaviour,
   `off` disables it. Every gate that fires leaves one line in a per-session log
   (`BE_HOOK_LOG_DIR`, default the OS temp dir): the default stays on only if a
-  measured real session shows ≤2 interruptions. The dispatcher it lives in had
+  measured real session shows ≤2 interruptions — **measured: 0 interruptions
+  across 19 recorded sessions of a real project, against 165 the old behaviour
+  would have made**, and it guards 10 of that project's 395 versioned files
+  (`pom.xml`, `package.json`, `Dockerfile`, `Jenkinsfile`, six security files).
+  The dispatcher it lives in had
   one test path; it now has end-to-end tests for every guard it runs (mutation:
   27/69 → 66/69, 3 equivalent).
 - **This repo's workflows now follow the skill it ships.** Actions pinned by

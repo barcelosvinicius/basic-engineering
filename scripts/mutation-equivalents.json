@@ -89,5 +89,26 @@
     "from": "if (names === null) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
     "to": "if (true) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "|| → &&",
+    "from": "if (t === '-e' || t === '--expression' || t === '-f') { scriptGiven = true; i++; continue; }",
+    "to": "if (t === '-e' || t === '--expression' && t === '-f') { scriptGiven = true; i++; continue; }",
+    "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "|| → &&",
+    "from": "if (t === \"''\" || t === '\"\"') { scriptGiven = true; continue; }",
+    "to": "if (t === \"''\" && t === '\"\"') { scriptGiven = true; continue; }",
+    "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → false",
+    "from": "if (t === \"''\" || t === '\"\"') { scriptGiven = true; continue; }",
+    "to": "if (false) { scriptGiven = true; continue; }",
+    "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change"
   }
 ]

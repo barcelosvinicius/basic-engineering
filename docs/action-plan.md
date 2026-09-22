@@ -360,7 +360,20 @@ waiting for, 21 was already 8.3. What is genuinely new is 8.0, 8.6 and 8.7.
 | **Blocked by** | **partly lifted on 2026-09-22** by proposal 27, which gives measured cases to rules 1, 2, 3 and 6. Rules 4 and 5 still need theirs; each rule must cite the measured case that produced it, the way the reference repo's gates do, and a rule without a case gets pruned rather than shipped. |
 | **Done when** | the skill exists with a case per rule, passes the `proc-skill-creator` checklist, and at least one existing skill declares an edge to it. Rules 3 and 6 are the only two with a plausible mechanical check (over the shape of the report); the other four are discipline, and the skill says so instead of pretending otherwise. |
 
-### 8.2 — The map that already exists gains a trigger
+### 8.2 ✅ done 2026-09-22 — The map that already exists gains a trigger
+
+**Measured on the same 19 sessions, and narrowed by what they showed** — 54
+reminders became **17**, at most 3 in a session:
+- the stack is read from the edited file's directory upward: at the project root
+  only, an Angular component was offered the **Java backend** skills;
+- tests and files outside the project ask for no stack;
+- a bulk rewrite needs **many** targets — a one-file `sed -i` (fixing a typo) and
+  rewrites of scratch files were firing the lot rule;
+- **31 of the first 54 fires were repeats**: the gate's 30-minute idle expiry
+  also cleared the once-per-session reminders. Reminders now survive it.
+
+The five removal reminders were relevant as first written (`git rm` of
+components, blocks of 17–21 lines).
 
 `plugins/be/config/stack-mappings.json` already maps **7 stacks → their skills**,
 detected by file indicators (`pom.xml` → five `be-*` skills, `tsconfig.json` →
@@ -390,7 +403,18 @@ case behind it: a rule that named its own failure mode in writing, nineteen days
 old, did not prevent that exact failure, because it was read at session start and
 the risk arrived hours later.
 
-### 8.3 — Narrow the gateguard trigger until it can ship on
+### 8.3 ✅ done 2026-09-22 — Narrow the gateguard trigger until it can ship on
+
+**Measured, and it is born on.** Not by one live session but by replaying **19
+recorded sessions** of `project A` (5,949 tool calls, 569 edits) through the
+new gate, with file existence taken from the repository *at each session's
+start*: **0 interruptions**, against **165** the old every-file gate would have
+made. It guards **10 of that project's 395 versioned files** — `pom.xml`,
+`src/main/frontend/package.json`, `Dockerfile`, `Jenkinsfile` and six security
+files. The honest limit of this evidence: none of those 19 sessions edited a
+guarded file, so the replay proves it does not interrupt, while the tests prove
+it fires where it should. The replay is cheaper and wider than a live session —
+19 sessions of real work instead of one arranged task — and it is repeatable.
 
 The fact-forcing gate is opt-in and off by default because it stops the first
 edit of *any* file. The reference repo refused it for exactly that reason

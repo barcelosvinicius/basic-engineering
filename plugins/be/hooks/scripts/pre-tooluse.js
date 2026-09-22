@@ -27,9 +27,9 @@ const REMIND = {
   stack: (s) => `stack detected: ${s.map((x) => x.id).join(', ')} — skills for this code, consult when the change touches their topic: ${[...new Set(s.flatMap((x) => x.skills || []))].join(', ')}. ${ONCE}`,
 };
 
-function remindOnce(data, kind, detail, text) {
+function remindOnce(data, kind, detail, text, keySuffix = '') {
   if (lib.hooksDisabled('reminders')) return;
-  const key = 'reminder:' + kind;
+  const key = 'reminder:' + kind + keySuffix;
   if (gate.isChecked(data, key) || !gate.markChecked(data, key)) return;
   lib.logEvent(data, { kind: 'reminder', rule: kind, detail });
   lib.warn('PreToolUse', text);
@@ -127,9 +127,11 @@ function main() {
     const removed = lib.removedLines(input);
     if (removed >= 15) remindOnce(data, 'removal', `${removed} lines removed`, REMIND.removal(`${removed} lines in one edit`));
     const target = filePath || (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) || '';
-    if (lib.isCodeFile(target)) {
-      const stacks = lib.detectStacks(data.cwd || process.cwd(), stackMappings());
-      if (stacks.length) remindOnce(data, 'stack', stacks.map((s) => s.id).join(','), REMIND.stack(stacks));
+    if (lib.isCodeFile(target) && !lib.isTestFile(target)) {
+      const stacks = lib.detectStacksFor(target, data.cwd || process.cwd(), stackMappings());
+      const ids = stacks.map((s) => s.id).join(',');
+      // once per stack per session: a full-stack session hears about each side once
+      if (stacks.length) remindOnce(data, 'stack', ids, REMIND.stack(stacks), ':' + ids);
     }
 
     return lib.allow();
