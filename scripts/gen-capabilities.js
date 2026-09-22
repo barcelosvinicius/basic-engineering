@@ -127,6 +127,7 @@ const PROSE = {
       '- **`git --no-verify`** (bypassing hooks) is blocked.',
       '- **Session-end reminder** when functional code changed without a docs update.',
       "- **Fact-forcing gate** (narrow by default; `BE_GATEGUARD=all` for every file, `off` to disable) — blocks the first edit of an existing high-impact file (schema/migration, security/auth, API contract, build manifest, CI/deploy) until you state importers / affected API / data shape / the user's instruction.",
+      '- **Continuity at the two moments it breaks** — before a context compaction the session state (branch, last commit, what is uncommitted, whether the living docs are behind) is written down and handed back as context; at session end, if code changed and the docs did not, a note is left for the next session start, which reads it once.',
       '- **Reminders at the gesture** (advisory, once per session each; `BE_HOOK_REMINDERS=off`) — the first code edit names the skills of the detected stack; a bulk rewrite (`sed -i`, `git mv`…) brings the lot rule; a removal (`git rm`, an edit deleting 15+ lines) brings `proc-safe-removal`.',
     ].join('\n'),
     optOut:
@@ -177,6 +178,7 @@ const PROSE = {
       '- **`git --no-verify`** (burlar hooks) é bloqueado.',
       '- **Lembrete de fim de sessão** quando muda código funcional sem atualizar docs.',
       '- **Fact-forcing gate** (estreito por padrão; `BE_GATEGUARD=all` para todo arquivo, `off` para desligar) — bloqueia a 1ª edição de um arquivo existente de alto impacto (schema/migração, segurança/auth, contrato de API, manifesto de build, CI/deploy) até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.',
+      '- **Continuidade nos dois momentos em que ela se perde** — antes de uma compactação de contexto, o estado da sessão (branch, último commit, o que está sem commit, se a documentação viva está atrás) é gravado e devolvido como contexto; no fim da sessão, se o código mudou e a documentação não, fica um recado que o próximo início lê uma vez.',
       '- **Lembretes no gesto** (avisos, uma vez por sessão cada; `BE_HOOK_REMINDERS=off`) — a 1ª edição de código aponta as skills do stack detectado; uma reescrita em massa (`sed -i`, `git mv`…) traz a regra do lote; uma remoção (`git rm`, edição que apaga 15+ linhas) traz o `proc-safe-removal`.',
     ].join('\n'),
     optOut:

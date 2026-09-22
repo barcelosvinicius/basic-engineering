@@ -34,6 +34,7 @@ const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_lib.js', tests: ['test/hooks.test.js'] },
   { file: 'plugins/be/hooks/scripts/_gateguard.js', tests: ['test/hooks.test.js'] },
   { file: 'plugins/be/hooks/scripts/pre-tooluse.js', tests: ['test/hooks.test.js'] },
+  { file: 'plugins/be/hooks/scripts/_state.js', tests: ['test/continuity.test.js'] },
   { file: 'scripts/proposals-audit.js', tests: ['test/proposals.test.js'] },
   { file: 'plugins/be/scripts/distance.js', tests: ['test/distance.test.js'] },
   { file: 'scripts/lib/probes.js', tests: ['test/probes.test.js'] },

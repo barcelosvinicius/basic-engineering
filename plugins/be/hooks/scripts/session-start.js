@@ -22,6 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const state = require('./_state.js');
 
 const MAX_LINES = 40;
 
@@ -180,6 +181,15 @@ async function main() {
         ? `Summary from ${rel} (truncated to ${MAX_LINES} lines):\n\n${summary}`
         : `${rel} exists but has no recognizable state sections — read it directly.`
     );
+  }
+
+  // What the previous session ended with, if it ended with code changed and the
+  // living docs untouched. Written by the SessionEnd hook, read once, cleared —
+  // so the note cannot linger and become noise.
+  const carry = state.readCarry(cwd);
+  if (carry && carry.note) {
+    parts.push(`[be] Carried from the last session (${String(carry.at).slice(0, 16).replace('T', ' ')}): ${carry.note}.`);
+    state.clearCarry(cwd);
   }
 
   // Is this machine running the latest base? Asked once per session; the answer

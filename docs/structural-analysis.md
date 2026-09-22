@@ -40,7 +40,7 @@ and no derived number is restated in prose.
 |------|-------|
 | Measured against | **be 3.1.1** · `BASE_VERSION v20260820-122341` |
 | Skills · agents · commands | **31 · 18 · 11** |
-| Hook scripts · events wired | **6 · 3** (SessionStart, PreToolUse, Stop) |
+| Hook scripts · events wired | **9 · 5** (SessionStart, PreToolUse, Stop, PreCompact, SessionEnd) |
 | Doc templates · config data files | **11 · 2** |
 | Read-only agents (`tools:` restricted) | **12 / 18** |
 | Agents declaring `model:` | **18 / 18** |
