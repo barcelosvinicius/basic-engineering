@@ -393,6 +393,11 @@ edit of *any* file. The reference repo refused it for exactly that reason
 (`DECISOES.md §10`, third objection), and the objection is correct. The fix is
 not to switch it on — it is to narrow the trigger to conditions a machine
 decides alone, the way their gates do.
+**State (2026-09-22): implemented, awaiting the measurement.** Narrow by default:
+the first edit of an existing file in a high-impact class, judged on the
+project-relative path; every fire is logged per session. **Measured by:** the
+owner's ordinary session in `project A` with the development build, then
+counting that session's log.
 **Done when:** measured in a real session, interruptions ≤2 and the gate can be
 born on. **Blocked by:** nothing. **Absorbs `project A` proposal 21** — the
 same gate, the same objection, asked for from the project side — as its evidence

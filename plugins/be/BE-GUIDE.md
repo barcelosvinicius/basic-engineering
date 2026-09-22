@@ -36,7 +36,7 @@ The plugin runs a few high-confidence checks **as code is generated** — blocki
 - **Weakening an existing linter/formatter config** is blocked (fix the code, not the config).
 - **`git --no-verify`** (bypassing hooks) is blocked.
 - **Session-end reminder** when functional code changed without a docs update.
-- **Fact-forcing gate** (opt-in: `BE_GATEGUARD=on`) — blocks the first edit of each file until you state importers / affected API / data shape / the user's instruction.
+- **Fact-forcing gate** (narrow by default; `BE_GATEGUARD=all` for every file, `off` to disable) — blocks the first edit of an existing high-impact file (schema/migration, security/auth, API contract, build manifest, CI/deploy) until you state importers / affected API / data shape / the user's instruction.
 
 Opt out per session with `BE_HOOKS=off`, or a single check with e.g. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.
 

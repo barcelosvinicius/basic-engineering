@@ -8,7 +8,8 @@
  *     secret in the command.
  *   - Write/Edit/MultiEdit: block weakening an EXISTING linter/formatter config
  *     (fix the code, not the config); block writing a hardcoded secret into a
- *     non-test source file.
+ *     non-test source file; block the first edit of an existing high-impact
+ *     file until the agent states the facts (the narrow fact-forcing gate).
  *
  * Fail-open and opt-out via BE_HOOKS / BE_HOOK_<ID> (see _lib.js).
  */
@@ -76,15 +77,21 @@ function main() {
       }
     }
 
-    // Fact-forcing gate (opt-in BE_GATEGUARD=on): block the first touch per file
-    // until the agent investigates. Fail-open if session state can't persist.
+    // Fact-forcing gate: block the first touch of a high-impact file per session
+    // until the agent investigates (narrow by default; BE_GATEGUARD=all|off).
+    // Fail-open if session state can't persist.
     if (gate.enabled() && !lib.hooksDisabled('gateguard')) {
       const gp =
         filePath ||
         (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) ||
         '';
-      if (gp && !gate.isChecked(data, gp) && gate.markChecked(data, gp)) {
-        lib.block(gate.gateMessage(lib.basename(gp), tool === 'Write' ? 'create' : 'edit'));
+      const rel = lib.projectRelative(gp, data.cwd || process.cwd());
+      const exists = Boolean(gp) && lib.pathExists(gp);
+      if (gate.shouldGate(rel, exists) && !gate.isChecked(data, gp) && gate.markChecked(data, gp)) {
+        const why = gate.mode() === 'narrow' ? gate.riskClass(rel) : '';
+        const action = tool !== 'Write' ? 'edit' : exists ? 'overwrite' : 'creation';
+        lib.logEvent(data, { kind: 'gate', tool, file: rel, class: why || 'all files' });
+        lib.block(gate.gateMessage(lib.basename(gp), action, why));
       }
     }
 

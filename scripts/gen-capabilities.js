@@ -126,7 +126,7 @@ const PROSE = {
       '- **Weakening an existing linter/formatter config** is blocked (fix the code, not the config).',
       '- **`git --no-verify`** (bypassing hooks) is blocked.',
       '- **Session-end reminder** when functional code changed without a docs update.',
-      "- **Fact-forcing gate** (opt-in: `BE_GATEGUARD=on`) — blocks the first edit of each file until you state importers / affected API / data shape / the user's instruction.",
+      "- **Fact-forcing gate** (narrow by default; `BE_GATEGUARD=all` for every file, `off` to disable) — blocks the first edit of an existing high-impact file (schema/migration, security/auth, API contract, build manifest, CI/deploy) until you state importers / affected API / data shape / the user's instruction.",
     ].join('\n'),
     optOut:
       'Opt out per session with `BE_HOOKS=off`, or a single check with e.g. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.',
@@ -175,7 +175,7 @@ const PROSE = {
       '- **Afrouxar um config de linter/formatter existente** é bloqueado (conserte o código, não o config).',
       '- **`git --no-verify`** (burlar hooks) é bloqueado.',
       '- **Lembrete de fim de sessão** quando muda código funcional sem atualizar docs.',
-      '- **Fact-forcing gate** (opt-in: `BE_GATEGUARD=on`) — bloqueia a 1ª edição de cada arquivo até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.',
+      '- **Fact-forcing gate** (estreito por padrão; `BE_GATEGUARD=all` para todo arquivo, `off` para desligar) — bloqueia a 1ª edição de um arquivo existente de alto impacto (schema/migração, segurança/auth, contrato de API, manifesto de build, CI/deploy) até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.',
     ].join('\n'),
     optOut:
       'Desligue por sessão com `BE_HOOKS=off`, ou uma checagem só com ex. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.',

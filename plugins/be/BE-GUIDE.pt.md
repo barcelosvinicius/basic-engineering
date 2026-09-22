@@ -36,7 +36,7 @@ O plugin roda algumas checagens de alta confiança **enquanto o código é gerad
 - **Afrouxar um config de linter/formatter existente** é bloqueado (conserte o código, não o config).
 - **`git --no-verify`** (burlar hooks) é bloqueado.
 - **Lembrete de fim de sessão** quando muda código funcional sem atualizar docs.
-- **Fact-forcing gate** (opt-in: `BE_GATEGUARD=on`) — bloqueia a 1ª edição de cada arquivo até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.
+- **Fact-forcing gate** (estreito por padrão; `BE_GATEGUARD=all` para todo arquivo, `off` para desligar) — bloqueia a 1ª edição de um arquivo existente de alto impacto (schema/migração, segurança/auth, contrato de API, manifesto de build, CI/deploy) até você declarar importadores / API afetada / formato dos dados / a instrução do usuário.
 
 Desligue por sessão com `BE_HOOKS=off`, ou uma checagem só com ex. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off`.
 

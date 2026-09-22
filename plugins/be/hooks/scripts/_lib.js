@@ -74,6 +74,35 @@ function allow() {
   process.exit(0);
 }
 
+// ── per-session event log ────────────────────────────────────────────────────
+// Every gate or reminder that fires leaves one line, so "≤2 interruptions per
+// session" is counted rather than remembered (action plan 8.3/8.2). It records
+// the kind, a project-relative path and a short label — never a command or file
+// content. Fail-open: a log that cannot be written never affects the tool call.
+function logEvent(data, event) {
+  try {
+    const os = require('os');
+    const path = require('path');
+    const dir = process.env.BE_HOOK_LOG_DIR || path.join(os.tmpdir(), 'be-hook-log');
+    fs.mkdirSync(dir, { recursive: true });
+    const session = String((data && data.session_id) || 'no-session').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64) || 'no-session';
+    const line = { ts: new Date().toISOString(), session, cwd: (data && data.cwd) || process.cwd(), ...event };
+    fs.appendFileSync(path.join(dir, `${session}.jsonl`), JSON.stringify(line) + '\n');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** A path relative to the project when it lies inside it; otherwise unchanged. */
+function projectRelative(filePath, cwd) {
+  const path = require('path');
+  const p = String(filePath || '');
+  if (!p || !cwd) return p;
+  const rel = path.relative(cwd, p);
+  return rel && !rel.startsWith('..') && !path.isAbsolute(rel) ? rel : p;
+}
+
 // ── secret detection ─────────────────────────────────────────────────────────
 
 // Obvious non-secrets: placeholders, env-var references, interpolation.
@@ -185,6 +214,8 @@ module.exports = {
   block,
   warn,
   allow,
+  logEvent,
+  projectRelative,
   detectSecrets,
   isProtectedConfig,
   pathExists,

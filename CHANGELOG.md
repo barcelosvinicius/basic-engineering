@@ -106,6 +106,17 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **The fact-forcing gate is on by default, and narrow.** It used to gate the
+  first edit of *every* file, so it shipped off. It now gates only the first
+  edit of an **existing** file in a high-impact class — schema/migrations,
+  security/auth, API contracts, build/dependency manifests, CI/deploy pipelines —
+  decided by the path relative to the project, never by judgement. New files,
+  docs, tests and lockfiles pass. `BE_GATEGUARD=all` restores the old behaviour,
+  `off` disables it. Every gate that fires leaves one line in a per-session log
+  (`BE_HOOK_LOG_DIR`, default the OS temp dir): the default stays on only if a
+  measured real session shows ≤2 interruptions. The dispatcher it lives in had
+  one test path; it now has end-to-end tests for every guard it runs (mutation:
+  27/69 → 66/69, 3 equivalent).
 - **This repo's workflows now follow the skill it ships.** Actions pinned by
   commit SHA instead of mutable tags, least-privilege `permissions:`,
   `timeout-minutes` and `concurrency` on CI. `infra-ci-cd` gained the two rules

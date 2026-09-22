@@ -40,5 +40,33 @@
     "from": "for (const n of edges.keys()) if (!state.has(n)) walk(n, []);",
     "to": "for (const n of edges.keys()) if (true) walk(n, []);",
     "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; restarting the walk from a finished node rediscovers what it already reported"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/pre-tooluse.js",
+    "op": "condition → false",
+    "from": "if (lib.hooksDisabled()) return lib.allow();",
+    "to": "if (false) return lib.allow();",
+    "reason": "equivalent: every guard below calls hooksDisabled(id), which reads the global switch too — skipping the early exit changes the cost, not the outcome"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/pre-tooluse.js",
+    "op": "condition → true",
+    "from": "if (typeof input.content === 'string') texts.push(input.content);",
+    "to": "if (true) texts.push(input.content);",
+    "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/pre-tooluse.js",
+    "op": "condition → true",
+    "from": "if (typeof input.new_string === 'string') texts.push(input.new_string);",
+    "to": "if (true) texts.push(input.new_string);",
+    "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_gateguard.js",
+    "op": "condition → true",
+    "from": "if (!s.checked.includes(key)) s.checked.push(key);",
+    "to": "if (true) s.checked.push(key);",
+    "reason": "equivalent: a duplicate entry leaves includes() true either way — the list grows, the answer does not change"
   }
 ]

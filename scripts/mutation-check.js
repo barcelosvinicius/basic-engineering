@@ -32,6 +32,8 @@ const { spawnSync } = require('child_process');
 
 const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_lib.js', tests: ['test/hooks.test.js'] },
+  { file: 'plugins/be/hooks/scripts/_gateguard.js', tests: ['test/hooks.test.js'] },
+  { file: 'plugins/be/hooks/scripts/pre-tooluse.js', tests: ['test/hooks.test.js'] },
   { file: 'scripts/proposals-audit.js', tests: ['test/proposals.test.js'] },
   { file: 'scripts/lib/probes.js', tests: ['test/probes.test.js'] },
   { file: 'scripts/lib/edges.js', tests: ['test/graph.test.js'] },
