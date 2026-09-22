@@ -109,3 +109,13 @@ test('feedback/BACKLOG.md still matches what the probes measure', () => {
     [path.join(ROOT, 'scripts', 'backlog-audit.js'), '--check'], { encoding: 'utf8' });
   assert.strictEqual(r.status, 0, `${r.stdout}${r.stderr}`);
 });
+
+// Added after the first mutation pass (2026-09-22): the "never throws" promise
+// had no test with a check that is not an object, and an unknown kind could
+// have passed as true without anyone noticing.
+test('a malformed or unknown check fails closed and never throws', () => {
+  assert.strictEqual(probes.run(ROOT, null), false);
+  assert.strictEqual(probes.run(ROOT, 'file'), false);
+  assert.strictEqual(probes.run(ROOT, { kind: 'no-such-kind', path: 'package.json' }), false);
+  assert.strictEqual(probes.describe(null), 'malformed check');
+});

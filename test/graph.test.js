@@ -126,3 +126,15 @@ test('proc-session-continuity is no longer a leaf of the graph', () => {
   const declared = edges.collect(dir).edges.get('proc-session-continuity');
   assert.ok(declared.length >= 5, `hub declares ${declared.length} edges, expected >= 5`);
 });
+
+// Added after the first mutation pass (2026-09-22).
+test('the edges section ends at the next ## heading — a table row after it is not an edge', () => {
+  const md = '## Activation edges\n\n| Type | Target | When |\n|---|---|---|\n| `invoke` | `a` | x |\n\n## Other\n\n| `invoke` | `b` | y |\n';
+  assert.deepStrictEqual(edges.parseEdges(md).map((e) => e.target), ['a']);
+});
+
+test('a cycle is reported once, even when an edge is declared twice, and in walk order', () => {
+  const row = (t) => ({ type: 'invoke', target: t, when: '' });
+  const g = new Map([['a', [row('b')]], ['b', [row('c')]], ['c', [row('a'), row('a')]]]);
+  assert.deepStrictEqual(edges.findInvokeCycles(g), [['a', 'b', 'c', 'a']]);
+});

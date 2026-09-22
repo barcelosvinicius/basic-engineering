@@ -130,11 +130,16 @@ function renderIndex(props, draftProps, fromRel, date) {
   return lines.join('\n');
 }
 
-/** The draft with its block replaced, or inserted after the title block (the first `---`). */
+/**
+ * The draft with its block replaced, or inserted after the title block (the
+ * first `---`). A half-deleted block is refused rather than guessed at — found
+ * by the mutation pass: the first version would have added a second block.
+ */
 function applyDraft(draftText, block) {
   const b = draftText.indexOf(BEGIN);
   const e = draftText.indexOf(END);
-  if (b >= 0 && e > b) return draftText.slice(0, b) + block + draftText.slice(e + END.length);
+  if ((b >= 0) !== (e >= 0) || (b >= 0 && e < b)) throw new Error('the draft has one generated-block marker without the other — restore or remove both, then run again');
+  if (b >= 0) return draftText.slice(0, b) + block + draftText.slice(e + END.length);
   const lines = draftText.split('\n');
   const at = lines.findIndex((l) => l.trim() === '---');
   if (at < 0) return block + '\n\n' + draftText;
@@ -142,17 +147,17 @@ function applyDraft(draftText, block) {
   return lines.join('\n');
 }
 
-function main(argv) {
+function main(argv, root = ROOT) {
   const arg = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
   const draft = arg('--draft');
   if (draft) {
     const fromRel = arg('--from');
     if (!fromRel) { console.error('proposals-audit: --draft needs --from <feedback/…/SUGESTOES.md>'); return 2; }
-    const props = parse(fs.readFileSync(path.join(ROOT, fromRel), 'utf8'));
+    const props = parse(fs.readFileSync(path.join(root, fromRel), 'utf8'));
     const text = fs.readFileSync(draft, 'utf8');
     const draftProps = parse(text.replace(new RegExp(`${BEGIN}[\\s\\S]*?${END}`), ''));
     const block = renderIndex(props, draftProps, fromRel, new Date().toISOString().slice(0, 10));
-    fs.writeFileSync(draft, applyDraft(text, block));
+    try { fs.writeFileSync(draft, applyDraft(text, block)); } catch (err) { console.error(`proposals-audit: ${err.message}`); return 2; }
     const { onlyInDraft, collisions } = drift(props, draftProps);
     console.log(`proposals-audit: index written to the draft — ${props.length} proposals from ${fromRel}.`);
     onlyInDraft.forEach((d) => console.log(`  only in the draft: ${d.n}. ${d.title}`));
@@ -160,8 +165,8 @@ function main(argv) {
     return 0;
   }
   let failed = 0;
-  for (const rel of ledgers()) {
-    const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  for (const rel of ledgers(root)) {
+    const text = fs.readFileSync(path.join(root, rel), 'utf8');
     const errors = check(text);
     const n = parse(text).length;
     if (errors.length) { failed++; console.log(`✗ ${rel}`); errors.forEach((e) => console.log(`    ${e}`)); } else console.log(n ? `✔ ${rel}  (${n} proposals, each with its state)` : `·  ${rel}  (no numbered proposals — nothing to check)`);
@@ -172,4 +177,4 @@ function main(argv) {
 
 if (require.main === module) process.exitCode = main(process.argv.slice(2));
 
-module.exports = { parse, check, ledgers, drift, renderIndex, applyDraft, BEGIN, END };
+module.exports = { parse, check, ledgers, drift, renderIndex, applyDraft, main, BEGIN, END };

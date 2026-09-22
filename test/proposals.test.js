@@ -87,9 +87,91 @@ test('draft: the index is inserted once and regenerated in place, never duplicat
   assert.deepStrictEqual(audit.parse(once.replace(/<!-- be:estado:inicio[\s\S]*?be:estado:fim -->/, '')).map((p) => p.n), [1, 2]);
 });
 
+// ── Added after the first mutation pass (2026-09-22): 25 of 81 mutants of
+// proposals-audit.js survived the suite above. The CLI — the exit code that
+// `--check` promises — had no test at all.
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+function fixtureRoot(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-proposals-'));
+  for (const [rel, content] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
+    fs.writeFileSync(path.join(dir, rel), content);
+  }
+  return dir;
+}
+
+/** Run main() with its console output swallowed; returns the exit code. */
+function quiet(fn) {
+  const { log, error } = console;
+  console.log = console.error = () => {};
+  try { return fn(); } finally { console.log = log; console.error = error; }
+}
+
+test('main --check exits 1 on a defective ledger, 0 on an honest one, and 0 without --check', () => {
+  const bad = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger('## 1. Sem estado\n\ntexto.\n') });
+  const good = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger(ok(1, IMPL)) });
+  assert.strictEqual(quiet(() => audit.main(['--check'], bad)), 1);
+  assert.strictEqual(quiet(() => audit.main([], bad)), 0);
+  assert.strictEqual(quiet(() => audit.main(['--check'], good)), 0);
+});
+
+test('main --draft refuses without --from, and refuses a draft with half a generated block', () => {
+  const root = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger(ok(1, IMPL)) });
+  const draft = path.join(root, 'draft.md');
+  fs.writeFileSync(draft, `# R\n\n---\n\n${audit.BEGIN}\nlixo sem fim\n\n## 1. Proposta 1\n`);
+  const before = fs.readFileSync(draft, 'utf8');
+  assert.strictEqual(quiet(() => audit.main(['--draft', draft], root)), 2);
+  assert.strictEqual(quiet(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 2);
+  assert.strictEqual(fs.readFileSync(draft, 'utf8'), before, 'a refused draft is left untouched');
+  assert.throws(() => audit.applyDraft(`${audit.END}\n${audit.BEGIN}`, 'x'), /one generated-block marker/);
+});
+
+test('main --draft writes the index into the draft, after its title block', () => {
+  const root = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger(ok(1, IMPL), ok(2, 'aberta')) });
+  const draft = path.join(root, 'draft.md');
+  fs.writeFileSync(draft, '# R\n\ncabeçalho\n\n---\n\n## 1. Proposta 1\n');
+  assert.strictEqual(quiet(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 0);
+  const text = fs.readFileSync(draft, 'utf8');
+  assert.ok(text.indexOf(audit.BEGIN) > text.indexOf('---'), 'inserted after the first ---, not at the top');
+  assert.match(text, /\*\*2 propostas · 1 implantadas/);
+});
+
+test('a draft with no --- gets the index at the very top', () => {
+  assert.ok(audit.applyDraft('# R\n\n## 1. P\n', 'BLOCO').startsWith('BLOCO\n\n# R'));
+});
+
+test('the index names a proposal with no state, and shows drift lines only when there is drift', () => {
+  const props = [{ n: 1, title: 'Sem estado', estado: null }];
+  const clean = audit.renderIndex(props, [{ n: 1, title: 'Sem estado' }], 'f.md', '2026-09-22');
+  assert.match(clean, /\| 1 \| Sem estado \| sem estado \|/);
+  assert.doesNotMatch(clean, /Só neste rascunho|Mesmo número/);
+  const drifted = audit.renderIndex(props, [{ n: 1, title: 'Outra' }, { n: 2, title: 'Nova' }], 'f.md', '2026-09-22');
+  assert.match(drifted, /Só neste rascunho — ainda sem estado no `be`:\*\* 2 \(Nova\)/);
+  assert.match(drifted, /Mesmo número, proposta diferente:\*\* 1 — aqui "Outra", no `be` "Sem estado"/);
+});
+
+test('a checkout with no feedback/ directory has no ledgers — and says so rather than failing', () => {
+  assert.deepStrictEqual(audit.ledgers(fixtureRoot({ 'README.md': 'x' })), []);
+});
+
+test('as a CLI, --check runs against this repository and exits 0', () => {
+  const r = spawnSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'proposals-audit.js'), '--check'], { encoding: 'utf8' });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.match(r.stdout, /✔ feedback\/project-a-2026-08-19\/SUGESTOES\.md/);
+});
+
+test('requiring the module runs nothing — the CLI runs only as a script', () => {
+  const r = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(path.join(__dirname, '..', 'scripts', 'proposals-audit.js'))})`], { encoding: 'utf8' });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.strictEqual(r.stdout, '');
+});
+
 test('this repository: every ledger in feedback/ is honest', () => {
-  const fs = require('fs');
-  const path = require('path');
   const root = path.join(__dirname, '..');
   const found = audit.ledgers(root);
   assert.ok(found.length > 0, 'no ledger found — the audit would pass by measuring nothing');

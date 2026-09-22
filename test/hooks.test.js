@@ -56,6 +56,27 @@ test('isNoVerify ignores commands that only mention the flag', () => {
   assert.ok(lib.isNoVerify(`git commit ${flag} -m x`));
 });
 
+// Added after the first mutation pass (2026-09-22): 8 surviving mutants of
+// _lib.js were inputs no test sent — no id, a non-string, an empty command, a
+// path that is missing or not a directory. A guard that throws on odd input
+// fails open without a word, which is the silent outage this base warns about.
+test('guard helpers hold on odd input: no id, non-string text, empty command, missing path', () => {
+  const saved = process.env.BE_HOOKS;
+  delete process.env.BE_HOOKS;
+  try {
+    assert.strictEqual(lib.hooksDisabled(), false, 'no id reads only the global switch, without throwing');
+  } finally {
+    if (saved !== undefined) process.env.BE_HOOKS = saved;
+  }
+  assert.deepStrictEqual(lib.detectSecrets(null), []);
+  assert.deepStrictEqual(lib.detectSecrets(12345), []);
+  assert.strictEqual(lib.isNoVerify(''), false);
+  assert.strictEqual(lib.isNoVerify(undefined), false);
+  assert.strictEqual(lib.pathExists(__filename), true);
+  assert.strictEqual(lib.pathExists(__filename + '.missing'), false, 'ENOENT means absent');
+  assert.strictEqual(lib.pathExists(require('path').join(__filename, 'child')), true, 'any other error (ENOTDIR) is treated as present');
+});
+
 test('hooksDisabled honors global and per-hook opt-out', () => {
   delete process.env.BE_HOOKS;
   delete process.env.BE_HOOK_SECRET_SCAN;

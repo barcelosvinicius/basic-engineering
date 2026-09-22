@@ -448,20 +448,41 @@ low — sentences.
 | | |
 |---|---|
 | **What** | One skill, not five. It decides, per change, which layers the change needs — unit, integration, end-to-end, load — and it carries **mutation as the ruler of test quality**: a test no mutant can kill passes without proving anything. Also: the TDD cycle where it pays (new behaviour with a clear contract), the integration/mock boundary, a few critical E2E journeys, and when a load test is required and against which number (the SLO of `ops-observability`). Stack commands as on-demand resources. |
-| **Why, with each evidence class named** | **Measured, here:** the bypass-guard suite asserted only what must block, so *a detector that blocked everything would have passed it* (A-14) — a surviving mutant in all but name. **Measured, in the field:** 5 of 8 controllers with no test class, and only what was touched recently had any (`project A` 29). **Reported by the owner:** mutation-shaped defects recur across past projects, and load becomes a problem as systems grow — no measured case in this repo yet, and the skill says so instead of borrowing one. |
+| **Why, with each evidence class named** | **Measured, here (8.9):** the first mutation pass over the base's own guards — 53 of 199 mutants survived a green suite, 25 of them in an audit written that day with tests in both directions. *(Corrected 2026-09-22: this row first cited A-14 as "a surviving mutant in all but name". Measured, it is not — the old suite's two allowed cases kill the block-everything mutant; A-14 was a missing boundary case, which point mutation cannot produce.)* **Measured, in the field:** 5 of 8 controllers with no test class, and only what was touched recently had any (`project A` 29). **Reported by the owner:** mutation-shaped defects recur across past projects, and load becomes a problem as systems grow — no measured case in this repo yet, and the skill says so instead of borrowing one. |
 | **The owner's framing, which decides the design** | the aim is not tests that pass, but tests that improve the construction and take the automatic out of a bad implementation. So mutation is not a coverage number to reach: it is the question *would any test notice if this line were wrong?* |
 | **Done when** | the skill exists within the `proc-skill-creator` checklist (rung declared), `qa-verification-loop` phase 4 and `qa-engineer` reach it, and its mutation rule is exercised on this repo by 8.9 before it ships. |
 | **Blocked by** | nothing. Enters this version by the owner's decision of 2026-09-22. |
 
-### 8.9 — Mutation applied to ourselves first
+### 8.9 ✅ done 2026-09-22 — Mutation applied to ourselves first
 
 The ruler of 8.8, run on the base's own guards before it is recommended to anyone:
-a zero-dependency mutation pass over the modules whose failure is silent — the
-hook guards in `plugins/be/hooks/scripts/_lib.js` and the audits in `scripts/`.
-**Done when:** the pass reports mutants killed / survived per module, every
-survivor is either killed by a new test or recorded as equivalent with the
-reason, and the bypass-guard's old suite — restored in a scratch copy — shows
-the survivor that A-14 later found by hand. **Blocked by:** nothing.
+`scripts/mutation-check.js`, zero-dependency, over the hook guards in
+`plugins/be/hooks/scripts/_lib.js` and the audits in `scripts/`.
+
+| Module | First pass | Now |
+|---|---|---|
+| `hooks/scripts/_lib.js` | 31/41 | 39/41 + 2 equivalent |
+| `scripts/proposals-audit.js` | 56/81 | 88/88 |
+| `scripts/lib/probes.js` | 18/24 | 24/24 |
+| `scripts/lib/edges.js` | 18/25 | 21/25 + 4 equivalent |
+| `scripts/lib/inventory.js` | 23/28 | 28/28 |
+
+**What it taught, which the skill must carry:**
+- **Mutation measures the tests you have; it cannot find the case you never
+  wrote.** Restored in a scratch copy, the pre-A-14 guard shows 10 survivors of
+  34 — and **not** A-14. A-14 was a missing boundary case (a command that only
+  *mentions* the flag); no single-point change produces it. The two rulers are
+  complementary: mutation for the tests that exist, *the nearest case that must
+  be allowed* for the ones that do not.
+- **It finds design gaps, not only missing tests:** a half-deleted generated
+  block would have been duplicated; it is now refused.
+- **The ruler needed its own mirror.** Its known-failing case passed while the
+  tool was broken — inside a test runner every mutant "survived". Only the
+  mirror test caught it.
+
+**Wired:** `npm run release` runs `--check` (about two minutes — too slow for
+every push). CI is pending: a workflow edit cannot be pushed from the WSL
+machine until its `gh` token gains the `workflow` scope.
 
 ---
 

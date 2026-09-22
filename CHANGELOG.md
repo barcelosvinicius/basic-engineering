@@ -18,8 +18,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
   `sudo`/`command`/`time` wrappers included), and quoted text is treated as
   data, so `git commit -m "document the --no-verify rule"` passes while
   `git commit --no-verify` and `git commit -n` still block. Tests pin both
-  directions; the old suite only ever asserted the true positives, which is why
-  a detector that blocked everything would have passed it.
+  directions; the old suite's two allowed cases were ordinary commands with
+  nothing resembling the flag, which is why a detector that blocked everything
+  *containing the string* passed it.
 - **`npm run release` could not complete a clean run.** The generated fact panel
   names the version it was measured against, the release bumps that version, and
   nothing regenerated the panel before `node --test` checked it — so step 4
@@ -48,6 +49,18 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **`scripts/mutation-check.js` — the base's own guards are measured by whether
+  their tests would notice a wrong line**, not by whether the lines ran. A
+  zero-dependency pass over the hook guards and the audits: one small change at
+  a time (flip a comparison, swap `&&`/`||`, force a condition), in a throwaway
+  copy, never in the working tree. The first pass: **53 of 199 mutants
+  survived** — including 25 in an audit written the same day with tests in both
+  directions, whose CLI exit code had no test at all. All are now killed, or
+  recorded in `scripts/mutation-equivalents.json` with the reason they cannot
+  change behaviour (6). It also found a design gap — a half-deleted generated
+  block would have been duplicated instead of refused. `npm run release` runs it.
+  Its own mirror test caught a defect in it: run inside a test runner, the child
+  inherited `NODE_TEST_CONTEXT` and every mutant "survived".
 - **A per-change checklist item is answerable from the diff alone.**
   `proc-code-review` states the rule and its items now ask what the change
   *added* ("no `console.log` of sensitive data added", "none added to the

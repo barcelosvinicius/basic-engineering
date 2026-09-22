@@ -117,3 +117,11 @@ test('the shipped inventory is fully registered and correctly named', () => {
     }
   }
 });
+
+// Added after the first mutation pass (2026-09-22): a manifest is external
+// input, and none of its odd shapes had a test.
+test('manifestDescriptions reads only string descriptions, whatever the manifest shape', () => {
+  assert.deepStrictEqual(inv.manifestDescriptions(null), []);
+  assert.deepStrictEqual(inv.manifestDescriptions({ description: 42 }), []);
+  assert.deepStrictEqual(inv.manifestDescriptions({ plugins: [null, {}, { description: 7 }, { description: 'x' }] }), ['x']);
+});

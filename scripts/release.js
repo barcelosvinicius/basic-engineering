@@ -96,6 +96,19 @@ try {
   );
 }
 
+// ── guard: the tests of the guards would notice a wrong line ─────────────────
+// Coverage says a line ran; this says a test would notice it changing. Too slow
+// for every push (about two minutes), so it runs where it cannot be skipped by
+// forgetting: here. The first pass found 53 survivors in five modules.
+try {
+  execSync('node scripts/mutation-check.js --check', { cwd: ROOT, stdio: 'inherit' });
+} catch {
+  fail(
+    'a mutant of a guard survived its tests — add the test that would notice it, ' +
+    'or record in scripts/mutation-equivalents.json why it cannot change behaviour'
+  );
+}
+
 // ── guard: a release that changes what users see must not leave README behind ─
 // v3.1.0 and v3.1.1 shipped `be doctor`, the session-start update check and the
 // `.gitattributes` seeding. README.md had last changed before both and named

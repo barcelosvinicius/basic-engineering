@@ -1,0 +1,44 @@
+[
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "&& → ||",
+    "from": "return raw && raw.trim() ? JSON.parse(raw) : {};",
+    "to": "return raw || raw.trim() ? JSON.parse(raw) : {};",
+    "reason": "equivalent: for empty or missing input the mutant either yields a falsy value or throws, and the surrounding try/catch returns {} in both cases — the same result as the original"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → false",
+    "from": "if (!command) return false;",
+    "to": "if (false) return false;",
+    "reason": "equivalent: an empty or missing command falls through to the segment loop, which finds no git segment and returns false on its own — the early return is a shortcut, not a behaviour"
+  },
+  {
+    "file": "scripts/lib/edges.js",
+    "op": "condition → false",
+    "from": "if (start === -1) return [];",
+    "to": "if (false) return [];",
+    "reason": "equivalent: without the heading, slice(-1) leaves one character, and a one-character section holds no edge row — the result is [] either way"
+  },
+  {
+    "file": "scripts/lib/edges.js",
+    "op": "&& → ||",
+    "from": "} else if (state.get(t) !== 'done' && edges.has(t)) {",
+    "to": "} else if (state.get(t) !== 'done' || edges.has(t)) {",
+    "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; re-walking a finished node changes the cost, and at most which rotation of a cycle over the same nodes is listed"
+  },
+  {
+    "file": "scripts/lib/edges.js",
+    "op": "condition → true",
+    "from": "} else if (state.get(t) !== 'done' && edges.has(t)) {",
+    "to": "} else if (true) {",
+    "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; walking finished or unknown nodes again changes the cost, not whether a cycle is found"
+  },
+  {
+    "file": "scripts/lib/edges.js",
+    "op": "condition → true",
+    "from": "for (const n of edges.keys()) if (!state.has(n)) walk(n, []);",
+    "to": "for (const n of edges.keys()) if (true) walk(n, []);",
+    "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; restarting the walk from a finished node rediscovers what it already reported"
+  }
+]
