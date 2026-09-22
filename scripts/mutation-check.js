@@ -35,6 +35,7 @@ const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_gateguard.js', tests: ['test/hooks.test.js'] },
   { file: 'plugins/be/hooks/scripts/pre-tooluse.js', tests: ['test/hooks.test.js'] },
   { file: 'scripts/proposals-audit.js', tests: ['test/proposals.test.js'] },
+  { file: 'plugins/be/scripts/distance.js', tests: ['test/distance.test.js'] },
   { file: 'scripts/lib/probes.js', tests: ['test/probes.test.js'] },
   { file: 'scripts/lib/edges.js', tests: ['test/graph.test.js'] },
   { file: 'scripts/lib/inventory.js', tests: ['test/inventory.test.js'] },
@@ -144,11 +145,21 @@ function main(argv) {
   fs.cpSync(root, tmp, { recursive: true, filter: (src) => !/[\\/](\.git|node_modules)$/.test(src) });
 
   let unrecorded = 0;
+  let failedBaseline = 0;
   try {
     for (const t of TARGETS.filter((x) => !only || x.file === only)) {
       const abs = path.join(tmp, t.file);
       if (!fs.existsSync(abs) || !t.tests.every((f) => fs.existsSync(path.join(tmp, f)))) { console.log(`·  ${t.file}  (not in this checkout — skipped)`); continue; }
       const original = fs.readFileSync(abs, 'utf8');
+      // The suite must be green BEFORE any mutant: a failing suite kills every
+      // mutant and reports a perfect score. Measured here — a broken test ran
+      // alongside the pass and printed 131/131.
+      const baseline = spawnSync(process.execPath, ['--test', ...t.tests], { cwd: tmp, env, stdio: 'ignore', timeout: 60000 });
+      if (baseline.status !== 0) {
+        failedBaseline++;
+        console.log(`✗ ${t.file}  NOT MEASURED — ${t.tests.join(', ')} already fails without any mutant`);
+        continue;
+      }
       const all = mutants(original);
       const survivors = [];
       try {
@@ -173,6 +184,10 @@ function main(argv) {
     }
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  if (argv.includes('--check') && failedBaseline) {
+    console.error(`mutation-check: ${failedBaseline} module(s) could not be measured — their tests fail without any mutant.`);
+    return 1;
   }
   if (argv.includes('--check') && unrecorded) {
     console.error(`mutation-check: ${unrecorded} surviving mutant(s) — a test that would notice them is missing, or record why they cannot change behaviour.`);

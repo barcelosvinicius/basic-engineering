@@ -43,6 +43,12 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
 6. **Diff review** — `git diff --stat` and read each changed file for
    unintended changes, missing error handling, and edge cases (null, empty,
    zero, overflow, unauthorized).
+7. **Measured distance** — `node <plugin>/scripts/distance.js` (Channel B:
+   `.be/scripts/distance.js`). What no suite answers: units of work with **no
+   test file at all**, and routes declared in code that **no document mentions**.
+   It **reports, never blocks** — blocking on pre-existing debt makes a gate
+   unusable, and an unusable gate is switched off the next week. A stack with no
+   rules for it prints NOT MEASURED with the reason, never a zero.
 
 ## Activation edges
 
@@ -116,6 +122,7 @@ Lint:     [PASS/FAIL]  (N warnings over F files)
 Tests:    [PASS/FAIL]  (X/Y passed over T collected, Z% coverage)
 Security: [PASS/FAIL]  (N findings over F files scanned)
 Diff:     N files changed
+Distance: [N of M units with no test] [N of M routes undocumented] (or NOT MEASURED)
 
 Verdict:  [READY / NOT READY] for PR
 Blocking issues:

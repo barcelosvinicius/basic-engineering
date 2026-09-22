@@ -12,8 +12,11 @@ declaring the task done. $ARGUMENTS may narrow the scope (e.g. a path or
    `.be/config/stack-mappings.json`) for the detected stack's
    build/test/lint/format commands. Do not assume a toolchain; if a phase has
    no command, mark it SKIPPED with the reason.
-2. **Run the six phases** (build → type-check → lint → tests+coverage →
-   security scan → diff review) per the `qa-verification-loop` skill.
+2. **Run the seven phases** (build → type-check → lint → tests+coverage →
+   security scan → diff review → measured distance) per the `qa-verification-loop`
+   skill. The last one is `node <plugin>/scripts/distance.js` (Channel B:
+   `.be/scripts/distance.js`): units of work with no test file, and routes no
+   document mentions. It reports, never blocks.
 3. **Security scan:** if `semgrep` is on PATH, run it with the bundled rules at
    the plugin's `semgrep/` directory (Channel B: `.be/semgrep/`),
    e.g. `semgrep --config <rules-dir> --error <changed-paths>`. Always also

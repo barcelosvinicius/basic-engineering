@@ -453,7 +453,18 @@ because a gate is an enumeration, and what nobody enumerated passes.
 | ~~Mutation testing for our own scripts~~ | **promoted to 8.9 on 2026-09-22** — the owner's decision, with the bypass-guard defect as its measured case |
 | Gate at the commit, and a first-class place for refused decisions | a refusal with a reopen trigger does not come back as a new idea |
 
-### 8.6 — `/be:check` reports the measured distance
+### 8.6 ✅ done 2026-09-22 — `/be:check` reports the measured distance
+
+**Shipped and measured on `project A`:** 6 of 8 controllers with no test
+class — hand-checked against an independent count, and the two that do have one
+(`OrderController`, `UserController`) are correctly absent from the list —
+and 0 of 27 routes undocumented, with 2 found only inside a longer path, counted
+apart. Building it against a real project corrected the ruler four times (a
+first-argument regex saw 32 of 38 annotations; the docs write the external path;
+`produces` is not a route; an unresolvable prefix must not invent `/`). The
+`distance` rules live per stack in `config/stack-mappings.json`; a stack without
+them prints NOT MEASURED. Mutation: 132/134, 2 equivalent — and that pass found
+that the tool scored a **red** suite as perfect, now refused.
 
 | | |
 |---|---|

@@ -49,6 +49,20 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **`/be:check` reports the measured distance** — a seventh phase, report-only:
+  units of work with **no test file at all**, and routes declared in code that
+  **no document mentions**. `plugins/be/scripts/distance.js` (Channel B:
+  `.be/scripts/distance.js`), zero dependencies, driven by a `distance` block
+  per stack in `config/stack-mappings.json`; a stack without one prints NOT
+  MEASURED with the reason, never a zero. Measured on a real Spring project:
+  **6 of 8 controllers with no test class** (hand-checked) and 0 of 27 routes
+  undocumented, 2 of them found only inside a longer path — reported apart,
+  because only a person can say whether `/jobs` inside `/admin/jobs` is the same
+  endpoint. Building it against that project corrected it four times: a
+  first-argument regex saw 32 of the 38 annotations; two documented routes were
+  called missing because the docs write the external path; `@GetMapping(produces
+  = "…")` would have published `application/json` as an endpoint; and an
+  unresolvable class prefix invented the route `/`.
 - **`qa-test-strategy` — which tests a change needs, and whether they prove
   anything.** A new skill (30 skills now): the layers per kind of change (unit,
   integration against the real dependency, one end-to-end test per critical
@@ -63,6 +77,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
   The release checklist gains a load item for releases that change a hot path,
   and `ops-observability` states that an SLO is verified before release by a
   load test — the alert is the second line, not the first.
+- **The mutation pass refuses to measure a red suite.** A broken test sat in a
+  suite while the pass ran, and every mutant came out killed — 131 of 131, a
+  perfect score over a failing suite. It now runs the unmutated tests first and
+  reports NOT MEASURED for that module; `--check` exits 1.
 - **`scripts/mutation-check.js` — the base's own guards are measured by whether
   their tests would notice a wrong line**, not by whether the lines ran. A
   zero-dependency pass over the hook guards and the audits: one small change at

@@ -68,3 +68,22 @@ test('the working tree is never mutated — only the throwaway copy is', () => {
   quiet(() => mc.main(['--root', root, '--only', 'scripts/lib/probes.js']));
   assert.strictEqual(fs.readFileSync(target, 'utf8'), before);
 });
+
+// Measured here, on 2026-09-22: a broken test sat in the suite while the pass
+// ran, and every mutant came out "killed" — 131 of 131, a perfect score over a
+// red suite. A ruler must first see green on the unmutated code.
+test('a suite that already fails is NOT MEASURED, and --check refuses it', () => {
+  const root = checkout("test('broken', () => assert.strictEqual(f(1, 2), 'nope'));");
+  const out = [];
+  const { log, error } = console;
+  console.log = (s) => out.push(String(s));
+  console.error = () => {};
+  let code;
+  try {
+    code = mc.main(['--check', '--root', root, '--only', 'scripts/lib/probes.js']);
+  } finally {
+    console.log = log; console.error = error;
+  }
+  assert.strictEqual(code, 1);
+  assert.match(out.join('\n'), /NOT MEASURED — test\/probes\.test\.js already fails without any mutant/);
+});
