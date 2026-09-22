@@ -236,8 +236,11 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   they found, which is equally a result.
 - **Blocked by:** nothing; the next push answers it.
 
-#### P-10 — *(machine-scoped: the Windows workstation)* the installed plugin still carries the guard defect fixed in A-14
-- **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1`.
+#### P-10 — *(machine-scoped: the Windows workstation **and** its WSL2)* the installed plugin still carries the guard defect fixed in A-14
+- **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1` — in each
+  environment separately. **Confirmed on WSL 2026-09-22:** the marketplace clone
+  there is at `20fd7de` (v3.1.1), and its hook blocked a probe command that only
+  mentioned the flag.
 - **State:** the fix lives in this repository; the hook that runs in a session is
   the **installed** one, which still refuses any Bash command that merely
   mentions the bypass flag. Observed twice on 2026-09-20 — writing the analysis

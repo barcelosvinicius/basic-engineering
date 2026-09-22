@@ -11,104 +11,125 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-09-20 (first wave from the reference-repo analysis, unreleased)
+> ⚡ Last updated: 2026-09-22 (checkpoint mid-session — WSL machine; the session is still open)
 
-**Project phase:** **work sitting on `main`, unreleased.** Nine commits on
-2026-09-20 closed the first wave of findings from an external analysis (see the
-Delivery History entry below). Nothing is published: `release.yml` publishes on
-push to `main` only when the version changes, and the version has not moved. The
-next release is expected soon and now has to pass two guards that did not exist
-before it — one of which already refuses the current state of the tree, on
-purpose, because the README has not yet been updated for this work.
+**Project phase:** **work sitting on `main`, unreleased — two waves now.** The
+first wave (2026-09-20) plus a second one this session: the proposal ledger got a
+command behind it, the enforcement ladder was written down, per-change checklists
+were rephrased, a test-strategy skill shipped, and **mutation was run on the
+base's own guards** before being recommended to anyone. Nothing is published:
+the version has not moved, so `release.yml` publishes nothing on push.
+**Pushed:** nothing yet — `main` is ahead of `origin/main` by every commit since
+`97b9b8f`.
 
-*Superseded state, kept because it is still true:* **v3.1.1 is what users have**
-— npm (`latest: 3.1.1`, OIDC with provenance) and the Claude Code marketplace,
-tag and GitHub release at `20fd7de`. **P-08's cause is no longer unnamed** — the
-first session back on the Windows machine, 2026-08-21, read the experiment intact
-and it came back positive: **CRLF in the cached `hooks.json` was the cause**, and
-the v2.0.0 install was innocent.
+*Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`, OIDC
+with provenance) and the marketplace, tag and GitHub release at `20fd7de`.
 
-
-> **Environment note.** This base is operated from more than one machine: a
-> Linux environment (where every session up to 2026-08-19 ran, and where CI runs
-> on `ubuntu-latest`) and a Windows workstation with Git Bash. Any fact about
-> tooling, paths or installed versions is **machine-scoped** and must name its
-> machine — see the lesson recorded for this in `lessons-learned.md`.
+> **Environment note.** This base is operated from **three** environments, not
+> two: a Linux machine (sessions up to 2026-08-19; CI runs on `ubuntu-latest`), a
+> Windows workstation with Git Bash, and — since this session — **WSL2 on that
+> Windows workstation** (`/home/user/basic-engineering`, user-local `gh`
+> in `~/.local/bin`). WSL and the Windows side have **separate `gh` tokens**: a
+> refresh run on one does not reach the other, measured 2026-09-22. Any fact about
+> tooling, paths or installed versions names its environment.
 
 ### In progress
 
-- Nothing half-done, but **one thing deliberately left undone**: the README has
-  not been updated for the first wave. That was the owner's call — *"o readme
-  como teremos atualizações ajustaremos ao final"* — and it is now enforced
-  rather than remembered: `npm run release` refuses while it stays that way.
-- **Waiting on evidence, not on work:** the owner is bringing lessons-learned
-  cases about analyses that were too large leaking drifts. They seed
-  `proc-analysis-blocks` (action-plan Phase 8.1), which is not to be written
-  before they arrive.
+- **Phase 8.3 → 8.2** (gateguard narrowing, stack-map trigger + the gesture → rule
+  map of `project A` 26). Both close only on a **measured real session**:
+  the owner works one ordinary session in `project A` with the development
+  build installed from the local clone, and the hooks' own log is counted —
+  ≤2 interruptions each, or narrow again.
+- **The README is still deliberately untouched** until the version closes (the
+  owner's call); `npm run release` refuses while it stays that way.
 
-### Recently completed
+### Recently completed (this session)
 
-- **The first wave of the `nao-depende-de-lembrar` analysis**, nine commits, each
-  verified alone in a throwaway worktree. See the Delivery History entry below.
-- **The bypass guard stopped blocking documentation about itself** — a false
-  positive found by being blocked while writing the analysis of that very rule.
-- **`npm run release` completes a clean run again** — it could not, by
-  construction, since 2026-08-19.
-- **The audits that had a `--check` mode and nothing executed now run in CI.**
+- **The `project A` ledger is whole and every proposal has a state** — the
+  versioned copy had fallen behind the project's draft, and the number 24 named
+  two proposals. `scripts/proposals-audit.js` now fails on a proposal without a
+  state (Phase 8.0), and a generated index shows the state in the project draft.
+- **8.4** the enforcement ladder + entry test for a gate · **8.7** per-change
+  checklist items answerable from the diff · **8.8** `qa-test-strategy` + load
+  criteria in the release checklist · **8.9** `scripts/mutation-check.js`.
+- **Mutation, first pass on ourselves: 53 of 199 mutants survived a green suite.**
+  All killed or recorded as equivalent with the reason (6). Found a design gap and
+  a defect in the tool itself (caught only by its mirror test).
 
 ### Blockers
 
-- **None for the work; one for the release, and it is intentional.** The release
-  guard added today refuses while `README.md` is untouched. It is the first
-  thing the next session removes, by updating the README — not by passing
-  `--readme-ok=`.
-- **Two things are unmeasured rather than broken** (P-09, P-10): the new CI jobs
-  have never run, and this machine's installed plugin still carries the guard
-  defect this session fixed in the repository. By the taxonomy being adopted
-  here, *could not measure* is not a pass — so they are written down instead of
-  assumed green.
-- *(historical, resolved)* P-08 is **resolved** — see below and in
-  `structural-analysis.md`.
-  The previous entry here predicted the experiment had been spoiled because "the
-  Windows install moved to 3.1.0". It had not: that session could not see this
-  machine, which **at the readout** was still on v2.0.0 with its marketplace
-  clone still pinned to the v2.0.0 commit. The experiment was intact and it
-  answered. (It has since been re-cloned to 3.1.1 — same session, after the
-  readout.)
-- *(machine-scoped, resolved on the Linux machine)* The push credential gap of
-  the earlier session was fixed there with a user-local `gh` install
-  (`~/.local/bin`, no `sudo`) and device-flow login. That path **does not exist
-  on the Windows machine**, where `gh` is the system install — the original note
-  read as a false claim until it was scoped.
+- **None for the work. For the version:** the 8.2/8.3 measurement needs the
+  owner's real session; the README waits for the end, by decision.
+- **P-10 is confirmed on WSL too** (measured 2026-09-22): the installed plugin
+  (3.1.1) blocked a command that only *mentioned* the bypass flag — the A-14
+  defect, live. It stays until the development build or the release is installed.
+- **P-09 still unmeasured:** the CI jobs added on 2026-09-20 have never run —
+  nothing has been pushed since.
+- *(resolved 2026-09-22, WSL)* the WSL `gh` token lacked the `workflow` scope, so
+  no workflow edit could be pushed from here. Refreshed by device flow; the token
+  now carries `workflow`.
 
 ### Priority next steps
 
-1. **Cut the next release**, which is what this work was for. The order matters:
-   update `README.md` for what the first wave changed (`--write`, the CI jobs,
-   the release guards), *then* `npm run release`. **Done when:** the release
-   completes without `--readme-ok=`, because the README genuinely changed.
-   **Note:** the release guard will name `plugins/be/hooks/scripts/_lib.js` until
-   it does — that is the guard working, not a defect.
-2. **Read the first CI run** (P-09). The `audits` and `sast` jobs have never
-   executed; semgrep is not installed on this machine, so their green is unproven.
-   **Done when:** the push to `main` shows both green, or names what they found.
-3. **After the release, re-clone on this machine** (P-10) — the installed plugin
-   still carries the guard defect fixed in A-14. **Done when:** `be doctor`
-   reports the new version and a command that merely mentions the bypass flag is
-   allowed.
-4. **Phase 8** (action-plan): `proc-analysis-blocks` once the owner's cases
-   arrive, and the three trigger-narrowing items that decide better together —
-   the stack map gaining a trigger, the gateguard narrowing, and the written
-   entry criterion for a rule becoming a gate.
-5. Re-evaluate deferred proposal 13 (document dependency graph) — **done when:**
-   a session records whether the fact panel answered *"what else must change?"*
-   on its own · **blocked by:** a few sessions of real use.
+1. **8.3 → 8.2**, implemented with a per-session hook log, then the owner's
+   measured session in `project A`. **Done when:** the log shows ≤2
+   interruptions for each trigger, and both are born on.
+2. **8.6** — `/be:check` reports the measured distance; **8.1** in lots, with the
+   cases proposal 27 brought.
+3. **The owner's sweep, before closing the version:** tests for the five entry
+   points no test executes — `pre-tooluse.js`, `release.js`, `bin/be.js`,
+   `validate.js`, `stop.js` (988 lines, measured 2026-09-22) — then mutation
+   extended past the five guard modules. **Done when:** every entry point has a
+   test that runs it, and the extended pass has no unrecorded survivor.
+4. **Close the version:** README → `npm run release` → the mutation job in CI
+   (now pushable) → read the first CI run (P-09) → reinstall here (P-10) →
+   `session-end`.
+5. Re-evaluate deferred proposal 13 — **blocked by:** a few sessions of real use.
 
 ---
 
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-09-22] The ledger got a command, and the guards were measured by mutation
+
+**Owner:** vinicius + Claude Opus 5 · **Environment:** WSL2 on the Windows
+workstation — the first session from here. *(Checkpoint written mid-session; the
+closing entry follows at `session-end`.)*
+
+**Goal declared at session start:** verify access to the `be` identity for git,
+the marketplace and npm; then continue the improvement flow from the
+`project A` file. **Achieved ✅** for access — git and the marketplace through
+`gh` (`barcelosvinicius`, ADMIN), npm through OIDC in CI, all three on the
+personal identity while this machine's global git identity is the corporate one
+(overridden per repo). The flow continued by the owner's decisions.
+
+**Deliveries (commits `fb4e04d` … `a369329`, each verified alone in a worktree):**
+
+- **Ledger sync + a state per proposal + triage of 24–29** (`fb4e04d`). The
+  unification merged six proposals into the existing Phase 8 instead of a new
+  phase.
+- **`proposals-audit.js`** (`a03262c`, Phase 8.0) — born failing on the real case:
+  23 defects on the ledger as it stood.
+- **The enforcement ladder** (`5b02095`, 8.4) and **diff-answerable checklists**
+  (`38846b4`, 8.7).
+- **`mutation-check.js`** (`22f6f87`, 8.9) and **`qa-test-strategy`** (`5f94ce6`,
+  8.8) with load criteria (`cbd3fb9`).
+
+**Decisions (the owner's):** the triage of 24–29 as proposed; `qa-test-strategy`
+enters this version; mutation is *the ruler of test quality*, applied to the base
+itself first; load criteria anticipate rather than react; before closing the
+version, extend coverage to what has none and then mutation to the whole project.
+
+**Corrections made by measuring:** the CHANGELOG (and this session's plan row)
+said the pre-A-14 suite would have passed a detector that blocked everything —
+it would not; A-14 was a missing boundary case, which point mutation cannot
+produce. And three first-draft rulers of this session were wrong before the code
+was: a regex probe that missed shipped units, a strip check that reported a
+clean insertion as a change, a coverage report that omits files no test loads.
+
+---
 
 ### [2026-09-20] An outside repository measured us back, and the first wave shipped
 
