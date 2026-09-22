@@ -443,7 +443,7 @@ debt record, with a count and a measurement date.
 the 22nd's *the rule lives in the schema*. **Blocked by:** nothing. **Effort:**
 low — sentences.
 
-### 8.8 — `qa-test-strategy`: which verification a change needs, and whether the tests prove anything
+### 8.8 ✅ done 2026-09-22 (`5f94ce6`, load criteria `cbd3fb9`) — `qa-test-strategy`: which verification a change needs, and whether the tests prove anything
 
 | | |
 |---|---|
