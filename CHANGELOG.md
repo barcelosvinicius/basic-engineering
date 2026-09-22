@@ -63,6 +63,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
   called missing because the docs write the external path; `@GetMapping(produces
   = "…")` would have published `application/json` as an endpoint; and an
   unresolvable class prefix invented the route `/`.
+- **Continuity now exists at the two moments it is lost.** The base used 3 of
+  the harness's 10 hook events, and the rule it exists to enforce sat on the
+  weakest rung. `PreCompact` writes the session state — branch, last commit,
+  what is uncommitted, whether the living docs are behind — and hands it back
+  as context so a compaction cannot take it. `SessionEnd` leaves a note when
+  the session ended with code changed and the docs untouched; the next
+  `SessionStart` reads it once and clears it. `stop.js` now reads the same fact
+  from the shared `_state.js` instead of its own copy through a shell. Opt-out
+  per hook (`BE_HOOK_PRECOMPACT=off`), fail-open as always.
 - **`proc-analysis-blocks` — an analysis is split into blocks that each close
   with a verdict and its evidence.** Six rules, each shipped with the measured
   case that produced it: one batch of 34 edits let 2 defects escape and caught

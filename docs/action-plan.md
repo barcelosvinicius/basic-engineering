@@ -530,6 +530,49 @@ machine until its `gh` token gains the `workflow` scope.
 
 ---
 
+## Phase 9 — the harness moves (2026-09-22)
+
+The base uses the part of the harness that **blocks** and not the part that
+**carries state**. Measured against Claude Code 2.1.278: of its **10 hook
+events, the base used 3**. The rule it exists to enforce — continuity — sat on
+the weakest rung: read at session start, reminded at Stop, and nothing at the
+two moments the thread actually breaks.
+
+### 9.1 ✅ done 2026-09-22 — Continuity at the moments it is lost
+
+`PreCompact` writes the session state — branch, last commit, what is
+uncommitted, whether the living docs are behind — to the session log and hands
+it back as context, so a compaction cannot take it. `SessionEnd` leaves a note
+when the session ended with code changed and the docs untouched; the next
+`SessionStart` reads it **once** and clears it. The three read the same fact
+from `_state.js`, and `stop.js` was moved onto it — it had its own copy,
+through a shell.
+
+**The case:** this session, 50 commits, kept its HISTORY true only because a
+checkpoint was written by hand in the middle of it. **Found while building it:**
+trimming `git status --porcelain` eats the leading space of a fixed-width
+prefix, which silently turned `app.js` into `pp.js`; the test caught it before
+the hook shipped. Mutation on the new module: 15/15.
+
+### 9.2 — Permissions become configuration, not description
+
+`config/stack-mappings.json` already carries `allow`/`deny` per stack — and
+**zero hooks or commands apply them**. `/be:bootstrap` writes them into the
+project's settings, so least privilege is the default rather than advice.
+**Done when:** a bootstrapped project has the detected stack's allow/deny in
+its settings, and a project that already has permissions is never overwritten.
+
+### 9.3 — The sweep the owner asked for, before the version
+
+Tests for the entry points no test executes — `release.js`, `bin/be.js`,
+`validate.js`, `stop.js` (`pre-tooluse.js` is now covered) — then mutation
+extended past the guard modules. Plus the three debts this session measured:
+extract `test/helpers.js`, run the mutation pass in parallel (22 min → ~6), and
+stamp each recorded equivalent with the hash of the file it was accepted
+against, so a stale equivalent announces itself.
+
+---
+
 ## Sequencing
 
 **Phase 1 → Phase 2 (+2.4) → Phase 3.1 → Phase 4 — done on 2026-08-19**, in ten
