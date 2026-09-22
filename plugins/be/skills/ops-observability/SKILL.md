@@ -43,6 +43,9 @@ Plus a **health check endpoint** (`/health`) that verifies real dependencies
 
 - Define 2–3 SLOs per service (e.g., "99.5% of requests under 500 ms",
   "99.9% availability monthly") — alert on SLO burn, not raw spikes.
+- **An SLO is verified before release, not first discovered by an alert:** a
+  change to a hot path gets a load test with the SLO as its pass condition
+  (`qa-test-strategy`). The alert is the second line; the load test is the first.
 - **Every alert must be actionable** — if the response to an alert is
   "ignore it", delete or tune the alert. Alert fatigue is an outage risk.
 - Every alert links to its runbook.

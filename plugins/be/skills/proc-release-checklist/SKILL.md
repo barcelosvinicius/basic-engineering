@@ -70,6 +70,9 @@ sections below is enough.
 - [ ] **Error handling**: GlobalExceptionHandler does not expose stack trace to the client
 - [ ] **Logs**: structured, without PII or secrets; correlation ID per request
 - [ ] **Pagination**: list endpoints do not return all records without pagination
+- [ ] **Load**: a release that changes a hot path carries a load result against
+  its SLO — p95/p99 and error rate at the expected peak and at a growth horizon,
+  on production-sized data, with the date — or states why not (`qa-test-strategy`)
 
 ---
 

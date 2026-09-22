@@ -60,6 +60,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
   and a growth horizon, production-sized data. Tools per stack (PIT, Stryker,
   mutmut, Testcontainers, Playwright, k6, Gatling) in an on-demand resource.
   Reached from `qa-verification-loop` phase 4 and the `qa-engineer` agent.
+  The release checklist gains a load item for releases that change a hot path,
+  and `ops-observability` states that an SLO is verified before release by a
+  load test — the alert is the second line, not the first.
 - **`scripts/mutation-check.js` — the base's own guards are measured by whether
   their tests would notice a wrong line**, not by whether the lines ran. A
   zero-dependency pass over the hook guards and the audits: one small change at
