@@ -20,10 +20,10 @@ were rephrased, a test-strategy skill shipped, and **mutation was run on the
 base's own guards** before being recommended to anyone. Nothing is published:
 the version has not moved, so `release.yml` publishes nothing on push.
 **Pushed:** nothing yet — `main` is ahead of `origin/main` by every commit since
-`97b9b8f`.
+`e80e275`.
 
 *Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`, OIDC
-with provenance) and the marketplace, tag and GitHub release at `20fd7de`.
+with provenance) and the marketplace, tag and GitHub release at `ef32f90`.
 
 > **Environment note.** This base is operated from **three** environments, not
 > two: a Linux machine (sessions up to 2026-08-19; CI runs on `ubuntu-latest`), a
@@ -105,17 +105,17 @@ the marketplace and npm; then continue the improvement flow from the
 personal identity while this machine's global git identity is the corporate one
 (overridden per repo). The flow continued by the owner's decisions.
 
-**Deliveries (commits `fb4e04d` … `a369329`, each verified alone in a worktree):**
+**Deliveries (commits `1a8a895` … `ad0088d`, each verified alone in a worktree):**
 
-- **Ledger sync + a state per proposal + triage of 24–29** (`fb4e04d`). The
+- **Ledger sync + a state per proposal + triage of 24–29** (`1a8a895`). The
   unification merged six proposals into the existing Phase 8 instead of a new
   phase.
-- **`proposals-audit.js`** (`a03262c`, Phase 8.0) — born failing on the real case:
+- **`proposals-audit.js`** (`f116efc`, Phase 8.0) — born failing on the real case:
   23 defects on the ledger as it stood.
-- **The enforcement ladder** (`5b02095`, 8.4) and **diff-answerable checklists**
-  (`38846b4`, 8.7).
-- **`mutation-check.js`** (`22f6f87`, 8.9) and **`qa-test-strategy`** (`5f94ce6`,
-  8.8) with load criteria (`cbd3fb9`).
+- **The enforcement ladder** (`7f12372`, 8.4) and **diff-answerable checklists**
+  (`3900476`, 8.7).
+- **`mutation-check.js`** (`35dc853`, 8.9) and **`qa-test-strategy`** (`cb3bb89`,
+  8.8) with load criteria (`203638f`).
 
 **Decisions (the owner's):** the triage of 24–29 as proposed; `qa-test-strategy`
 enters this version; mutation is *the ruler of test quality*, applied to the base
@@ -206,7 +206,7 @@ the guard working.
   what makes the result mean something: `hooks/hooks.json` LF with mtime
   `2026-08-19 21:37` — the single mutation — against `session-start.js` and
   `plugin.json` both at `2026-06-10 16:16`, the plugin still reporting
-  **2.0.0**, and the marketplace clone still pinned to `3beda00`, the v2.0.0
+  **2.0.0**, and the marketplace clone still pinned to `26b35bc`, the v2.0.0
   restructure. One byte-level difference changed; the outage ended.
   - **CRLF in the cached `hooks.json` — confirmed as the cause.**
   - **The v2.0.0 install — ruled out.** Still v2.0.0, hook runs.
@@ -298,7 +298,7 @@ opening a session rather than by running anything.
 **Verified:** `npm run validate` clean · `npm test` 68/68 · guard proven to
 fail without the pin and pass with it · `node bin/be.js install <tmpdir>` wrote
 the file with the pin and the explanatory header · **published**: CI and
-`release.yml` both green at `20fd7de`, npm `dist-tags.latest = 3.1.1` with
+`release.yml` both green at `ef32f90`, npm `dist-tags.latest = 3.1.1` with
 signed provenance, tag and GitHub release `v3.1.1`; the published tarball was
 downloaded and checked to carry `ensureGitattributes` and Step 5-C · this
 machine updated to plugin 3.1.1 (`be doctor`: three hook events, LF, nothing to
@@ -357,7 +357,7 @@ which is the guard behaving exactly as designed.
 - `be doctor` **exits 1 when it finds something**, matching `be check`.
 
 - **Released as v3.1.0** on both channels: npm via OIDC with provenance, and the
-  marketplace, which follows `main`. Tag and GitHub release at `076d11c`. Nine
+  marketplace, which follows `main`. Tag and GitHub release at `af72a6d`. Nine
   function-grouped commits plus the release commit; the first eight were each
   re-checked out in a separate worktree and verified on their own.
 
@@ -416,7 +416,7 @@ number belongs to the instant the entry closes, which is now.)*
 
 **Blockers:** none.
 
-**Verified:** `git rev-parse main` == `git rev-parse origin/main` == `69216d7`
+**Verified:** `git rev-parse main` == `git rev-parse origin/main` == `004f911`
 · `npm run validate` and `npm test` (39/39) re-run after both the identity
 rewrite and the fast-forward · commit messages and authorship spot-checked
 after rewrite.

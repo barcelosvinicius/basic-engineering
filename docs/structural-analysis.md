@@ -165,7 +165,7 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   | `hooks/hooks.json` | LF · mtime **2026-08-19 21:37** | the experiment's single mutation |
   | `hooks/scripts/session-start.js` | mtime **2026-06-10 16:16** | untouched since install |
   | `.claude-plugin/plugin.json` | mtime **2026-06-10 16:16** · `"version": "2.0.0"` | untouched since install |
-  | marketplace clone | `3beda00` (the v2.0.0 restructure) | never refreshed |
+  | marketplace clone | `26b35bc` (the v2.0.0 restructure) | never refreshed |
   | `be doctor` | `2.0.0 · installed 2026-06-10` | never updated |
 
   One byte-level difference was changed and the outage ended, with the install,
@@ -239,7 +239,7 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 #### P-10 — *(machine-scoped: the Windows workstation **and** its WSL2)* the installed plugin still carries the guard defect fixed in A-14
 - **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1` — in each
   environment separately. **Confirmed on WSL 2026-09-22:** the marketplace clone
-  there is at `20fd7de` (v3.1.1), and its hook blocked a probe command that only
+  there is at `ef32f90` (v3.1.1), and its hook blocked a probe command that only
   mentioned the flag.
 - **State:** the fix lives in this repository; the hook that runs in a session is
   the **installed** one, which still refuses any Bash command that merely

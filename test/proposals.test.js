@@ -17,7 +17,7 @@ const assert = require('node:assert');
 const audit = require('../scripts/proposals-audit.js');
 
 const ok = (n, estado) => `## ${n}. Proposta ${n} 🔴\n\n**Estado:** ${estado}\n\ntexto.\n`;
-const IMPL = 'implantada em 2026-08-19 (U1) — `plugins/be/x` · `a5d563d`';
+const IMPL = 'implantada em 2026-08-19 (U1) — `plugins/be/x` · `56e0d9c`';
 const ledger = (...parts) => `# Sugestões\n\n${parts.join('\n')}`;
 
 test('an honest ledger passes', () => {
@@ -46,7 +46,7 @@ test('"implantada" without the commit that proves it is reported', () => {
 });
 
 test('"implantada" and "descartada" need a date; "descartada" needs its reason', () => {
-  const errors = audit.check(ledger(ok(1, 'implantada — `a5d563d`'), ok(2, 'descartada em 2026-08-19')));
+  const errors = audit.check(ledger(ok(1, 'implantada — `56e0d9c`'), ok(2, 'descartada em 2026-08-19')));
   assert.match(errors.join('\n'), /proposal 1 .*needs a date/);
   assert.match(errors.join('\n'), /proposal 2 .*needs its reason/);
 });
@@ -81,7 +81,7 @@ test('draft: the index is inserted once and regenerated in place, never duplicat
   const twice = audit.applyDraft(once, block);
   assert.strictEqual(twice, once);
   assert.strictEqual(once.split(audit.BEGIN).length, 2);
-  assert.match(once, /\| 1 \| Proposta 1 \| implantada em 2026-08-19 \(U1\) \| `plugins\/be\/x` · `a5d563d` \|/);
+  assert.match(once, /\| 1 \| Proposta 1 \| implantada em 2026-08-19 \(U1\) \| `plugins\/be\/x` · `56e0d9c` \|/);
   assert.match(once, /\*\*2 propostas · 1 implantadas · 0 descartada\(s\) · 1 abertas\*\*/);
   // The rascunho's own proposals survive, and are still parsed as the draft's.
   assert.deepStrictEqual(audit.parse(once.replace(/<!-- be:estado:inicio[\s\S]*?be:estado:fim -->/, '')).map((p) => p.n), [1, 2]);

@@ -102,7 +102,7 @@ ninguém**, humano ou IA.
 
 ### 1. Compactação por idade no `session-end` 🔴
 
-**Estado:** implantada em 2026-08-19 (U5) — teto de ~800 linhas com arquivo verbatim, `plugins/be/templates/docs/history.template.md` · `cda8e29`
+**Estado:** implantada em 2026-08-19 (U5) — teto de ~800 linhas com arquivo verbatim, `plugins/be/templates/docs/history.template.md` · `57a66b7`
 
 **Fato:** 24 entradas de sessão respondem pela maior parte das 1.092 linhas.
 
@@ -117,7 +117,7 @@ seguem recuperáveis por `git log`/`git show`.
 
 ### 2. Regra "atualizar é substituir, não acrescentar" 🔴
 
-**Estado:** implantada em 2026-08-19, fundida na 4 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
+**Estado:** implantada em 2026-08-19, fundida na 4 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `7b6095b`
 
 **Fato medido:** o enunciado *"a API do projeto B é pública"* estava registrado de **três formas
 contraditórias dentro do mesmo arquivo** (`projeto B/docs/analise-estrutural.md`) — cabeçalho da
@@ -133,7 +133,7 @@ protegido?"* e encontra três respostas escolhe a errada com 2 chances em 3.
 
 ### 3. Painel de fatos verificáveis como saída do `structural-analysis` 🟠
 
-**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — colunas `Proof command` e `Measured on` em `plugins/be/templates/docs/structural-analysis.template.md` · `2f52d17`
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — colunas `Proof command` e `Measured on` em `plugins/be/templates/docs/structural-analysis.template.md` · `55552c4`
 
 **Fato:** o `analise-estrutural.md` produz **prosa** e **percentuais de estimativa de engenharia** —
 nenhum deles reexecutável. Foi o formato que permitiu o item 2 acontecer.
@@ -147,7 +147,7 @@ proposta é que o `be` passe a gerar isso, em vez de depender de alguém lembrar
 
 ### 4. Gesto de varredura de contradição no fechamento 🟠
 
-**Estado:** implantada em 2026-08-19 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
+**Estado:** implantada em 2026-08-19 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `7b6095b`
 
 **Fato:** a varredura de drift de 31/07 achou **4 drifts pré-existentes + 1 criado na própria
 sessão** — e só aconteceu porque foi pedida sob demanda.
@@ -160,7 +160,7 @@ pega exatamente a classe de erro que a sessão acabou de poder criar.
 
 ### 5. Item de pendência exige critério de pronto 🟠
 
-**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Done when` em `plugins/be/templates/docs/` · `2f52d17`
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Done when` em `plugins/be/templates/docs/` · `55552c4`
 
 **Fato medido:** dos 9 itens do mapa S1–S9, **8 fecharam e 1 não** — o **S1** (God Class). Ele não
 fecha porque nunca teve critério: *"reduzir God Class"* não tem linha de chegada. O **S7** (*"0
@@ -172,7 +172,7 @@ sentimento**, e reaparece em toda análise futura sem nunca fechar.
 
 ### 6. O `be` assume um repositório; a realidade aqui é um par 🟠
 
-**Estado:** implantada em 2026-08-19, podada e fundida na 7 (U7) — `companions:` no mapa de caminhos · `50be4bb`
+**Estado:** implantada em 2026-08-19, podada e fundida na 7 (U7) — `companions:` no mapa de caminhos · `065507f`
 
 **Fato medido:** seis invariantes atravessam os dois sistemas (retry, timeout, teto de página,
 campo de ordenação, sanitização, `track_total_hits`) e **nenhum deles pertencia a um repositório
@@ -232,7 +232,7 @@ O dado muda a prioridade da proposta 1 de *"vale a pena"* para *"é o item que s
 
 ## 7. O repositório em que você não está parado passa fome 🔴
 
-**Estado:** implantada em 2026-08-19 (U7) — `companions:`, lido por `plugins/be/hooks/scripts/session-start.js` · `50be4bb`
+**Estado:** implantada em 2026-08-19 (U7) — `companions:`, lido por `plugins/be/hooks/scripts/session-start.js` · `065507f`
 
 **Fato medido** — `projeto B`, os três artefatos do protocolo:
 
@@ -258,7 +258,7 @@ trata do fato que pertence claramente a um — e não chega lá.
 
 ## 8. Lição sobre o **método** não tem canal de volta para o plugin 🔴
 
-**Estado:** implantada em 2026-08-19 (U3) — *Promotion check* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
+**Estado:** implantada em 2026-08-19 (U3) — *Promotion check* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `56e0d9c`
 
 **Esta é a proposta que responde "como o `be` evolui".**
 
@@ -301,7 +301,7 @@ quem a mantém, não na de quem a exercita.
 
 ## 9. Resultado negativo exige prova de que a medição aconteceu 🟠
 
-**Estado:** implantada em 2026-08-19 (U8) — zero sem denominador em `plugins/be/skills/qa-verification-loop/SKILL.md` · `1414510`
+**Estado:** implantada em 2026-08-19 (U8) — zero sem denominador em `plugins/be/skills/qa-verification-loop/SKILL.md` · `54d49b0`
 
 **Fato medido, duas vezes no mesmo mês:** *"`ng test` reusa cache e pode reportar VERDE sobre
 código que não compila"* (05/08) e *"medição negativa só vale depois de provar que a medição
@@ -317,7 +317,7 @@ timestamp do artefato testado, arquivos varridos. Zero sem denominador não é r
 
 ## 10. Remoção de código não tem protocolo, e é a operação mais irreversível 🟠
 
-**Estado:** implantada em 2026-08-19 (U9) — skill `plugins/be/skills/proc-safe-removal/` · `46a8e20`
+**Estado:** implantada em 2026-08-19 (U9) — skill `plugins/be/skills/proc-safe-removal/` · `9df1f92`
 
 **Fato medido:** o ADR-005 deste projeto existe porque *"0 callers"* quase apagou código vivo
 (`createIndex`/`index` no projeto B, 02/07) — o framework reagia à **classe**, não ao import. A
@@ -334,7 +334,7 @@ reabre a mesma discussão sem o motivo original.
 
 ## 11. O `be` assume um agente, sequencial 🟠
 
-**Estado:** implantada em 2026-08-19, podada e fundida na 14 (U4) — *Parallel axis* nos comandos de varredura · `cb752a6`
+**Estado:** implantada em 2026-08-19, podada e fundida na 14 (U4) — *Parallel axis* nos comandos de varredura · `c043186`
 
 **Fato medido no plugin 3.0.0:** `TodoWrite` aparece em **0** arquivos, *plan mode* em **0**,
 *Task tool* em **0**. `background` em 2 e `subagent` em 2. Há **15 agentes** declarados, e nenhum
@@ -354,7 +354,7 @@ serializar não compra nada.
 
 ## 12. `/be:check` não conhece o custo de contexto do que ele manda ler 🟠
 
-**Estado:** implantada em 2026-08-19, podada para a parte da skill (U5) — *Measure before reading* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
+**Estado:** implantada em 2026-08-19, podada para a parte da skill (U5) — *Measure before reading* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `56e0d9c`
 
 **Fato medido:** o `session-start` manda ler o `HISTORICO.md` — **244 KB, com uma linha de 5.967
 caracteres**. Neste ambiente (WSL), ler o arquivo inteiro **derruba o terminal**; a leitura é
@@ -427,7 +427,7 @@ falha primeiro.
 
 ## 14. Paralelismo seguro: leitura abre em leque, escrita converge 🔴
 
-**Estado:** implantada em 2026-08-19 (U4) — *Parallel axis*: agente paralelo lê, um só escreve · `cb752a6`
+**Estado:** implantada em 2026-08-19 (U4) — *Parallel axis*: agente paralelo lê, um só escreve · `c043186`
 
 **Esta é a resposta direta sobre multi-thread.**
 
@@ -474,7 +474,7 @@ contradição vive na **prosa**, que é onde ninguém procura.
 
 ## 16. Critério de pronto precisa ser **alcançável**, não só verificável 🟠
 
-**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Blocked by` em `plugins/be/templates/docs/` · `2f52d17`
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Blocked by` em `plugins/be/templates/docs/` · `55552c4`
 
 **Fato medido:** o gatilho de remoção da guarda de transição foi escrito como *"quando o pipeline do
 projeto B fechar verde"*. Verificável por comando — e **impossível**: o pipeline falha por causa do
@@ -493,7 +493,7 @@ critério poder ser satisfeito?"*. Se a resposta for outro item aberto, a depend
 
 ## 17. Sessão longa perde o próprio rastro — o registro tem que ser incremental 🟠
 
-**Estado:** implantada em 2026-08-19 (U6) — o fechamento confere, não redige, em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
+**Estado:** implantada em 2026-08-19 (U6) — o fechamento confere, não redige, em `plugins/be/skills/proc-session-continuity/SKILL.md` · `7b6095b`
 
 **Fato medido:** a sessão de 18/08 rodou de **11h30 a 17h45**, com **28 commits em 2 repositórios**,
 e o fechamento tenta reconstruir tudo **no fim**. O drift que eu mesmo criei (registrar o `INC-06` e
@@ -512,7 +512,7 @@ fechamento que **confere** não.
 
 ## 18. Afirmação precisa carregar sua classe de evidência 🟠
 
-**Estado:** implantada em 2026-08-19, podada para coluna (U2) — coluna `Class` no painel de `plugins/be/templates/docs/structural-analysis.template.md` · `2f52d17`
+**Estado:** implantada em 2026-08-19, podada para coluna (U2) — coluna `Class` no painel de `plugins/be/templates/docs/structural-analysis.template.md` · `55552c4`
 
 **Fato medido:** a ficha versionada do `INC-07` dizia **"medido, não inferido"** enquanto a análise
 local do mesmo incidente dizia que **a causa não estava confirmada** — o log do pod que travou
@@ -573,7 +573,7 @@ bloqueia. Qualquer aresta nova deve seguir esse mesmo padrão.
 
 ## 19. O hub do protocolo é uma **folha** do grafo 🔴
 
-**Estado:** implantada em 2026-08-19 (U1) — *Activation edges* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
+**Estado:** implantada em 2026-08-19 (U1) — *Activation edges* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `56e0d9c`
 
 **Fato medido:** das 28 skills, **9 não citam nenhuma outra**. Uma delas é
 **`proc-session-continuity`** — a skill que roda no início **e** no fim de **toda** sessão. Ela cita
@@ -607,7 +607,7 @@ encaminha nada.
 
 ## 20. Aresta tipada + ciclo verificável por comando 🔴
 
-**Estado:** implantada em 2026-08-19 (U1) — detecção de ciclo em `scripts/validate.js` · `a5d563d`
+**Estado:** implantada em 2026-08-19 (U1) — detecção de ciclo em `scripts/validate.js` · `56e0d9c`
 
 Aresta nova cria risco de ciclo (`A → B → A`). O plugin já tem o padrão seguro; falta enunciá-lo
 como regra de quem escreve skill.
@@ -681,7 +681,7 @@ confortável, e as duas propostas abaixo saem do modo como a validação falhou.
 
 ## 22. A regra mora no **esquema**, não na prosa 🔴
 
-**Estado:** implantada em 2026-08-19 (U2) — os campos moram nos templates, não na prosa, `plugins/be/templates/docs/` · `2f52d17`
+**Estado:** implantada em 2026-08-19 (U2) — os campos moram nos templates, não na prosa, `plugins/be/templates/docs/` · `55552c4`
 
 **Fato medido, e é o mais limpo do arquivo inteiro:**
 
@@ -704,7 +704,7 @@ formulário é deixar o cumprimento por conta da memória — e a §0.2 mostra o
 
 ## 23. Regra sem teste conferido é regra sem prova 🔴
 
-**Estado:** implantada em 2026-08-19 (U10) — caso positivo conhecido no checklist de `plugins/be/skills/proc-skill-creator/SKILL.md` · `95bed37`
+**Estado:** implantada em 2026-08-19 (U10) — caso positivo conhecido no checklist de `plugins/be/skills/proc-skill-creator/SKILL.md` · `ac28899`
 
 **Fato medido:** o primeiro comando que escrevi para medir a §15 devolveu **1 violação**. O número
 real é **145 ocorrências**, das quais **≥ 18 comprovadamente erradas** — apontam para linha em
@@ -744,7 +744,7 @@ medição fica registrada como pendente, e **o comando dela já existe** — é 
 
 ## 24. Item de checklist tem de ser respondível olhando **só o diff** 🔴
 
-**Estado:** implantada em 2026-09-22 (Phase 8.7) — regra e itens em `plugins/be/skills/proc-code-review/SKILL.md`, `plugins/be/agents/qa-security-reviewer.md`; exceção declarada em `proc-release-checklist` · `38846b4`
+**Estado:** implantada em 2026-09-22 (Phase 8.7) — regra e itens em `plugins/be/skills/proc-code-review/SKILL.md`, `plugins/be/agents/qa-security-reviewer.md`; exceção declarada em `proc-release-checklist` · `3900476`
 
 **Fato medido em 2026-09-10, na varredura de drift do projeto inteiro:** o checklist de pré-commit
 das `diretrizes-tecnicas.md` trazia, na seção **Segurança (bloqueante)**, duas linhas vizinhas com
@@ -853,7 +853,7 @@ consegue fazer.
 
 ## 26. Regra normativa sem gatilho no momento do risco não vincula 🔴
 
-**Estado:** aberta — o degrau 5 foi implantado em 2026-09-22 (Phase 8.4, `engineering-principles.md` Apêndice D · `5b02095`); o mapa gesto→regra aguarda a Phase 8.2
+**Estado:** aberta — o degrau 5 foi implantado em 2026-09-22 (Phase 8.4, `engineering-principles.md` Apêndice D · `7f12372`); o mapa gesto→regra aguarda a Phase 8.2
 
 **Fato medido:** a §19.4 estava escrita, numerada, com o modo de falha nomeado, num arquivo que o
 `session-start` manda ler. Não impediu a repetição. O que pegou o defeito foi **ler a saída
@@ -967,7 +967,7 @@ revisão atenta é dividido antes de executar, não depois de falhar.
 
 ## 28. A triagem é um retrato: ela não acompanha a proposta que nasce depois 🟠
 
-**Estado:** implantada em 2026-09-22 (Phase 8.0) — `scripts/proposals-audit.js`, rodando em `node --test` · `a03262c`
+**Estado:** implantada em 2026-09-22 (Phase 8.0) — `scripts/proposals-audit.js`, rodando em `node --test` · `f116efc`
 
 **Correção do próprio fato, feita antes de publicar:** escrevi este item afirmando que não existia
 controle de estado nenhum. **Falso, e medido depois:** o repo do `be` tem
@@ -1002,7 +1002,7 @@ diferente de `aberta` e diz a verdade sobre o que se sabe.
 
 **Estado:** aberta — triada em 2026-09-22: aceita, fundida com a 25 → Phase 8.6 de `docs/action-plan.md`
 
-> **Numeração.** Registrada no commit `dfbe514` como "proposta 24", sob o título "Quarta rodada".
+> **Numeração.** Registrada no commit `2b24561` como "proposta 24", sob o título "Quarta rodada".
 > Renumerada para **29** em 2026-09-22: a 24 já existia na cópia do projeto
 > (`docs/_local/melhorias-plugin-be.md`, fato de 2026-09-10), e as duas cópias divergiram sem que
 > nada acusasse — o caso da proposta 28. Nenhum número anterior foi mexido.

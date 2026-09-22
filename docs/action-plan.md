@@ -340,7 +340,7 @@ instead of opening a new one, because four of the six were objects already here:
 26 is the ladder of 8.2–8.4 reached from another origin, 27 is the case 8.1 was
 waiting for, 21 was already 8.3. What is genuinely new is 8.0, 8.6 and 8.7.
 
-### 8.0 ✅ done 2026-09-22 (`a03262c`) — The proposal ledger accuses a proposal without a state
+### 8.0 ✅ done 2026-09-22 (`f116efc`) — The proposal ledger accuses a proposal without a state
 
 | | |
 |---|---|
@@ -431,7 +431,7 @@ born on. **Blocked by:** nothing. **Absorbs `project A` proposal 21** — the
 same gate, the same objection, asked for from the project side — as its evidence
 step: the real session is run in that project pair.
 
-### 8.4 ✅ done 2026-09-22 (`5b02095`) — Write the entry criterion for "a rule becomes a gate"
+### 8.4 ✅ done 2026-09-22 (`7f12372`) — Write the entry criterion for "a rule becomes a gate"
 
 The ladder of enforcement (prose → keyword recall → periodic sweep → gate at the
 door), the entry test — *only a rule a machine decides alone; a gate that judges
@@ -474,7 +474,7 @@ that the tool scored a **red** suite as perfect, now refused.
 | **Done when** | run against a real Spring project, the phase prints the three lists, and at least two items of each are re-checked by hand against the code; the skill carries a known-positive case and its mirror (an endpoint documented through a path constant is **not** reported). |
 | **Blocked by** | nothing; sequenced after 8.4 so it is born declaring its rung (watcher, not gate). |
 
-### 8.7 ✅ done 2026-09-22 (`38846b4`) — A checklist item is answerable from the diff alone
+### 8.7 ✅ done 2026-09-22 (`3900476`) — A checklist item is answerable from the diff alone
 
 `project A` proposal 24. Every checklist the base generates or reviews
 (`proc-code-review`, `proc-release-checklist`, the pre-commit checklist of
@@ -487,7 +487,7 @@ debt record, with a count and a measurement date.
 the 22nd's *the rule lives in the schema*. **Blocked by:** nothing. **Effort:**
 low — sentences.
 
-### 8.8 ✅ done 2026-09-22 (`5f94ce6`, load criteria `cbd3fb9`) — `qa-test-strategy`: which verification a change needs, and whether the tests prove anything
+### 8.8 ✅ done 2026-09-22 (`cb3bb89`, load criteria `203638f`) — `qa-test-strategy`: which verification a change needs, and whether the tests prove anything
 
 | | |
 |---|---|

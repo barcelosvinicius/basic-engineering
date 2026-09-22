@@ -9,7 +9,7 @@
 > Onde algo não foi medido, está escrito *não medido*.
 
 **Analisado em:** 2026-09-20 · **Eles:** HEAD `119a822` (2026-09-18), clone raso
-em pasta temporária de sessão · **Nós:** `be` 3.1.1, working tree limpo em `019fa2f`
+em pasta temporária de sessão · **Nós:** `be` 3.1.1, working tree limpo em `91386e4`
 
 ---
 
@@ -216,7 +216,7 @@ Ele faz duas perguntas, e as duas são da mesma direção:
 2. `danglingRefs()` — *os nomes citados existem?*
 
 Ambas verificam **que o escrito é verdadeiro**. Nenhuma verifica **que o
-existente está descrito**. O README ficou parado em `f475e3f` (2026-08-19
+existente está descrito**. O README ficou parado em `d7ff6a6` (2026-08-19
 21:25) e atravessou **v3.1.0 e v3.1.1** sem citar `be doctor`, o *update check*
 do SessionStart, nem o seeding de `.gitattributes` — três capacidades que o
 usuário só descobre se abrir o código. As contagens não mudaram, então o guarda
@@ -402,5 +402,5 @@ Registrado porque a pasta é de mão dupla e porque a fonte importa:
 ---
 
 **Medido por:** sessão de 2026-09-20 · **Fontes:** clone raso `119a822`,
-working tree local `019fa2f` · **Nada aqui altera comportamento do plugin até
+working tree local `91386e4` · **Nada aqui altera comportamento do plugin até
 ser triado e implementado.**
