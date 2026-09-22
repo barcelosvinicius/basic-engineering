@@ -334,6 +334,21 @@ shipped on 2026-09-20 (nine commits). What is left divides into one item waiting
 on evidence and three that **decide better together than apart** — all three are
 the same conversation about narrowing a trigger until it can be left on.
 
+**Merged in on 2026-09-22:** the triage of `project A` proposals 24–29
+(`feedback/project-a-2026-08-19/TRIAGEM.md` §6). They joined this phase
+instead of opening a new one, because four of the six were objects already here:
+26 is the ladder of 8.2–8.4 reached from another origin, 27 is the case 8.1 was
+waiting for, 21 was already 8.3. What is genuinely new is 8.0, 8.6 and 8.7.
+
+### 8.0 — The proposal ledger accuses a proposal without a state
+
+| | |
+|---|---|
+| **What** | `scripts/proposals-audit.js`: every numbered proposal in a `feedback/**/SUGESTOES.md` carries an `**Estado:**` line under its title; numbers are unique and contiguous; an `implantada` state cites the commit that proves it. `--draft <path>` regenerates the status index at the top of the project's own draft copy and lists the proposals that exist there but not here. |
+| **Why** | `project A` proposal 28, measured by its own triage: proposals 24–28 lived only in the project's unversioned draft — the oldest from a fact of 2026-09-10 — and the number 24 was used for two different proposals — with nothing to say so. The triage of 2026-08-19 was a snapshot; nothing declared it stale. |
+| **Done when** | the check fails on a known-positive fixture (a missing state, a repeated number, a proof-less `implantada`) and passes on its mirror (a heading that only *mentions* a number); it runs inside `node --test`, so CI and the release execute it the day it is written. |
+| **Blocked by** | nothing. **First**, because it is what stops the next proposal from getting lost. |
+
 ### 8.1 — Divide to conquer, as a skill
 
 | | |
@@ -341,7 +356,8 @@ the same conversation about narrowing a trigger until it can be left on.
 | **What** | `proc-analysis-blocks` — the general rule for splitting an analysis into blocks that each close with a verifiable verdict. Not a new review: `proc-code-review` (by layer) and `proc-impact-analysis` (by fixed axes) are instances of it for questions whose axes are already known; both would declare an activation edge to it rather than duplicate it. |
 | **Why** | Stated by the owner from repeated observation: analyses that are too large always left drifts and obvious errors behind. This session is evidence on both sides — the seven-finding sweep worked because it was partitioned by surface, and the two silly errors of the same session (a blocked heredoc, a panel that drifted mid-session) happened in the stretches worked as one block. |
 | **The six rules, provisional** | declare the blocks before looking · a block is what closes in one verifiable statement (that is the size rule, and the only non-arbitrary one) · every block closes with verdict + evidence, never "looks fine" · report where the guard already works, or the output becomes an alarm list people learn to skip · name the class before fixing the case, then re-sweep the other blocks for siblings · re-measure at the end, because the object may have changed during the analysis — possibly by you |
-| **Blocked by** | **the owner's lessons-learned cases**, which are coming. Each rule must cite the measured case that produced it, the way the reference repo's gates do; rules without a case get pruned rather than shipped. |
+| **The case from outside** | `project A` proposal 27 (triaged 2026-09-22), same author and same document: **one batch of 34 edits** — 2 defects escaped, 0 caught; **11 batches, each checked** — 0 escaped, 5 caught, all by reading the generated output. The owner's formulation: *"dividing to conquer is directly related to the context window — a window that is too large drastically reduces our capacity and quality of analysis."* Its three rules land on rules 1, 2–3 and 6 above. Proposal 12 is the other axis — the cost of reading — and is already shipped. |
+| **Blocked by** | **partly lifted on 2026-09-22** by proposal 27, which gives measured cases to rules 1, 2, 3 and 6. Rules 4 and 5 still need theirs; each rule must cite the measured case that produced it, the way the reference repo's gates do, and a rule without a case gets pruned rather than shipped. |
 | **Done when** | the skill exists with a case per rule, passes the `proc-skill-creator` checklist, and at least one existing skill declares an edge to it. Rules 3 and 6 are the only two with a plausible mechanical check (over the shape of the report); the other four are discipline, and the skill says so instead of pretending otherwise. |
 
 ### 8.2 — The map that already exists gains a trigger
@@ -363,6 +379,13 @@ touch of a known directory class) offers the mapped skills, and a measured real
 session shows **≤2 interruptions**. **Blocked by:** 8.3, which is the same
 narrowing question.
 
+**Absorbs `project A` proposal 26** (triaged 2026-09-22): its gesture → rule
+map — `renumber | rename | remap | bulk replace` → the lot rule of 8.1, `remove a
+file or block` → `proc-safe-removal` — is a concrete form of this trigger. The
+case behind it: a rule that named its own failure mode in writing, nineteen days
+old, did not prevent that exact failure, because it was read at session start and
+the risk arrived hours later.
+
 ### 8.3 — Narrow the gateguard trigger until it can ship on
 
 The fact-forcing gate is opt-in and off by default because it stops the first
@@ -371,7 +394,9 @@ edit of *any* file. The reference repo refused it for exactly that reason
 not to switch it on — it is to narrow the trigger to conditions a machine
 decides alone, the way their gates do.
 **Done when:** measured in a real session, interruptions ≤2 and the gate can be
-born on. **Blocked by:** nothing.
+born on. **Blocked by:** nothing. **Absorbs `project A` proposal 21** — the
+same gate, the same objection, asked for from the project side — as its evidence
+step: the real session is run in that project pair.
 
 ### 8.4 — Write the entry criterion for "a rule becomes a gate"
 
@@ -380,6 +405,9 @@ door), the entry test — *only a rule a machine decides alone; a gate that judg
 becomes noise, and noise trains people to ignore red* — and the division **gate
 at the start, watcher after**. Belongs in `engineering-principles` and
 `proc-skill-creator`.
+`project A` proposal 26 adds a fifth rung above the gate — **make the illegal
+state unrepresentable** (an operation that only accepts a frozen target) —
+because a gate is an enumeration, and what nobody enumerated passes.
 **Done when:** the next new skill declares which rung it operates on.
 **Blocked by:** nothing. **Effort:** low — these are sentences.
 
@@ -391,6 +419,29 @@ at the start, watcher after**. Belongs in `engineering-principles` and
 | `o_basico` executable, probably as `be doctor <projects>` | the largest capability gap: they **measure** seven basics across every project daily, we **advise** one project when asked. Carry over their split of *has tests* from *the CI runs the tests*, and their lesson that a detector ignorant of the house's shape measures itself |
 | Mutation testing for our own scripts | start with `validate.js` and the hooks — what breaks silently. The bypass-guard defect is the argument |
 | Gate at the commit, and a first-class place for refused decisions | a refusal with a reopen trigger does not come back as a new idea |
+
+### 8.6 — `/be:check` reports the measured distance
+
+| | |
+|---|---|
+| **What** | One new phase in `qa-verification-loop` / `commands/check.md`, **report-only**, printing a count per line: the project checklist's quantifiable items, each run by its own command (`project A` 25); routes declared in code × routes the docs cite, resolving path constants rather than reading only the literal (29); controllers — or the stack's equivalent — with no test class at all (29). |
+| **Why** | Two proposals, one shape. 25: all 6 blocking security items of a real checklist are measurable by a command, `/be:check` ran 0, and `console.log` stood at 55 under a "blocking" box for five months. 29: 9 endpoints absent from every doc and 5 of 8 controllers without a test, found only by a manual audit that nobody repeats. |
+| **Rules it is born with** | **report, never block** — blocking on 55 pre-existing hits makes the gate unusable, and an unusable gate is switched off the next week · runs after `clean` (stale surefire XML counted a deleted test class) · never rewrites a file · reads the stack from `config/stack-mappings.json`, which `check.md` already consults — no second detector. |
+| **Done when** | run against a real Spring project, the phase prints the three lists, and at least two items of each are re-checked by hand against the code; the skill carries a known-positive case and its mirror (an endpoint documented through a path constant is **not** reported). |
+| **Blocked by** | nothing; sequenced after 8.4 so it is born declaring its rung (watcher, not gate). |
+
+### 8.7 — A checklist item is answerable from the diff alone
+
+`project A` proposal 24. Every checklist the base generates or reviews
+(`proc-code-review`, `proc-release-checklist`, the pre-commit checklist of
+`bootstrap`) phrases each item as a property of the **diff** — "not added", "not
+introduced" — never as a state of the tree — "none in the project". A tree-state
+item turns false for every later commit the moment one occurrence lands anywhere,
+so everyone ticks it in good faith. Tree state keeps mattering; its place is the
+debt record, with a count and a measurement date.
+**Done when:** the three checklists are phrased that way and the rule sits next to
+the 22nd's *the rule lives in the schema*. **Blocked by:** nothing. **Effort:**
+low — sentences.
 
 ---
 
@@ -404,6 +455,11 @@ and this repo now runs the protocol it sells.
 **Phase 3.2, 3.3 and Phase 5** are separate sessions. 3.2 is careful surgery on
 600 lines of material that must be moved without loss; Phase 5 is seven
 independent units, each small, none blocking the others.
+
+**Phase 8, as unified on 2026-09-22:** **8.0 first** — it stops the next proposal
+from getting lost. Then **8.4 with 8.7** (sentences that decide the rung the rest
+is born on) → **8.3** → **8.2** → **8.6**. **8.1** runs on its own, in lots.
+**Phase 7** in parallel, one rule per commit. Then the README, then the release.
 
 ## Explicitly not in this plan
 

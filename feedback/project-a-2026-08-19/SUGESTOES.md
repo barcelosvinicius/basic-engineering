@@ -1,7 +1,7 @@
 # Melhorias para o plugin `be` — direção baseada em prática real
 
 **Data:** 2026-08-03 · **Origem:** sessão de alinhamento do contrato do `/busca` + auditoria
-cross-repo · **Status:** direção inicial, a ser trabalhada em sessão própria
+cross-repo · **Status:** 29 propostas, cada uma com linha **Estado:** sob o título (conferidas em 2026-09-22)
 
 > **Por que este arquivo fica em `docs/_local/`.** O `be` é recurso pessoal fornecido pelo plugin,
 > deliberadamente **fora do versionamento dos repositórios do projeto** (decisão de 2026-06-17).
@@ -102,6 +102,8 @@ ninguém**, humano ou IA.
 
 ### 1. Compactação por idade no `session-end` 🔴
 
+**Estado:** implantada em 2026-08-19 (U5) — teto de ~800 linhas com arquivo verbatim, `plugins/be/templates/docs/history.template.md` · `cda8e29`
+
 **Fato:** 24 entradas de sessão respondem pela maior parte das 1.092 linhas.
 
 **Proposta:** entrada de sessão com mais de **4 semanas** colapsa para **uma linha** — data, título,
@@ -114,6 +116,8 @@ seguem recuperáveis por `git log`/`git show`.
 **Princípio:** handoff longo não é lido. Um handoff que ninguém lê inteiro não é handoff.
 
 ### 2. Regra "atualizar é substituir, não acrescentar" 🔴
+
+**Estado:** implantada em 2026-08-19, fundida na 4 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
 
 **Fato medido:** o enunciado *"a API do project B é pública"* estava registrado de **três formas
 contraditórias dentro do mesmo arquivo** (`project B/docs/analise-estrutural.md`) — cabeçalho da
@@ -129,6 +133,8 @@ protegido?"* e encontra três respostas escolhe a errada com 2 chances em 3.
 
 ### 3. Painel de fatos verificáveis como saída do `structural-analysis` 🟠
 
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — colunas `Proof command` e `Measured on` em `plugins/be/templates/docs/structural-analysis.template.md` · `2f52d17`
+
 **Fato:** o `analise-estrutural.md` produz **prosa** e **percentuais de estimativa de engenharia** —
 nenhum deles reexecutável. Foi o formato que permitiu o item 2 acontecer.
 
@@ -141,6 +147,8 @@ proposta é que o `be` passe a gerar isso, em vez de depender de alguém lembrar
 
 ### 4. Gesto de varredura de contradição no fechamento 🟠
 
+**Estado:** implantada em 2026-08-19 (U6) — *Delta sweep* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
+
 **Fato:** a varredura de drift de 31/07 achou **4 drifts pré-existentes + 1 criado na própria
 sessão** — e só aconteceu porque foi pedida sob demanda.
 
@@ -152,6 +160,8 @@ pega exatamente a classe de erro que a sessão acabou de poder criar.
 
 ### 5. Item de pendência exige critério de pronto 🟠
 
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Done when` em `plugins/be/templates/docs/` · `2f52d17`
+
 **Fato medido:** dos 9 itens do mapa S1–S9, **8 fecharam e 1 não** — o **S1** (God Class). Ele não
 fecha porque nunca teve critério: *"reduzir God Class"* não tem linha de chegada. O **S7** (*"0
 `@Autowired` no repo"*) fechou em uma sessão porque a linha de chegada era verificável.
@@ -161,6 +171,8 @@ ele precisa ser verificável por comando. Item sem critério de pronto **não é
 sentimento**, e reaparece em toda análise futura sem nunca fechar.
 
 ### 6. O `be` assume um repositório; a realidade aqui é um par 🟠
+
+**Estado:** implantada em 2026-08-19, podada e fundida na 7 (U7) — `companions:` no mapa de caminhos · `50be4bb`
 
 **Fato medido:** seis invariantes atravessam os dois sistemas (retry, timeout, teto de página,
 campo de ordenação, sanitização, `track_total_hits`) e **nenhum deles pertencia a um repositório
@@ -220,6 +232,8 @@ O dado muda a prioridade da proposta 1 de *"vale a pena"* para *"é o item que s
 
 ## 7. O repositório em que você não está parado passa fome 🔴
 
+**Estado:** implantada em 2026-08-19 (U7) — `companions:`, lido por `plugins/be/hooks/scripts/session-start.js` · `50be4bb`
+
 **Fato medido** — `project B`, os três artefatos do protocolo:
 
 | Artefato | Último commit | Atraso | Regra no `session-end` |
@@ -244,6 +258,8 @@ trata do fato que pertence claramente a um — e não chega lá.
 
 ## 8. Lição sobre o **método** não tem canal de volta para o plugin 🔴
 
+**Estado:** implantada em 2026-08-19 (U3) — *Promotion check* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
+
 **Esta é a proposta que responde "como o `be` evolui".**
 
 **Fato medido:** das entradas de 17–18/08 do `lessons-learned`, a maioria não fala do sistema, fala
@@ -266,7 +282,26 @@ o efeito é o plugin aprender com o uso em vez de aprender por lembrança.
 **Princípio:** ferramenta que não colhe o que aprendeu com quem a usa envelhece na velocidade de
 quem a mantém, não na de quem a exercita.
 
+> **Segunda ocorrência medida, em 2026-09-10 — e ela reforça a prioridade.** O dono formulou esta
+> mesma proposta espontaneamente, sem lembrar que ela já estava escrita aqui: *"que ele tenha um
+> recurso que ao pegar lições aprendidas isso, se for algo que se enquadre, seja uma melhoria para o
+> be"*. Chegar à mesma conclusão duas vezes, com 22 dias de intervalo, é o sintoma exato que a
+> proposta descreve: **a lição não tem trilho, então cada um a redescobre.**
+>
+> A sessão de 10/09 produziu **três** lições stack-agnostic — *checklist fala do diff, não do estado
+> da árvore*; *doutrina que amadurece de um lado da stack tem de perguntar pelo outro*; *detector que
+> não conhece o idioma do código produz ruído que esconde o sinal* (o grep de `TODO` casou com
+> **TODOS** em 8 de 9 achados). Nenhuma das três menciona Java, Angular ou Oracle. **Todas foram
+> promovidas à mão**, de novo — viraram as propostas 24 e 25 deste arquivo porque alguém lembrou, e
+> não porque o protocolo perguntou.
+>
+> **Refinamento que a segunda ocorrência sugere:** a pergunta do `session-end` não precisa ser
+> subjetiva. Um teste objetivo serve — *"esta lição cita alguma tecnologia do projeto?"*. Se não
+> cita, é candidata a promoção. As três de hoje passariam nesse filtro sem discussão.
+
 ## 9. Resultado negativo exige prova de que a medição aconteceu 🟠
+
+**Estado:** implantada em 2026-08-19 (U8) — zero sem denominador em `plugins/be/skills/qa-verification-loop/SKILL.md` · `1414510`
 
 **Fato medido, duas vezes no mesmo mês:** *"`ng test` reusa cache e pode reportar VERDE sobre
 código que não compila"* (05/08) e *"medição negativa só vale depois de provar que a medição
@@ -282,6 +317,8 @@ timestamp do artefato testado, arquivos varridos. Zero sem denominador não é r
 
 ## 10. Remoção de código não tem protocolo, e é a operação mais irreversível 🟠
 
+**Estado:** implantada em 2026-08-19 (U9) — skill `plugins/be/skills/proc-safe-removal/` · `46a8e20`
+
 **Fato medido:** o ADR-005 deste projeto existe porque *"0 callers"* quase apagou código vivo
 (`createIndex`/`index` no project B, 02/07) — o framework reagia à **classe**, não ao import. A
 regra que nasceu dali exige **quatro eixos** antes de apagar: proveniência, supersessão, dano e
@@ -296,6 +333,8 @@ comentário `// NB:` no que **sobrevive** explicando por que sobreviveu. Sem iss
 reabre a mesma discussão sem o motivo original.
 
 ## 11. O `be` assume um agente, sequencial 🟠
+
+**Estado:** implantada em 2026-08-19, podada e fundida na 14 (U4) — *Parallel axis* nos comandos de varredura · `cb752a6`
 
 **Fato medido no plugin 3.0.0:** `TodoWrite` aparece em **0** arquivos, *plan mode* em **0**,
 *Task tool* em **0**. `background` em 2 e `subagent` em 2. Há **15 agentes** declarados, e nenhum
@@ -314,6 +353,8 @@ ordem importa. Não é usar recurso novo por ser novo: é que varredura independ
 serializar não compra nada.
 
 ## 12. `/be:check` não conhece o custo de contexto do que ele manda ler 🟠
+
+**Estado:** implantada em 2026-08-19, podada para a parte da skill (U5) — *Measure before reading* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
 
 **Fato medido:** o `session-start` manda ler o `HISTORICO.md` — **244 KB, com uma linha de 5.967
 caracteres**. Neste ambiente (WSL), ler o arquivo inteiro **derruba o terminal**; a leitura é
@@ -369,6 +410,8 @@ três arquivos mais quentes.
 
 ## 13. Documento não declara do que depende — o grafo não existe 🔴
 
+**Estado:** aberta — adiada em 2026-08-19, porque a 22 + 3 já dão o lookup dos fatos que importam (TRIAGEM); reabre se o painel de fatos não responder sozinho *"o que mais precisa mudar?"*
+
 **Fato medido:** 47 documentos, **10** com link para outro. E um único identificador alcança até
 **16 arquivos**. Quando o `IMP-15` muda, **13 arquivos** podem precisar mudar, e nada no repositório
 sabe quais.
@@ -383,6 +426,8 @@ alguém lembrar. O grafo declarado é a versão mecânica da mesma regra.
 falha primeiro.
 
 ## 14. Paralelismo seguro: leitura abre em leque, escrita converge 🔴
+
+**Estado:** implantada em 2026-08-19 (U4) — *Parallel axis*: agente paralelo lê, um só escreve · `cb752a6`
 
 **Esta é a resposta direta sobre multi-thread.**
 
@@ -410,6 +455,8 @@ espera por trabalho de reconciliação — que é mais lento e ainda introduz de
 
 ## 15. Editar metade da frase é a classe de drift mais barata de evitar 🟠
 
+**Estado:** descartada em 2026-08-19 (o mecanismo), porque "frase distintiva" é heurística ruidosa; a intenção foi absorvida pelas 2 e 4 (TRIAGEM)
+
 **Fato medido nesta sessão:** o `HISTORICO` afirmava, **no mesmo arquivo**, que o deploy *"leva o
 `char_filter`"* — na descrição do passo 1 do topo da fila — e, poucas dezenas de linhas acima, no
 adendo de apuração de 2026-08-18, que o `char_filter` **já estava em produção**. As duas passagens
@@ -426,6 +473,8 @@ Custo: um comando. O `be` **já tem infraestrutura de hooks** — falta o gesto.
 contradição vive na **prosa**, que é onde ninguém procura.
 
 ## 16. Critério de pronto precisa ser **alcançável**, não só verificável 🟠
+
+**Estado:** implantada em 2026-08-19 como caso da 22 (U2) — campo `Blocked by` em `plugins/be/templates/docs/` · `2f52d17`
 
 **Fato medido:** o gatilho de remoção da guarda de transição foi escrito como *"quando o pipeline do
 project B fechar verde"*. Verificável por comando — e **impossível**: o pipeline falha por causa do
@@ -444,6 +493,8 @@ critério poder ser satisfeito?"*. Se a resposta for outro item aberto, a depend
 
 ## 17. Sessão longa perde o próprio rastro — o registro tem que ser incremental 🟠
 
+**Estado:** implantada em 2026-08-19 (U6) — o fechamento confere, não redige, em `plugins/be/skills/proc-session-continuity/SKILL.md` · `b02af16`
+
 **Fato medido:** a sessão de 18/08 rodou de **11h30 a 17h45**, com **28 commits em 2 repositórios**,
 e o fechamento tenta reconstruir tudo **no fim**. O drift que eu mesmo criei (registrar o `INC-06` e
 deixar o fato refutado vivo em 6 lugares) aconteceu **no meio** — e sobreviveu justamente porque o
@@ -460,6 +511,8 @@ mostram. Fechamento que **redige** compete com a fadiga do fim da sessão e com 
 fechamento que **confere** não.
 
 ## 18. Afirmação precisa carregar sua classe de evidência 🟠
+
+**Estado:** implantada em 2026-08-19, podada para coluna (U2) — coluna `Class` no painel de `plugins/be/templates/docs/structural-analysis.template.md` · `2f52d17`
 
 **Fato medido:** a ficha versionada do `INC-07` dizia **"medido, não inferido"** enquanto a análise
 local do mesmo incidente dizia que **a causa não estava confirmada** — o log do pod que travou
@@ -520,6 +573,8 @@ bloqueia. Qualquer aresta nova deve seguir esse mesmo padrão.
 
 ## 19. O hub do protocolo é uma **folha** do grafo 🔴
 
+**Estado:** implantada em 2026-08-19 (U1) — *Activation edges* em `plugins/be/skills/proc-session-continuity/SKILL.md` · `a5d563d`
+
 **Fato medido:** das 28 skills, **9 não citam nenhuma outra**. Uma delas é
 **`proc-session-continuity`** — a skill que roda no início **e** no fim de **toda** sessão. Ela cita
 `engineering-principles` (referência, não delegação) e mais nada.
@@ -552,6 +607,8 @@ encaminha nada.
 
 ## 20. Aresta tipada + ciclo verificável por comando 🔴
 
+**Estado:** implantada em 2026-08-19 (U1) — detecção de ciclo em `scripts/validate.js` · `a5d563d`
+
 Aresta nova cria risco de ciclo (`A → B → A`). O plugin já tem o padrão seguro; falta enunciá-lo
 como regra de quem escreve skill.
 
@@ -571,6 +628,8 @@ de **bloquear** — foi a escolha do hook `Stop`, e é a que não trava trabalho
 detecção de ciclo em linha de comando. O custo de tipar é uma palavra por aresta.
 
 ## 21. O `gateguard` está desligado — e é exatamente a guarda que faltou 🟠
+
+**Estado:** aberta — a guarda existe desde o BACKLOG 11 (`gateguard`, opt-in); o experimento de ligá-la e medir nunca foi feito. O mesmo objeto é hoje a Phase 8.3 de `docs/action-plan.md`
 
 **Fato medido:** `hooks/scripts/_gateguard.js` bloqueia a **primeira** escrita em cada arquivo da
 sessão e exige que o agente declare fatos concretos antes de repetir — *importers, API afetada,
@@ -622,6 +681,8 @@ confortável, e as duas propostas abaixo saem do modo como a validação falhou.
 
 ## 22. A regra mora no **esquema**, não na prosa 🔴
 
+**Estado:** implantada em 2026-08-19 (U2) — os campos moram nos templates, não na prosa, `plugins/be/templates/docs/` · `2f52d17`
+
 **Fato medido, e é o mais limpo do arquivo inteiro:**
 
 | Tabela | Tem coluna de data? | Linhas datadas |
@@ -642,6 +703,8 @@ Regra em prosa depende de quem escreve lembrar; campo vazio na tabela **cobra so
 formulário é deixar o cumprimento por conta da memória — e a §0.2 mostra o resultado disso.
 
 ## 23. Regra sem teste conferido é regra sem prova 🔴
+
+**Estado:** implantada em 2026-08-19 (U10) — caso positivo conhecido no checklist de `plugins/be/skills/proc-skill-creator/SKILL.md` · `95bed37`
 
 **Fato medido:** o primeiro comando que escrevi para medir a §15 devolveu **1 violação**. O número
 real é **145 ocorrências**, das quais **≥ 18 comprovadamente erradas** — apontam para linha em
@@ -678,9 +741,271 @@ comparando a taxa de drift antes e depois, daqui a algumas sessões, com o mesmo
 medição fica registrada como pendente, e **o comando dela já existe** — é o desta rodada.
 
 ---
+
+## 24. Item de checklist tem de ser respondível olhando **só o diff** 🔴
+
+**Estado:** aberta — triada em 2026-09-22: aceita como frase → Phase 8.7 de `docs/action-plan.md`
+
+**Fato medido em 2026-09-10, na varredura de drift do projeto inteiro:** o checklist de pré-commit
+das `diretrizes-tecnicas.md` trazia, na seção **Segurança (bloqueante)**, duas linhas vizinhas com
+formas diferentes:
+
+```
+- [ ] `System.out/err.println` não adicionado            ← propriedade do DIFF
+- [ ] `console.log` inexistente em código de produção    ← propriedade da ÁRVORE
+```
+
+A árvore tinha **55** ocorrências de `console.log`, 32 num arquivo só, desde antes de a regra ser
+escrita. O item ficou **cinco meses** marcado como bloqueante sem bloquear nada.
+
+**O mecanismo, e ele não depende de má-fé.** A primeira linha se responde olhando o próprio commit.
+A segunda exige varrer o repositório — e, no instante em que **uma** ocorrência entra em qualquer
+lugar, a resposta honesta passa a ser "não" **para todo commit seguinte**, inclusive os que não
+tocam no assunto. Quem commita olha o próprio diff, vê que está limpo e marca. Todo mundo marca. A
+caixinha vira uma afirmação falsa que o time inteiro assina de boa-fé, porque a **pergunta** estava
+mal formulada.
+
+O custo não é o `console.log`. É que um item bloqueante que ninguém bloqueia ensina que a lista é
+decorativa — e os outros cinco itens da mesma seção incluem **credencial hardcoded** e **SQL
+concatenado**.
+
+**Proposta:** o `be` passa a exigir, de todo checklist que ele gera ou revisa (`proc-code-review`,
+`proc-release-checklist`, o checklist de pré-commit do `bootstrap`), que **cada item seja
+respondível olhando apenas o diff**. Redação no imperativo do que se acrescenta ("não adicionado",
+"não introduzido"), nunca no estado do repositório ("inexistente", "zero ocorrências", "nenhum X no
+projeto").
+
+Estado da árvore continua importando — mas o lugar dele é a **ficha de dívida**, onde ele nasce com
+contagem e data de medição, e onde envelhecer é informação em vez de mentira silenciosa.
+
+**Encosta em:** a proposta 22 (*a regra mora no esquema, não na prosa*) — este é o mesmo problema um
+nível acima: a regra estava na prosa **e** na forma errada.
+
 ---
 
-# Quarta rodada — 2026-09-16 · o `/be:check` não olha pra documentação nem pra cobertura por arquivo
+## 25. O gate mede os itens quantificáveis do checklist e reporta a distância 🔴
+
+**Estado:** aberta — triada em 2026-09-22: aceita, fundida com a 29 → Phase 8.6 de `docs/action-plan.md`
+
+**Fato medido em 2026-09-10:** o checklist do projeto tem **6 itens bloqueantes de segurança**, e
+**todos os seis são medíveis por um comando** — credencial hardcoded, `System.out/err`, SQL
+concatenado, `alert()`, `console.log`, `[innerHTML]` sem sanitização.
+
+O `be:check` **não roda nenhum deles**. A verificação é ler a linha e acreditar. Medidos à mão nesta
+data: cinco em zero, e `console.log` em **55**.
+
+**Proposta:** o `be:check` (e o `qa-verification-loop`) ganham uma fase que lê os itens
+quantificáveis do checklist do projeto, **executa o comando de cada um** e imprime a coluna medida:
+
+```
+Segurança (checklist do projeto)
+  credenciais hardcoded .......... 0
+  System.out/err ................. 0
+  alert() ........................ 0
+  SQL concatenado ................ 0
+  console.log .................... 55   ← distância
+  [innerHTML] sem sanitização .... 0
+```
+
+**Reportar, nunca bloquear** — e essa parte é a que decide se a proposta sobrevive. Bloquear em 55
+pré-existentes tornaria o gate inutilizável, e um gate inutilizável é desligado na semana seguinte.
+Reportar transforma **regra escrita** em **número medido a cada rodada**: a distância entre o que o
+projeto diz de si e o que ele é passa a ser visível sem que ninguém precise ter a ideia de procurar.
+
+**O que isso teria mudado aqui, concretamente:** o 55 estaria na tela em abril, na primeira rodada.
+Em vez disso, apareceu em 10/09, porque o dono pediu uma varredura de drift depois de uma
+renomeação — um gesto que nada obrigava a existir.
+
+**Dependência:** o comando de medição precisa morar junto do item. É o mesmo casamento que a
+`analise-estrutural.md` já faz no painel §0.1 (*"fato volátil nasce com a prova junto — não há linha
+sem comando"*), e é a proposta 3 deste arquivo aplicada ao checklist em vez de ao painel.
+
+**Encosta em:** proposta 3 (painel de fatos verificáveis), proposta 9 (resultado negativo exige
+prova de que a medição aconteceu) e a 24 acima — a 24 conserta a **forma** do item, esta dá a ele um
+**medidor**.
+
+---
+
+# Sexta rodada — 2026-09-21 · a regra existia, era normativa, e não vinculou
+
+**Origem:** revisão do documento de requisitos do portal em 11 lotes, contra o código
+medido. Três propostas, todas nascidas de defeito próprio cometido **contra regra já escrita**.
+
+## O fato que abre a rodada
+
+Em 2026-09-02 nasceu a `diretrizes-tecnicas.md` §19 — *"Verificação grande não é verificação — a
+unidade é a fatia"*. A regra **19.4** diz, textualmente:
+
+> *"Operação em massa é a última, e nunca no mesmo passo que escrita nova. Renumerar, renomear,
+> mover, remapear: sobre texto já parado. Foi a mistura das duas que produziu o ponteiro
+> invertido."*
+
+Em 2026-09-21, num script que renumerava seções do mesmo documento, o passe de renumeração rodou
+**no mesmo passo** que o texto novo de um lote — e produziu **exatamente o ponteiro invertido** que
+a regra nomeia: `(item 5.6)`, escrito correto, virou `(item 5.5)` e passou a apontar para outra
+seção.
+
+**Dezenove dias, regra normativa, nome do defeito na própria regra, e o defeito aconteceu igual.**
+Isso não é falha de memória de um autor: é dado sobre o que uma regra escrita consegue e não
+consegue fazer.
+
+---
+
+## 26. Regra normativa sem gatilho no momento do risco não vincula 🔴
+
+**Estado:** aberta — triada em 2026-09-22: já no plano → Phases 8.2 (mapa gesto→regra) e 8.4 (degrau 5) de `docs/action-plan.md`
+
+**Fato medido:** a §19.4 estava escrita, numerada, com o modo de falha nomeado, num arquivo que o
+`session-start` manda ler. Não impediu a repetição. O que pegou o defeito foi **ler a saída
+gerada** — não a regra, não o teste.
+
+**Diagnóstico:** o `be` trata diretriz como *documento a ser lido no início*. Mas o risco não
+acontece no início: acontece no instante em que alguém escreve `re.sub` sobre um arquivo inteiro.
+Entre a leitura e o risco há uma sessão inteira, e a regra não sobrevive à distância.
+
+**Proposta:** diretriz ganha **gatilho por gesto**, não só lugar de morada. Concretamente: um mapa
+`gesto → regra` (`renumerar|renomear|remapear|substituição em massa` → §19.4; `remover arquivo ou
+bloco` → protocolo de remoção segura; `criar linha em tabela existente` → herdar formato) que um
+hook de `PreToolUse` consulta pelo conteúdo do comando/edição, devolvendo **uma linha** com a regra
+aplicável. Não é bloqueio — é a regra chegando no momento em que ela decide algo.
+
+### O conceito computacional — a regra tem nome, e o defeito também
+
+**O defeito é um TOCTOU.** *Time-of-check to time-of-use*: a regra foi **conferida** (lida) em t0 e
+a operação **usou** a garantia em t1, horas depois. Em sistemas isso é corrida clássica; aqui é a
+mesma forma, com atenção no lugar do estado. Nomear assim importa porque a literatura já sabe que
+**não se conserta TOCTOU lembrando melhor** — conserta-se aproximando a checagem do uso até elas
+serem o mesmo instante.
+
+**A propriedade que se quer tem nome: mediação completa** (Saltzer & Schroeder, 1975). *Toda*
+operação passa pela checagem, não só a primeira. Documento lido no `session-start` é o oposto
+exato: checagem única, no instante errado, sobre operação que ainda não existe.
+
+**A forma do mecanismo tem nome: monitor de referência** — sempre invocado, impossível de
+contornar, pequeno o bastante para ser auditável. Num agente, isso é um hook de `PreToolUse`: fica
+no caminho de toda chamada de ferramenta, o modelo não roteia por fora, e cabe em poucas linhas.
+
+**A forma da regra tem nome: ECA** (*event–condition–action*), das bases de dados ativas. Elas
+nasceram porque restrição verificada pela aplicação não segura: a restrição tem de morar junto do
+dado e disparar na operação. Aqui: a regra mora junto do **gesto** e dispara nele.
+
+**A forma de escrever tem nome: pré-condição** (design by contract). Em vez da prosa *"operação em
+massa nunca no mesmo passo que escrita nova"*, uma pré-condição que viaja com a operação:
+`require(alvo_congelado)`.
+
+### A escada — cinco degraus, do mais barato ao mais forte
+
+> **Convergência independente — e ela vale como prova.** Esta escada foi escrita aqui em 21/09,
+> antes de eu ver que o `be` já recebeu uma quase idêntica em 20/09, via
+> `feedback/nao-depende-de-lembrar-2026-09-20/DE-PARA.md` §1. Duas origens que não se falaram
+> chegaram ao mesmo instrumento. O que segue é a **fusão** das duas, com o crédito separado:
+> os degraus 1–4 são deles; o 5 e os nomes conceituais são o que esta rodada acrescenta.
+
+| Degrau | Mecanismo | Quando vale | Origem |
+|---|---|---|---|
+| 1 | texto no arquivo soberano (`CLAUDE.md`, diretriz, princípio) | enquanto alguém lembra de ler | DE-PARA §1 |
+| 2 | recall / catálogo / skill acionada por descrição (`Use when…`) | quando a palavra encosta | DE-PARA §1 |
+| 3 | varredura periódica (auditoria, CI) | descobre **no dia seguinte** | DE-PARA §1 |
+| 4 | **gate na porta** (hook `PreToolUse`) | **impede de acontecer** | DE-PARA §1 |
+| **5** | **tornar o estado ilegal irrepresentável** (API que só aceita alvo congelado) | **o gesto errado deixa de ser expressável** | **esta rodada** |
+
+**Por que o degrau 5 importa e não é luxo:** o 4 impede *no momento*, mas pressupõe que alguém
+escreveu o gate certo para aquele gesto — e gate é enumeração, então o que ninguém enumerou passa.
+O 5 não enumera: muda a forma da operação. No caso concreto de hoje, seria uma função de
+renumeração que só aceita documento marcado como congelado — a §19.4 deixaria de ser regra que
+alguém pode violar e passaria a ser a assinatura da função.
+
+**O que a medição deles acrescenta à minha:** das **29 skills** do `be`, **1** é citada por algum
+hook (`proc-session-continuity`, e ainda como lembrete não bloqueante). É a prova dura de que a
+força está concentrada no degrau mais fraco — eu tinha o diagnóstico, eles têm o número.
+
+**O diagnóstico em uma linha:** as skills do `be` estão no degrau 2 e por isso funcionam; as
+diretrizes estão no degrau 1 e por isso não vinculam. A diferença entre elas não é a qualidade do
+texto — é que **skill declara quando ativar e diretriz só declara onde mora**.
+
+**O limite honesto:** mediação completa só é alcançável na **fronteira da ferramenta** — dá para
+interceptar escrita de arquivo, comando e edição; não dá para interceptar o raciocínio. Isso é
+aceitável, e o argumento é forte: defeito que não chega a um artefato não causa dano. A fronteira
+onde se consegue mediar é a mesma onde o dano acontece.
+
+**Corroboração fora da computação:** o checklist de segurança cirúrgica funciona por estar amarrado
+a um **ponto de parada do procedimento** (antes da incisão), não por ser lido no início do turno. É
+o mesmo princípio, e a mesma razão de falha quando se tenta o contrário.
+
+**Encosta em:** proposta 8 (lição sem canal de volta) e 21 (`gateguard` desligado). A diferença é
+importante: a 8 diz que a lição **não chega ao plugin**; esta diz que, mesmo **tendo chegado e
+virado norma**, ela não chega ao **momento**.
+
+---
+
+## 27. O plugin não tem noção de tamanho de lote de trabalho 🟠
+
+**Estado:** aberta — triada em 2026-09-22: aceita → destrava a Phase 8.1 de `docs/action-plan.md` (casos das regras 1, 2, 3 e 6)
+
+**Fato medido, com o par de comparação no mesmo documento e pelo mesmo autor:**
+
+| Abordagem | Escopo | Defeitos que escaparam | Defeitos pegos |
+|---|---|---|---|
+| 2026-09-18 | **um lote de 34 edições** | 2 (linha de Endpoint contraditória; linha de tabela em `sz=18` numa tabela `sz=20`) | 0 durante a execução |
+| 2026-09-21 | **11 lotes**, conferência por lote | 0 até agora | **5**, todos por leitura da saída |
+
+**O mecanismo, na formulação do dono do projeto:** *"dividir para conquistar tem relação direta com
+janela de contexto — uma janela muito grande reduz drasticamente nossa capacidade e qualidade de
+análise"*. Não é sobre caber: é sobre **degradar**. O lote grande cabe e passa; o que ele perde é a
+atenção sobre cada item dentro dele.
+
+**Distinção importante:** a proposta 12 desta série cobre o **custo de leitura** (arquivo grande
+derruba o terminal). Esta cobre o **tamanho da unidade de trabalho**, que é outro eixo — 34 edições
+pequenas não pesam bytes, e mesmo assim degradam.
+
+**Proposta:** o `be` passa a ter uma noção de **lote** como unidade de execução, com três regras
+derivadas da §19: lote fecha com conferência reexecutável (não com leitura); conferência
+reexecutável não fecha sem **leitura da saída gerada**; e lote que cresce além do que cabe numa
+revisão atenta é dividido antes de executar, não depois de falhar.
+
+---
+
+## 28. A triagem é um retrato: ela não acompanha a proposta que nasce depois 🟠
+
+**Estado:** aberta — triada em 2026-09-22: aceita, primeiro → Phase 8.0 de `docs/action-plan.md`. Estas linhas de estado são a primeira metade; o comando que acusa proposta sem estado é a segunda
+
+**Correção do próprio fato, feita antes de publicar:** escrevi este item afirmando que não existia
+controle de estado nenhum. **Falso, e medido depois:** o repo do `be` tem
+`feedback/project-a-2026-08-19/TRIAGEM.md`, com veredito por proposta, triado em 2026-08-19
+contra o `be` 3.0.0. O erro foi meu — olhei só o lado de cá.
+
+**O fato medido, agora certo:** a triagem cobre **as 23 primeiras** propostas. As 24 e 25, a rodada
+de 16/09 e esta sexta rodada (26–28) estão **sem veredito**. E o rascunho deste lado
+(`docs/_local/melhorias-plugin-be.md`) não tem marcação nenhuma — o cabeçalho ainda diz *"direção
+inicial, a ser trabalhada em sessão própria"*, escrito em 03/08, com 28 propostas embaixo.
+
+**O problema real, portanto, não é ausência de mecanismo — é que o mecanismo não acompanha o
+crescimento.** Triagem feita uma vez vira retrato; proposta nova nasce fora dela e ninguém percebe,
+porque nada declara que a triagem está defasada.
+
+**Por que importa:** é o mesmo defeito que este arquivo cobra dos outros. A proposta 5 exige
+*"critério de pronto"* para item de pendência; a 9 exige *"prova de que a medição aconteceu"*. Um
+arquivo de 25 propostas sem estado não consegue responder à pergunta mais barata que alguém vai
+fazer — *"o que já foi feito?"* — e obriga a reler 776 linhas para descobrir.
+
+**Proposta:** cada proposta ganha uma linha de estado com a mesma disciplina que o arquivo cobra:
+`**Estado:** aberta | implantada em <data> | descartada em <data>, porque <motivo>`. Estado
+*implantada* exige o gesto que prova (comando, caminho do arquivo no plugin, commit). Enquanto
+ninguém revisa as 25 retroativamente, o default honesto é `aberta — nunca conferida`, que é
+diferente de `aberta` e diz a verdade sobre o que se sabe.
+
+---
+
+# Entrada de 2026-09-16 · o `/be:check` não olha pra documentação nem pra cobertura por arquivo
+
+## 29. Coerência doc↔código e cobertura por arquivo no `/be:check`
+
+**Estado:** aberta — triada em 2026-09-22: aceita, fundida com a 25 → Phase 8.6 de `docs/action-plan.md`
+
+> **Numeração.** Registrada no commit `dfbe514` como "proposta 24", sob o título "Quarta rodada".
+> Renumerada para **29** em 2026-09-22: a 24 já existia na cópia do projeto
+> (`docs/_local/melhorias-plugin-be.md`, fato de 2026-09-10), e as duas cópias divergiram sem que
+> nada acusasse — o caso da proposta 28. Nenhum número anterior foi mexido.
 
 **Pergunta de origem:** ao entrar numa lista de itens de dívida técnica (IMP-10, IMP-14, MIN-17,
 MIN-14/15), o dono perguntou se falhas do tipo "endpoint sem doc" e "controller sem teste" — achadas

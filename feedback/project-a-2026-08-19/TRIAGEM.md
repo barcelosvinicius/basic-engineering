@@ -1,4 +1,4 @@
-# Triagem das 23 propostas — `project-a-2026-08-19`
+# Triagem das propostas — `project-a-2026-08-19`
 
 > **O que é:** veredito por proposta do `SUGESTOES.md` desta pasta, apoiado no baseline
 > medido em `docs/structural-analysis.md` §0 e no filtro do `feedback/README.md`:
@@ -204,4 +204,29 @@ lembra — não bloqueia.**
 
 ---
 
-*Triado em 2026-08-19 · Fonte: `SUGESTOES.md` desta pasta · Baseline: `docs/structural-analysis.md`*
+## §6 — Segunda triagem — 2026-09-22 · propostas 24–29
+
+**Por que existe:** a proposta 28 mediu que a triagem acima é um retrato. As 24 e 25 (fato de
+2026-09-10) e a sexta rodada (26–28, 2026-09-21) nasceram na cópia do projeto
+(`docs/_local/melhorias-plugin-be.md`) e só chegaram à versionada em 2026-09-22. No caminho, o
+número 24 foi usado para duas propostas diferentes — a entrada de 2026-09-16 virou a 29. Nas 23
+primeiras, o estado agora mora numa linha **Estado:** sob cada título do `SUGESTOES.md`,
+conferida contra o plugin por caminho e commit: **20 implantadas · 1 descartada · 2 abertas**.
+
+**Filtro aplicado:** o mesmo, com ênfase na segunda metade — *juntar antes de acrescentar*. Seis
+propostas viram **uma** unidade nova (a 8.6); o resto cabe no que o plano já tinha.
+
+| # | Título curto | Veredito | Por quê |
+|---|---|---|---|
+| 24 | Item de checklist respondível só pelo diff | **ACEITA — como frase** → Phase 8.7 | 55 `console.log` sob um item bloqueante durante cinco meses. É redação, não sistema: o problema da 22 um nível acima. |
+| 25 | O gate mede os quantificáveis do checklist | **ACEITA** → funde com a 29 na Phase 8.6 | 6 de 6 itens bloqueantes de segurança são medíveis por comando; o `/be:check` roda 0. Reportar, nunca bloquear. |
+| 26 | Regra normativa sem gatilho no gesto não vincula | **JÁ EXISTE** (no plano) → Phases 8.2–8.4 | A escada é a do DE-PARA §1, chegada por outra origem. Acrescenta o degrau 5 e o mapa gesto→regra como forma concreta do gatilho da 8.2. |
+| 27 | O plugin não tem noção de tamanho de lote | **ACEITA** → destrava a Phase 8.1 | O par medido — um lote de 34 edições: 2 escaparam; 11 lotes: 0 escaparam, 5 pegos — é o caso que a 8.1 esperava. |
+| 28 | A triagem é um retrato | **ACEITA — primeiro** → Phase 8.0 | Esta própria seção é a medição: seis propostas sem veredito e um número duplicado, sem nada que acusasse. |
+| 29 | Coerência doc↔código e cobertura por arquivo | **ACEITA** → funde com a 25 na Phase 8.6 | 9 endpoints sem doc e 5 de 8 controllers sem teste (2026-08-24). A mesma forma da 25: fase que reporta a distância. |
+
+**Contagem:** 4 aceitas (duas fundidas numa unidade) · 1 aceita como frase · 1 já no plano.
+
+---
+
+*Triado em 2026-08-19 (§0–§5) e 2026-09-22 (§6) · Fonte: `SUGESTOES.md` desta pasta · Baseline: `docs/structural-analysis.md`*
