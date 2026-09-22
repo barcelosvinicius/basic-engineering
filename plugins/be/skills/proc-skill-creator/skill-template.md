@@ -27,6 +27,9 @@ description: >
 <!-- One sentence: what problem it solves and when to use it -->
 Defines [what] for [which context]. Use it when [usage situation].
 
+**Rung:** [prose · recall · sweep · gate · unrepresentable — see
+`engineering-principles` §D. Gate only if a machine decides it alone.]
+
 ## [Main section — e.g.: Implementation pattern]
 
 <!-- Code, concrete examples, rules -->

@@ -48,6 +48,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
   shipped `be doctor`, the session-start update check and the `.gitattributes`
   seeding, and the README named none of them while `validate.js` passed — it
   checks that what is written is true, never that what exists is described.
+- **The enforcement ladder, and the test for when a rule becomes a gate.**
+  `engineering-principles.md` Appendix D: five rungs — prose, recall, periodic
+  sweep, gate at the door, illegal state unrepresentable — and one entry test:
+  only a rule a machine decides alone may become a gate; tree-wide debt is
+  watched and reported, never gated. The digest carries it as §D,
+  `proc-skill-creator`'s checklist asks every new skill to state its rung, and
+  the skill template has the field. Derived from a written rule that named its
+  own failure mode and still did not prevent it, because it was read at session
+  start and the risk arrived hours later.
 - **`scripts/proposals-audit.js` — a feedback proposal cannot lose its state
   silently.** Every numbered proposal in a `feedback/<dir>/SUGESTOES.md` now
   carries an `**Estado:**` line (`aberta` · `implantada` with date and commit ·

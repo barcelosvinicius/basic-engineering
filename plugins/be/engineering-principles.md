@@ -1308,3 +1308,50 @@ responsible AI use:
 > *Saving tokens is not about being cheap — it is about being precise.*
 > *Precision in context is precision in output.*
 
+
+---
+
+## Appendix D — The Enforcement Ladder: When a Rule Becomes a Gate
+
+A written rule does not bind by being written. Measured in real use: a rule
+that was numbered, read at every session start, and **named its own failure
+mode** did not prevent that exact failure nineteen days later — it was checked
+when the session began and the risky operation came hours afterwards. That is
+a time-of-check to time-of-use gap, and it is not fixed by remembering harder;
+it is fixed by moving the check closer to the use.
+
+### D.1 The five rungs
+
+| Rung | Mechanism | When it acts |
+|------|-----------|--------------|
+| 1 | Prose in a sovereign file (`CLAUDE.md`, a principle, a guideline) | while someone remembers to read it |
+| 2 | Recall — a skill triggered by its `Use when…` description | when the words of the task touch it |
+| 3 | Periodic sweep — an audit, a CI job, a `--check` mode | the next run, after the fact |
+| 4 | Gate at the door — a `PreToolUse` hook on the gesture itself | before it happens |
+| 5 | The illegal state is unrepresentable — an operation that only accepts a valid target | the wrong gesture cannot be expressed |
+
+Rung 5 exists because a gate is an enumeration: what nobody enumerated passes.
+Changing the shape of the operation does not enumerate.
+
+### D.2 The entry test
+
+**Only a rule a machine decides alone may become a gate.** "A hardcoded secret
+in the diff" is decidable — gate it. "Is this abstraction right?" is judgement —
+it stays at rung 2. A gate that judges becomes noise, and noise trains people to
+ignore red, including the red that mattered.
+
+### D.3 Gate at the start, watcher after
+
+A gate covers the **gesture** — a write, a command, an edit. State measured
+over the whole tree (pre-existing debt) is **watched, never gated**: it is
+reported as a distance, run after run. Blocking on dozens of pre-existing hits
+makes a gate unusable, and an unusable gate is switched off within a week.
+
+### D.4 Where a rule sits is part of the rule
+
+- Every skill declares the rung its rules operate on; moving a rule up requires
+  the entry test, not a stronger wording.
+- **The honest limit:** mediation is only possible at the tool boundary — file
+  writes, commands, edits — never inside the reasoning. That is acceptable: a
+  defect that never reaches an artefact causes no harm, and the boundary where
+  mediation is possible is the same one where harm happens.

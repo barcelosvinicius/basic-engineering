@@ -35,6 +35,7 @@ decision at hand needs it.
 | §A.3 | Session briefs | Every session starts from recorded state, not from memory — see `proc-session-continuity` |
 | §B | Agent behavior | Agents declare a verifiable goal, stay in scope, and delegate outside their role |
 | §C | Context as graph | Load the narrowest layer that answers the question; depth-first by default — see `proc-sdd` |
+| §D | Enforcement ladder | Every rule declares its rung — prose · recall · sweep · gate · unrepresentable. Only a rule a machine decides alone may become a gate; tree-wide debt is watched, never gated |
 
 ## How to use the hierarchy
 

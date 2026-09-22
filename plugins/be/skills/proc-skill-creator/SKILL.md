@@ -146,6 +146,9 @@ heading, as a three-column table:
 - [ ] Any rule the skill makes **verifiable** ships with a known positive case
       that makes the check fail (see `qa-verification-loop`) — an unexercised
       ruler proves nothing
+- [ ] States the **rung** its rules operate on (`engineering-principles` §D); a
+      rule that asks to be a gate passes the entry test first — a machine
+      decides it alone, or it stays a reminder
 
 ## When a skill gets too big — three outcomes, not two
 
