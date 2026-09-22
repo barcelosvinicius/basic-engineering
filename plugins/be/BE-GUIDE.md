@@ -2,7 +2,7 @@
 
 # `be` — what this base can do for you
 
-Your project has the **basic-engineering (`be`)** base installed. It turns AI assistance into engineering partnership: 11 commands, 18 specialized agents, 30 on-demand skills, and live guardrails. This file is generated — keep it as your map.
+Your project has the **basic-engineering (`be`)** base installed. It turns AI assistance into engineering partnership: 11 commands, 18 specialized agents, 31 on-demand skills, and live guardrails. This file is generated — keep it as your map.
 
 ## Start here
 
@@ -126,6 +126,7 @@ Loaded on demand when their trigger matches — you rarely invoke them directly.
 | Name | What it does |
 | --- | --- |
 | `proc-adr` | Use when making any significant technical decision that affects structure, security, performance, or is difficult to reverse. Process for recording A… |
+| `proc-analysis-blocks` | Use when an analysis, sweep, migration or bulk edit is large enough that you cannot state its result in one verifiable sentence — splitting it into b… |
 | `proc-changelog` | Use when preparing a release, creating release notes, generating user-facing updates, or closing a sprint with deliverables. Maintains CHANGELOG.md f… |
 | `proc-code-documentation` | Use when writing or reviewing comments, docstrings, and inline documentation in code. When to comment vs. when to rename, the "why not what" rule, do… |
 | `proc-code-review` | Use when reviewing a PR, requesting review from another agent, or implementing a quality gate before merge. Structured review protocol — per-layer ch… |

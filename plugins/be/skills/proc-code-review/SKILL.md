@@ -35,6 +35,12 @@ a quality gate before merge.
 
 ---
 
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `consult` | `proc-analysis-blocks` | when the change is too large to review in one pass — this checklist is that rule with the axes already fixed |
+
 ## What to review — by layer
 
 Every item is answerable from **the diff alone** — "not added", "not introduced";

@@ -63,8 +63,16 @@ project adheres to [Semantic Versioning](https://semver.org/).
   called missing because the docs write the external path; `@GetMapping(produces
   = "…")` would have published `application/json` as an endpoint; and an
   unresolvable class prefix invented the route `/`.
+- **`proc-analysis-blocks` — an analysis is split into blocks that each close
+  with a verdict and its evidence.** Six rules, each shipped with the measured
+  case that produced it: one batch of 34 edits let 2 defects escape and caught
+  none, while the same work in 11 checked batches let 0 escape and caught 5. It
+  declares what it cannot enforce: only the report shape (verdict + a command
+  under the evidence, re-measured at the end) has a mechanical check; the other
+  four rules are discipline. `proc-code-review` and `proc-impact-analysis` now
+  declare an edge to it — they are that rule with the axes already fixed.
 - **`qa-test-strategy` — which tests a change needs, and whether they prove
-  anything.** A new skill (30 skills now): the layers per kind of change (unit,
+  anything.** A new skill: the layers per kind of change (unit,
   integration against the real dependency, one end-to-end test per critical
   journey, load against the SLO), where TDD pays and where it does not, and
   **mutation as the ruler of test quality** — the question is not whether a line

@@ -349,7 +349,7 @@ waiting for, 21 was already 8.3. What is genuinely new is 8.0, 8.6 and 8.7.
 | **Done when** | the check fails on a known-positive fixture (a missing state, a repeated number, a proof-less `implantada`) and passes on its mirror (a heading that only *mentions* a number); it runs inside `node --test`, so CI and the release execute it the day it is written. |
 | **Blocked by** | nothing. **First**, because it is what stops the next proposal from getting lost. |
 
-### 8.1 — Divide to conquer, as a skill
+### 8.1 ✅ done 2026-09-22 — Divide to conquer, as a skill
 
 | | |
 |---|---|

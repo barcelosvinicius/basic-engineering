@@ -54,6 +54,7 @@ Reference tables for the `proc-session-continuity` skill. Load on demand.
 | `be-db-migrations` | Versioned database migrations |
 | `qa-verification-loop` | Before declaring work done — build, lint, tests, security, READY verdict |
 | `qa-test-data-builders` | Builder pattern, test fixtures, AAA pattern |
+| `proc-analysis-blocks` | Splitting an analysis into blocks that each close with a verdict and its evidence |
 | `qa-test-strategy` | Which tests a change needs; mutation as the ruler of test quality; load criteria against the SLO |
 | `fe-ux-patterns` | Visual hierarchy, colors, states, forms |
 | `fe-accessibility-patterns` | ARIA, keyboard, WCAG contrast |
