@@ -398,7 +398,7 @@ born on. **Blocked by:** nothing. **Absorbs `project A` proposal 21** — the
 same gate, the same objection, asked for from the project side — as its evidence
 step: the real session is run in that project pair.
 
-### 8.4 — Write the entry criterion for "a rule becomes a gate"
+### 8.4 ✅ done 2026-09-22 (`5b02095`) — Write the entry criterion for "a rule becomes a gate"
 
 The ladder of enforcement (prose → keyword recall → periodic sweep → gate at the
 door), the entry test — *only a rule a machine decides alone; a gate that judges
@@ -430,7 +430,7 @@ because a gate is an enumeration, and what nobody enumerated passes.
 | **Done when** | run against a real Spring project, the phase prints the three lists, and at least two items of each are re-checked by hand against the code; the skill carries a known-positive case and its mirror (an endpoint documented through a path constant is **not** reported). |
 | **Blocked by** | nothing; sequenced after 8.4 so it is born declaring its rung (watcher, not gate). |
 
-### 8.7 — A checklist item is answerable from the diff alone
+### 8.7 ✅ done 2026-09-22 (`38846b4`) — A checklist item is answerable from the diff alone
 
 `project A` proposal 24. Every checklist the base generates or reviews
 (`proc-code-review`, `proc-release-checklist`, the pre-commit checklist of

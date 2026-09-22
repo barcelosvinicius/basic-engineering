@@ -744,7 +744,7 @@ medição fica registrada como pendente, e **o comando dela já existe** — é 
 
 ## 24. Item de checklist tem de ser respondível olhando **só o diff** 🔴
 
-**Estado:** aberta — triada em 2026-09-22: aceita como frase → Phase 8.7 de `docs/action-plan.md`
+**Estado:** implantada em 2026-09-22 (Phase 8.7) — regra e itens em `plugins/be/skills/proc-code-review/SKILL.md`, `plugins/be/agents/qa-security-reviewer.md`; exceção declarada em `proc-release-checklist` · `38846b4`
 
 **Fato medido em 2026-09-10, na varredura de drift do projeto inteiro:** o checklist de pré-commit
 das `diretrizes-tecnicas.md` trazia, na seção **Segurança (bloqueante)**, duas linhas vizinhas com
@@ -853,7 +853,7 @@ consegue fazer.
 
 ## 26. Regra normativa sem gatilho no momento do risco não vincula 🔴
 
-**Estado:** aberta — triada em 2026-09-22: já no plano → Phases 8.2 (mapa gesto→regra) e 8.4 (degrau 5) de `docs/action-plan.md`
+**Estado:** aberta — o degrau 5 foi implantado em 2026-09-22 (Phase 8.4, `engineering-principles.md` Apêndice D · `5b02095`); o mapa gesto→regra aguarda a Phase 8.2
 
 **Fato medido:** a §19.4 estava escrita, numerada, com o modo de falha nomeado, num arquivo que o
 `session-start` manda ler. Não impediu a repetição. O que pegou o defeito foi **ler a saída
