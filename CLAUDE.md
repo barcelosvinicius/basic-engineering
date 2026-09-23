@@ -63,3 +63,13 @@ installed, disable it while working here (`/plugin`), or every hook fires twice.
 - The plugin ships **no `.mcp.json`** on purpose (no auto-started servers);
   `plugins/be/mcp.recommended.json` is a copy-me template.
 - `check-version.sh` is deprecated but kept for installed bases that reference it.
+- `.harness-score.json` turns **HYG-08** off. That check asks that MCP credentials
+  use `${ENV_VAR}` interpolation; this plugin ships no `.mcp.json` at all, on
+  purpose, so there is nothing here to interpolate into. The reason lives here
+  rather than in the file because their config schema rejects unknown keys.
+  Two more checks are left failing **by decision**, not by omission: pre-commit
+  tooling (`CI-04`) would add dependencies to duplicate what this base's own
+  hooks already do, and scoped rule files (`CTX-03..06`) would fragment a
+  60-line CLAUDE.md because a checklist awards points for it. `SKL-*`/`AGT-*`
+  read a consumer layout (`.claude/skills/`) against a repo that *produces* the
+  plugin; `npm run dev:link` bridges it locally, and local is the honest answer.

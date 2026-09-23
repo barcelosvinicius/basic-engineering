@@ -17,6 +17,15 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **The config-protection guardrail could not tell authoring from weakening.**
+  It blocked any edit to a linter or formatter config that exists on disk — so
+  adopting a linter, which means creating its config and tuning it several times
+  in the same hour, was blocked at every step after the first. Found by wearing
+  it: it fired on this repository's own adoption of Biome. The rule now has a
+  third condition that a machine decides alone: **git tracks the file**. A config
+  the project has committed is settled policy and stays protected; one git has
+  never seen is a draft nobody has agreed to. `BE_HOOK_CONFIG_PROTECTION=off`
+  still turns it off entirely.
 - **The `--no-verify` guardrail no longer blocks writing about `--no-verify`.**
   The check tested the flag against the whole Bash command, so any command that
   merely mentioned the string — writing documentation, echoing a message,
@@ -46,6 +55,26 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **The base runs its own verification loop.** `qa-verification-loop` has had
+  "type-check" and "lint" as phases 2 and 3 since it was written, and this
+  repository could run neither over 7,183 lines of JavaScript. Biome (lint +
+  format) and `tsc --noEmit` in `checkJs` mode now run here and in CI. Admitted
+  on measured defects rather than on a checklist: a `runHook` declared twice
+  sent every dispatcher call to the wrong script for a whole session
+  (`noRedeclare`); the `test/helpers.js` extraction left dead imports the same
+  day (`noUnusedVariables`); and the type checker's first run found that
+  `install()`'s JSDoc — the installer's public contract — declared `dryRun`,
+  `force` and `silent` while omitting `profile`, which `bin/be.js` passes and
+  the function reads. Three lint rules are off, each with its reason written
+  beside it, after inspecting every hit; `strict` stays off and is not a goal.
+- **This repo wears the hooks it ships.** `.claude/settings.json` declares the
+  same five events as `plugins/be/hooks/hooks.json`, rooted at the working tree
+  instead of an installed copy, so a hook being edited is the hook that runs.
+  The reason is a measurement: the config-protection fix above did not reach
+  this machine, because the hook that fired came from the published 3.1.1 in the
+  plugin cache. `validate` refuses the two declarations drifting apart.
+  `npm run dev:link` does the same for skills, agents and commands, with links
+  that stay local — a symlink committed to git is a cross-platform trap.
 - **`test/helpers.js`** — the throwaway repository, the repo copy, the cleaned
   environment and the script runner were written again in each test file, with
   small differences that were themselves defects: one copy of `runHook` was

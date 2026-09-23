@@ -604,6 +604,77 @@ is born on) → **8.3** → **8.2** → **8.6**. **8.1** runs on its own, in lot
 ourselves before the skill ships it.
 **Phase 7** in parallel, one rule per commit. Then the README, then the release.
 
+## Phase 10 — the ruler that also subtracts (2026-09-23)
+
+An external scan (harness-score, 36 deterministic checks) put this repository at
+**L1, 39/108**, and closing the parts that were real took it to **74/105**. The
+useful part was not the number: it was that the 69 missing points split into
+four kinds, and **two of them were right to refuse**.
+
+- **Real, and embarrassing:** no linter, no type checker, no `.env` rule, in a
+  base that ships a verification loop and a secrets skill. Fixed.
+- **A measurement artefact hiding a real gap:** it looked for `.claude/skills/`
+  and found none, because this repo *produces* the plugin. But the question
+  underneath — does this repo run what it sells? — had the answer **no**, and
+  that cost a fix that never reached the machine. Fixed.
+- **Deliberate, now recorded as configuration:** no `.mcp.json`, on purpose.
+- **Refused:** pre-commit tooling, and splitting a 60-line CLAUDE.md into scoped
+  rule files. Both would add weight to raise a number.
+
+### 10.1 — Apply the same ruler inward, to subtract
+
+**The owner's framing, 2026-09-23:** *"quantidade não é qualidade na construção
+real de software"* — and the ruler that refused two additions should also be
+able to **remove** what is cosmetic.
+
+So the question becomes symmetric. For every skill, agent, command and hook this
+base ships: **what measured thing goes wrong if it disappears?** Not "is it
+nice", not "does it round out the set" — what incident, what drift, what silent
+failure does it catch that nothing else catches. Anything whose answer is "it
+completes the family" is a candidate for removal under `proc-safe-removal`.
+
+The evidence already exists and is not being read: every skill carries an
+evidence class, `proc-context-budget` already measures what each one costs to
+load, and the activation graph says which are reachable at all. A skill that is
+expensive, unreachable, and justified only by symmetry is exactly what this
+phase should find.
+
+**Not started.** Runs after the push, on a repository whose numbers are settled.
+
+### 10.2 — Mutation selection that is *safe*, not merely cheap
+
+The release re-measures all 677 mutants even when the commit touched only
+documentation, ~13 minutes each time. `mutation-check --since` exists and the
+release does not use it — correctly, because the naive version would under-measure:
+`pre-tooluse.js` requires `_gateguard.js` and `_lib.js`, so a change to `_lib.js`
+can turn a killed mutant of `pre-tooluse.js` into a survivor while
+`pre-tooluse.js` itself is untouched.
+
+The field settled this thirty years ago. Rothermel & Harrold define a selection
+as **safe** when it excludes no test that would reveal a fault; Leung & White's
+**class firewall** (1990) is the retest set around a changed module; **Ekstazi**
+(Gligoric et al., ISSTA 2015) showed that tracking each test's **file-level**
+dependencies, observed dynamically, cuts 32–54% of test time in practice — and
+that finer granularity does not pay. **Regression Mutation Testing** (Zhang,
+Marinov, Zhang & Khurshid, ISSTA 2012) is this applied to mutation exactly:
+reuse the previous version's results where a static analysis proves it safe.
+
+Google's diff-scoped mutation (Petrović & Ivanković, ICSE-SEIP 2018) is the
+deliberate counter-example — it mutates only changed lines — and it does not
+authorise us to narrow, because there mutation is a **review aid** and here it
+is a **release gate**. An aid may be incomplete; a gate that says "green" may not.
+
+**The design:** re-measure on the transitive closure of observed dependencies,
+keep a ledger of `{file hash, test hashes, closure hash, result, date, commit}`,
+and **always print all 11 targets** — N re-measured now, M inherited with the
+hash and date they were measured at. Never inherit silently. The precedent is in
+the code: `mutation-equivalents.json` already carries the hash of the file each
+equivalent was accepted against and prints `RE-CHECK` when it changes.
+
+**Not started.**
+
+---
+
 ## Explicitly not in this plan
 
 - **Renaming `engineering-principles`** — breaking change to every installed
