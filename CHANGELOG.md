@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.2.0] — 2026-09-23
+
 > **The git history of this repository was rewritten before this version.**
 > Every commit hash changed, and so did the `v3.0.0`, `v3.1.0` and `v3.1.1`
 > tags. A clone made before this release cannot fast-forward: re-clone it, or
