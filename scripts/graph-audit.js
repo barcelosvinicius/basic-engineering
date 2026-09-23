@@ -151,6 +151,7 @@ const semver = (() => {
 const baseVersion = readOr('BASE_VERSION', '(unknown)');
 
 /** How many entries a shipped directory holds, 0 when it does not exist. */
+/** @param {string} dir @param {(f: string) => boolean} [filter] */
 const countIn = (dir, filter = () => true) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter(filter).length : 0);
 
 const hookScripts = countIn(P('hooks', 'scripts'), (f) => f.endsWith('.js'));

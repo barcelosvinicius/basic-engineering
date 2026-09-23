@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "HYG-08": "off"
+  },
+  "_why": {
+    "HYG-08": "This plugin ships no .mcp.json on purpose: installing it must never start a server on someone's machine. plugins/be/mcp.recommended.json is a copy-me template, chosen and reviewed by the project that wants it. There is no MCP config here to interpolate credentials into, and there should not be. Recorded as configuration rather than left as a silent zero."
+  }
+}

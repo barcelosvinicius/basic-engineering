@@ -305,10 +305,12 @@ function isNoVerify(command) {
 // something — as one advisory line, never a block.
 
 const LEAD = '^(?:[A-Za-z_][A-Za-z0-9_]*=\\S*\\s+|sudo\\s+|command\\s+|time\\s+)*';
+/** @type {[string, RegExp][]} */
 const IN_PLACE = [
   ['sed in place', new RegExp(`${LEAD}sed\\s(?:.*\\s)?-(?:[a-zA-Z]*i[a-zA-Z]*|-in-place)(?:[=.]\\S*)?(?:\\s|$)`)],
   ['perl in place', new RegExp(`${LEAD}perl\\s(?:.*\\s)?-[a-zA-Z]*i`)],
 ];
+/** @type {[string, RegExp][]} */
 const ALWAYS_BULK = [
   ['git mv', new RegExp(`${LEAD}git\\s+mv\\b`)],
   ['find -exec rewrite', new RegExp(`${LEAD}find\\b.*-exec\\s+(?:sed|perl)\\b`)],

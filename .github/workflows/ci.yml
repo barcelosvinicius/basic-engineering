@@ -40,6 +40,15 @@ jobs:
         run: node scripts/validate.js
       - name: Run installer tests
         run: node --test
+      # Phases 2 and 3 of the verification loop this base ships, running on the
+      # base. `npm ci` is here and not above because the tests are still
+      # zero-dependency: only the sensors need node_modules.
+      - name: Install dev dependencies (linter, type checker)
+        run: npm ci
+      - name: Lint and format check
+        run: npm run check:style
+      - name: Type check
+        run: npm run typecheck
 
   # The audits existed with a `--check` mode from the day they were written, and
   # nothing ran them: `graph-audit --check` appeared in zero automated places and

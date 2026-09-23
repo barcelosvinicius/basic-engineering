@@ -46,13 +46,16 @@
     "mutation": "node scripts/mutation-check.js",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "check:style": "biome check ."
+    "check:style": "biome check .",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=18"
   },
   "type": "commonjs",
   "devDependencies": {
-    "@biomejs/biome": "2.5.14"
+    "@biomejs/biome": "2.5.14",
+    "@types/node": "26.6.2",
+    "typescript": "7.0.2"
   }
 }

@@ -53,6 +53,7 @@ const NEVER = new RegExp(
   `(\\.(md|mdx|txt|rst|adoc|lock)$|${S}(tests?|__tests__|__mocks__|fixtures?|spec)[\\\\/]|\\.(test|spec)\\.[a-z]+$|Tests?\\.(java|kt|cs)$|_test\\.(go|py)$|${S}test_[^\\\\/]+\\.py$|${S}(package-lock\\.json|yarn\\.lock|pnpm-lock\\.yaml)$)`,
   'i'
 );
+/** @type {[string, RegExp][]} */
 const CLASSES = [
   [
     'schema or migration',

@@ -34,6 +34,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const MD = /\.md$/;
 
+/** @type {[string, string, object[]][]} */
 const ITEMS = [
   [
     '1',

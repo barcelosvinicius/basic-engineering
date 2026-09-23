@@ -120,6 +120,7 @@ function closeParen(masked, open) {
   return -1;
 }
 
+/** @type {[RegExp, string][]} */
 const SWAPS = [
   [/===/g, '!=='],
   [/!==/g, '==='],
