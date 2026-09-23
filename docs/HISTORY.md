@@ -11,80 +11,70 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-09-22 (checkpoint mid-session — WSL machine; the session is still open)
+> ⚡ Last updated: 2026-09-23 (second checkpoint — the session is still open)
 
-**Project phase:** **work sitting on `main`, unreleased — two waves now.** The
-first wave (2026-09-20) plus a second one this session: the proposal ledger got a
-command behind it, the enforcement ladder was written down, per-change checklists
-were rephrased, a test-strategy skill shipped, and **mutation was run on the
-base's own guards** before being recommended to anyone. Nothing is published:
-the version has not moved, so `release.yml` publishes nothing on push.
-**Pushed:** nothing yet — `main` is ahead of `origin/main` by every commit since
-`e80e275`.
+**Project phase:** **work sitting on `main`, unreleased, and the history was
+rewritten.** Phase 8 is complete (ten items), Phase 9 is two thirds done, and
+every identifier of a third-party project was removed from the tree **and from
+every commit**. Nothing is published: the version has not moved, and **nothing
+has been pushed** — the remote still carries the old, unrewritten history.
 
-*Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`, OIDC
-with provenance) and the marketplace, tag and GitHub release at `ef32f90`.
+*Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`,
+OIDC with provenance) and the marketplace.
 
-> **Environment note.** This base is operated from **three** environments, not
-> two: a Linux machine (sessions up to 2026-08-19; CI runs on `ubuntu-latest`), a
-> Windows workstation with Git Bash, and — since this session — **WSL2 on that
-> Windows workstation** (the clone under the user home, user-local `gh`
-> in `~/.local/bin`). WSL and the Windows side have **separate `gh` tokens**: a
-> refresh run on one does not reach the other, measured 2026-09-22. Any fact about
-> tooling, paths or installed versions names its environment.
+> **Environment note.** Three environments, not two: a Linux machine (sessions up
+> to 2026-08-19; CI runs on `ubuntu-latest`), a Windows workstation with Git
+> Bash, and **WSL2 on that workstation** (this session). WSL and the Windows side
+> have **separate `gh` tokens** — a refresh on one does not reach the other,
+> measured 2026-09-22; the WSL token now carries `workflow`. The interactive CLI
+> does not connect from this WSL (its startup check times out while `curl` and
+> `-p` mode work), so `--remote-control` and any terminal session are blocked
+> here until that is solved.
 
 ### In progress
 
-- **Phase 8.3 → 8.2** (gateguard narrowing, stack-map trigger + the gesture → rule
-  map of `project A` 26). Both close only on a **measured real session**:
-  the owner works one ordinary session in `project A` with the development
-  build installed from the local clone, and the hooks' own log is counted —
-  ≤2 interruptions each, or narrow again.
-- **The README is still deliberately untouched** until the version closes (the
-  owner's call); `npm run release` refuses while it stays that way.
+- **Phase 9.3** — the sweep. Done: the four remaining entry points have tests
+  that run them as processes; the mutation pass estimates before it waits, runs
+  in parallel (~22 min → ~6), takes `--since`, and stamps each equivalent with
+  the hash of the file it was accepted against. **Left:** extract
+  `test/helpers.js`, and extend the mutation targets once the suites are split
+  into fast and process-based.
 
 ### Recently completed (this session)
 
-- **The `project A` ledger is whole and every proposal has a state** — the
-  versioned copy had fallen behind the project's draft, and the number 24 named
-  two proposals. `scripts/proposals-audit.js` now fails on a proposal without a
-  state (Phase 8.0), and a generated index shows the state in the project draft.
-- **8.4** the enforcement ladder + entry test for a gate · **8.7** per-change
-  checklist items answerable from the diff · **8.8** `qa-test-strategy` + load
-  criteria in the release checklist · **8.9** `scripts/mutation-check.js`.
-- **Mutation, first pass on ourselves: 53 of 199 mutants survived a green suite.**
-  All killed or recorded as equivalent with the reason (6). Found a design gap and
-  a defect in the tool itself (caught only by its mirror test).
+- **Phase 8, complete:** the proposal ledger with a command behind it (8.0), the
+  method in blocks (8.1), rules that arrive at the gesture (8.2), the narrow
+  gate (8.3), the enforcement ladder (8.4), the measured distance in
+  `/be:check` (8.6), diff-answerable checklists (8.7), `qa-test-strategy`
+  (8.8), mutation applied to ourselves (8.9).
+- **Phase 9.1 and 9.2:** continuity at `PreCompact`/`SessionEnd`, and the
+  stack's permissions written into the project's settings instead of described.
+- **Privacy:** no institution, project, class, endpoint, corporate email or staff
+  id remains — in the tree or in any of the 117 commits. Verified by pickaxe over
+  every ref; the 50 commits cited as proof in the docs were repointed.
+- **Measured, and it changed what shipped:** 19 recorded sessions replayed
+  through the new gate (0 interruptions against 165), the distance report built
+  against a real Spring project (which corrected it four times), and the mutation
+  pass over eleven modules.
 
 ### Blockers
 
-- **None for the work. For the version:** the 8.2/8.3 measurement needs the
-  owner's real session; the README waits for the end, by decision.
-- **P-10 is confirmed on WSL too** (measured 2026-09-22): the installed plugin
-  (3.1.1) blocked a command that only *mentioned* the bypass flag — the A-14
-  defect, live. It stays until the development build or the release is installed.
+- **None for the work.** For the version: the README, and the owner's decision to
+  push everything at the end.
 - **P-09 still unmeasured:** the CI jobs added on 2026-09-20 have never run —
   nothing has been pushed since.
-- *(resolved 2026-09-22, WSL)* the WSL `gh` token lacked the `workflow` scope, so
-  no workflow edit could be pushed from here. Refreshed by device flow; the token
-  now carries `workflow`.
+- **P-10 stands on both environments** until the development build or the release
+  is installed.
 
 ### Priority next steps
 
-1. **8.3 → 8.2**, implemented with a per-session hook log, then the owner's
-   measured session in `project A`. **Done when:** the log shows ≤2
-   interruptions for each trigger, and both are born on.
-2. **8.6** — `/be:check` reports the measured distance; **8.1** in lots, with the
-   cases proposal 27 brought.
-3. **The owner's sweep, before closing the version:** tests for the five entry
-   points no test executes — `pre-tooluse.js`, `release.js`, `bin/be.js`,
-   `validate.js`, `stop.js` (988 lines, measured 2026-09-22) — then mutation
-   extended past the five guard modules. **Done when:** every entry point has a
-   test that runs it, and the extended pass has no unrecorded survivor.
-4. **Close the version:** README → `npm run release` → the mutation job in CI
-   (now pushable) → read the first CI run (P-09) → reinstall here (P-10) →
-   `session-end`.
-5. Re-evaluate deferred proposal 13 — **blocked by:** a few sessions of real use.
+1. Finish **9.3** (`test/helpers.js`, wider mutation targets).
+2. **README**, then `npm run release`.
+3. **Push** — `main` force-pushed with the rewritten history, plus the three
+   tags, which all changed. Everyone who cloned must re-clone; npm is unaffected.
+4. Read the first CI run (P-09), reinstall here (P-10), `/be:session-end`.
+5. The queue that waits for evidence: `be doctor <projects>`, the PR template
+   with a mandatory number, proposal 13.
 
 ---
 
