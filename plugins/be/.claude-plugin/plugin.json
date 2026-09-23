@@ -9,13 +9,5 @@
   "homepage": "https://github.com/barcelosvinicius/basic-engineering",
   "repository": "https://github.com/barcelosvinicius/basic-engineering",
   "license": "MIT",
-  "keywords": [
-    "engineering",
-    "process",
-    "session-continuity",
-    "adr",
-    "sdd",
-    "code-review",
-    "security"
-  ]
+  "keywords": ["engineering", "process", "session-continuity", "adr", "sdd", "code-review", "security"]
 }

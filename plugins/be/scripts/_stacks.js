@@ -7,15 +7,20 @@
  * and a rule with two readers drifts at the first change to either.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 /** The shipped map, from either layout: the plugin's, or Channel B's `.be/`. */
 function loadMappings(here = __dirname) {
-  for (const p of [path.join(here, '..', 'config', 'stack-mappings.json'), path.join(here, '..', '..', 'config', 'stack-mappings.json')]) {
+  for (const p of [
+    path.join(here, '..', 'config', 'stack-mappings.json'),
+    path.join(here, '..', '..', 'config', 'stack-mappings.json'),
+  ]) {
     try {
       return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch { /* try the next layout */ }
+    } catch {
+      /* try the next layout */
+    }
   }
   return null;
 }
@@ -27,7 +32,13 @@ function detectStacks(dir, mappings) {
   const has = (ind) => {
     if (typeof ind !== 'string') return false;
     if (!ind.includes('*')) return fs.existsSync(path.join(dir, ind));
-    if (names === null) { try { names = fs.readdirSync(dir); } catch { names = []; } }
+    if (names === null) {
+      try {
+        names = fs.readdirSync(dir);
+      } catch {
+        names = [];
+      }
+    }
     return names.some((n) => n.endsWith(ind.replace(/^\*/, '')));
   };
   return mappings.stacks.filter((s) => Array.isArray(s.indicators) && s.indicators.some(has));

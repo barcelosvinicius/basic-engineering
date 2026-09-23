@@ -13,9 +13,9 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const uc = require('../plugins/be/hooks/scripts/_update-check.js');
 
@@ -45,10 +45,11 @@ function pluginFixture({ skills = 0, agents = 0, commands = 0, events = [] }) {
 const CFG = () => path.join(tmp(), 'be-update-check.json');
 
 test('counts are read from the published description, never assumed', () => {
-  assert.deepStrictEqual(
-    uc.parseCounts('Engineering base: 29 skills, 18 agents, 11 commands and hooks.'),
-    { skills: 29, agents: 18, commands: 11 }
-  );
+  assert.deepStrictEqual(uc.parseCounts('Engineering base: 29 skills, 18 agents, 11 commands and hooks.'), {
+    skills: 29,
+    agents: 18,
+    commands: 11,
+  });
   assert.deepStrictEqual(uc.parseCounts('no numbers here'), {});
   assert.deepStrictEqual(uc.parseCounts(undefined), {});
 });
@@ -56,7 +57,10 @@ test('counts are read from the published description, never assumed', () => {
 test('what is on disk is counted, not trusted from a manifest', () => {
   const root = pluginFixture({ skills: 25, agents: 12, commands: 7, events: ['SessionStart'] });
   assert.deepStrictEqual(uc.localCounts(root), {
-    skills: 25, agents: 12, commands: 7, hookEvents: ['SessionStart'],
+    skills: 25,
+    agents: 12,
+    commands: 7,
+    hookEvents: ['SessionStart'],
   });
 });
 
@@ -72,8 +76,11 @@ test('KNOWN POSITIVE: a newer version produces a notice carrying the real delta'
   assert.match(notice, /\+4 skills/);
   assert.match(notice, /\+6 agents/);
   assert.match(notice, /\+4 commands/);
-  assert.match(notice, /runs 1 hook event\(s\): SessionStart/,
-    'the guardrail state on this machine is local knowledge and must be stated');
+  assert.match(
+    notice,
+    /runs 1 hook event\(s\): SessionStart/,
+    'the guardrail state on this machine is local knowledge and must be stated'
+  );
   assert.match(notice, /plugin update be@basic-engineering/);
 });
 
@@ -95,13 +102,30 @@ test('KNOWN POSITIVE: every failure mode is silent', async () => {
   const root = pluginFixture({ skills: 1, events: ['SessionStart'] });
   const base = { pluginRoot: root, installedVersion: '2.0.0', cacheFile: CFG(), env: {} };
 
-  assert.strictEqual(await uc.check({ ...base, fetchImpl: async () => null }), null,
-    'offline or a failed request says nothing');
-  assert.strictEqual(await uc.check({ ...base, fetchImpl: async () => { throw new Error('boom'); } }), null,
-    'a throwing fetch must not surface');
-  assert.strictEqual(await uc.check({ ...base, pluginRoot: null, fetchImpl: async () => ({ version: '9.9.9', description: '' }) }), null,
-    'no plugin root, nothing to compare');
-  assert.strictEqual(await uc.check({ ...base, installedVersion: null, fetchImpl: async () => ({ version: '9.9.9', description: '' }) }), null);
+  assert.strictEqual(
+    await uc.check({ ...base, fetchImpl: async () => null }),
+    null,
+    'offline or a failed request says nothing'
+  );
+  assert.strictEqual(
+    await uc.check({
+      ...base,
+      fetchImpl: async () => {
+        throw new Error('boom');
+      },
+    }),
+    null,
+    'a throwing fetch must not surface'
+  );
+  assert.strictEqual(
+    await uc.check({ ...base, pluginRoot: null, fetchImpl: async () => ({ version: '9.9.9', description: '' }) }),
+    null,
+    'no plugin root, nothing to compare'
+  );
+  assert.strictEqual(
+    await uc.check({ ...base, installedVersion: null, fetchImpl: async () => ({ version: '9.9.9', description: '' }) }),
+    null
+  );
 });
 
 test('KNOWN POSITIVE: BE_UPDATE_CHECK=off and BE_HOOKS=off both silence it', async () => {
@@ -149,6 +173,8 @@ test('the shipped package description carries the counts the notice reads', () =
   // "what you gain" line. validate.js also fails when the counts go stale.
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
   const counts = uc.parseCounts(pkg.description);
-  assert.ok(counts.skills && counts.agents && counts.commands,
-    `package.json description must assert skills/agents/commands counts: ${pkg.description}`);
+  assert.ok(
+    counts.skills && counts.agents && counts.commands,
+    `package.json description must assert skills/agents/commands counts: ${pkg.description}`
+  );
 });

@@ -14,8 +14,8 @@
  */
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const PLUGIN = path.join(ROOT, 'plugins', 'be');
@@ -47,7 +47,9 @@ function parseFrontmatter(content) {
 }
 
 function clip(text, max) {
-  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  const t = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t;
 }
 
@@ -107,15 +109,36 @@ const PROSE = {
     playIntro: 'Concrete scenarios → the command / agent / skill that fits.',
     playHead: '| Situation | Do this |',
     play: [
-      ['**Starting a session / a new day**', '`/be:session-start` — loads HISTORY + structural analysis + git status and makes you declare a verifiable goal.'],
-      ['**Building a backend feature**', 'Delegate to the `dev-backend` agent — it applies the `be-*` API/DB/auth skills and delegates security to `qa-security-reviewer`, tests to `qa-engineer`.'],
+      [
+        '**Starting a session / a new day**',
+        '`/be:session-start` — loads HISTORY + structural analysis + git status and makes you declare a verifiable goal.',
+      ],
+      [
+        '**Building a backend feature**',
+        'Delegate to the `dev-backend` agent — it applies the `be-*` API/DB/auth skills and delegates security to `qa-security-reviewer`, tests to `qa-engineer`.',
+      ],
       ['**Building UI**', 'Delegate to `dev-frontend` (applies `fe-ux-patterns` + `fe-accessibility-patterns`).'],
-      ['**A significant technical decision**', '`/be:adr` to record it; consult `mgmt-architect` for cross-cutting calls.'],
-      ['**Before you say "done" / before a PR**', '`/be:check` (build, lint, tests, security → verdict) + `/be:impact` for blast radius; `qa-pr-test-analyzer` to judge test adequacy.'],
+      [
+        '**A significant technical decision**',
+        '`/be:adr` to record it; consult `mgmt-architect` for cross-cutting calls.',
+      ],
+      [
+        '**Before you say "done" / before a PR**',
+        '`/be:check` (build, lint, tests, security → verdict) + `/be:impact` for blast radius; `qa-pr-test-analyzer` to judge test adequacy.',
+      ],
       ['**Shipping to production**', '`/be:release-check` — the pre-go-live checklist + changelog draft.'],
-      ['**Repo about to go public / open-source**', 'The `qa-release-sanitizer` agent audits the tree AND git history for secrets/PII/internal refs first.'],
-      ['**Hunting a flaky/hidden bug**', '`qa-silent-failure-hunter` for swallowed errors; write the failing test first (`qa-engineer`).'],
-      ['**Session feels slow / context heavy**', '`/be:context-budget` to find token bloat; `/be:model-route` to pick the right model tier.'],
+      [
+        '**Repo about to go public / open-source**',
+        'The `qa-release-sanitizer` agent audits the tree AND git history for secrets/PII/internal refs first.',
+      ],
+      [
+        '**Hunting a flaky/hidden bug**',
+        '`qa-silent-failure-hunter` for swallowed errors; write the failing test first (`qa-engineer`).',
+      ],
+      [
+        '**Session feels slow / context heavy**',
+        '`/be:context-budget` to find token bloat; `/be:model-route` to pick the right model tier.',
+      ],
       ['**Closing the session**', '`/be:session-end` — updates the living docs and commits them with the code.'],
     ],
     guardTitle: '## Live guardrails (always on, fail-open)',
@@ -158,15 +181,36 @@ const PROSE = {
     playIntro: 'Cenários concretos → o comando / agente / skill que encaixa.',
     playHead: '| Situação | Faça isto |',
     play: [
-      ['**Começando uma sessão / um novo dia**', '`/be:session-start` — carrega HISTÓRICO + análise estrutural + git status e exige declarar uma meta verificável.'],
-      ['**Construindo uma feature de backend**', 'Delegue ao agente `dev-backend` — ele aplica as skills `be-*` de API/DB/auth e delega segurança ao `qa-security-reviewer`, testes ao `qa-engineer`.'],
+      [
+        '**Começando uma sessão / um novo dia**',
+        '`/be:session-start` — carrega HISTÓRICO + análise estrutural + git status e exige declarar uma meta verificável.',
+      ],
+      [
+        '**Construindo uma feature de backend**',
+        'Delegue ao agente `dev-backend` — ele aplica as skills `be-*` de API/DB/auth e delega segurança ao `qa-security-reviewer`, testes ao `qa-engineer`.',
+      ],
       ['**Construindo UI**', 'Delegue ao `dev-frontend` (aplica `fe-ux-patterns` + `fe-accessibility-patterns`).'],
-      ['**Uma decisão técnica relevante**', '`/be:adr` para registrar; consulte o `mgmt-architect` em decisões transversais.'],
-      ['**Antes de dizer "pronto" / antes do PR**', '`/be:check` (build, lint, testes, segurança → veredito) + `/be:impact` para o raio de impacto; `qa-pr-test-analyzer` para julgar adequação de testes.'],
+      [
+        '**Uma decisão técnica relevante**',
+        '`/be:adr` para registrar; consulte o `mgmt-architect` em decisões transversais.',
+      ],
+      [
+        '**Antes de dizer "pronto" / antes do PR**',
+        '`/be:check` (build, lint, testes, segurança → veredito) + `/be:impact` para o raio de impacto; `qa-pr-test-analyzer` para julgar adequação de testes.',
+      ],
       ['**Indo para produção**', '`/be:release-check` — checklist pré-go-live + rascunho do changelog.'],
-      ['**Repo vai ficar público / open-source**', 'O agente `qa-release-sanitizer` audita a árvore E o histórico do git por segredos/PII/refs internas primeiro.'],
-      ['**Caçando bug oculto/intermitente**', '`qa-silent-failure-hunter` para erros engolidos; escreva o teste que falha primeiro (`qa-engineer`).'],
-      ['**Sessão lenta / contexto pesado**', '`/be:context-budget` para achar excesso de tokens; `/be:model-route` para escolher o tier de modelo.'],
+      [
+        '**Repo vai ficar público / open-source**',
+        'O agente `qa-release-sanitizer` audita a árvore E o histórico do git por segredos/PII/refs internas primeiro.',
+      ],
+      [
+        '**Caçando bug oculto/intermitente**',
+        '`qa-silent-failure-hunter` para erros engolidos; escreva o teste que falha primeiro (`qa-engineer`).',
+      ],
+      [
+        '**Sessão lenta / contexto pesado**',
+        '`/be:context-budget` para achar excesso de tokens; `/be:model-route` para escolher o tier de modelo.',
+      ],
       ['**Encerrando a sessão**', '`/be:session-end` — atualiza os docs vivos e os commita junto com o código.'],
     ],
     guardTitle: '## Guardrails ao vivo (sempre ativos, fail-open)',
@@ -185,7 +229,8 @@ const PROSE = {
       'Desligue por sessão com `BE_HOOKS=off`, ou uma checagem só com ex. `BE_HOOK_SECRET_SCAN=off` / `BE_HOOK_CONFIG_PROTECTION=off` / `BE_HOOK_NO_VERIFY=off` / `BE_HOOK_REMINDERS=off`.',
     commandsTitle: '## Comandos',
     agentsTitle: '## Agentes',
-    agentsIntro: 'Delegue trabalho especializado a estes subagentes (eles leem as convenções do seu projeto em tempo de execução):',
+    agentsIntro:
+      'Delegue trabalho especializado a estes subagentes (eles leem as convenções do seu projeto em tempo de execução):',
     skillsTitle: '## Skills',
     skillsIntro: 'Carregadas sob demanda quando o gatilho casa — você raramente as invoca direto.',
     tableHead: '| Nome | O que faz |',
@@ -203,7 +248,9 @@ function generate(lang) {
   const agents = readDirMd('agents');
   const skills = readSkills();
 
-  const commandRows = commands.map(({ file, fm }) => `| \`/be:${file.replace(/\.md$/, '')}\` | ${clip(fm.description, 150)} |`);
+  const commandRows = commands.map(
+    ({ file, fm }) => `| \`/be:${file.replace(/\.md$/, '')}\` | ${clip(fm.description, 150)} |`
+  );
   const agentRows = agents.map(({ file, fm }) => {
     const name = fm.name || file.replace(/\.md$/, '');
     const model = fm.model ? ` _(model: ${fm.model})_` : '';

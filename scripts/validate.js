@@ -14,8 +14,8 @@
  */
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { generate, TARGETS } = require('./gen-capabilities.js');
 
 const ROOT = path.join(__dirname, '..');
@@ -183,8 +183,12 @@ function checkConfigAndHooks() {
   const hooksFile = path.join(PLUGIN, 'hooks', 'hooks.json');
   if (fs.existsSync(hooksFile)) {
     let raw = '';
-    try { raw = fs.readFileSync(hooksFile, 'utf8'); JSON.parse(raw); } catch (e) {
-      fail(`plugins/be/hooks/hooks.json: invalid JSON (${e.message})`); raw = '';
+    try {
+      raw = fs.readFileSync(hooksFile, 'utf8');
+      JSON.parse(raw);
+    } catch (e) {
+      fail(`plugins/be/hooks/hooks.json: invalid JSON (${e.message})`);
+      raw = '';
     }
     const re = /\$\{CLAUDE_PLUGIN_ROOT\}\/([A-Za-z0-9_./-]+\.js)/g;
     const seen = new Set();
@@ -204,27 +208,38 @@ function checkConfigAndHooks() {
     try {
       const d = JSON.parse(fs.readFileSync(sm, 'utf8'));
       if (!Array.isArray(d.stacks)) fail('config/stack-mappings.json: "stacks" must be an array');
-      else for (const s of d.stacks) {
-        if (!s.id || !Array.isArray(s.indicators) || !s.commands) {
-          fail(`config/stack-mappings.json: stack "${s.id || '?'}" needs id, indicators[], commands`);
+      else
+        for (const s of d.stacks) {
+          if (!s.id || !Array.isArray(s.indicators) || !s.commands) {
+            fail(`config/stack-mappings.json: stack "${s.id || '?'}" needs id, indicators[], commands`);
+          }
         }
-      }
-    } catch (e) { fail(`config/stack-mappings.json: invalid JSON (${e.message})`); }
+    } catch (e) {
+      fail(`config/stack-mappings.json: invalid JSON (${e.message})`);
+    }
   }
 
   const ip = path.join(PLUGIN, 'config', 'install-profiles.json');
   if (fs.existsSync(ip)) {
     try {
       const d = JSON.parse(fs.readFileSync(ip, 'utf8'));
-      if (!d.profiles || typeof d.profiles !== 'object') fail('config/install-profiles.json: "profiles" object required');
-      else if (d.default && !d.profiles[d.default]) fail(`config/install-profiles.json: default "${d.default}" is not a defined profile`);
-    } catch (e) { fail(`config/install-profiles.json: invalid JSON (${e.message})`); }
+      if (!d.profiles || typeof d.profiles !== 'object')
+        fail('config/install-profiles.json: "profiles" object required');
+      else if (d.default && !d.profiles[d.default])
+        fail(`config/install-profiles.json: default "${d.default}" is not a defined profile`);
+    } catch (e) {
+      fail(`config/install-profiles.json: invalid JSON (${e.message})`);
+    }
   }
 
   for (const rel of ['mcp.recommended.json', '.be-paths.example.json']) {
     const f = path.join(PLUGIN, rel);
     if (fs.existsSync(f)) {
-      try { JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { fail(`${rel}: invalid JSON (${e.message})`); }
+      try {
+        JSON.parse(fs.readFileSync(f, 'utf8'));
+      } catch (e) {
+        fail(`${rel}: invalid JSON (${e.message})`);
+      }
     }
   }
 }
@@ -301,11 +316,7 @@ function checkInventory() {
   // `package.json`'s description is not decoration: the npm registry serves it,
   // and the session-start update check parses its counts to tell a user what a
   // newer version would give them. A stale count there becomes a wrong promise.
-  for (const rel of [
-    'plugins/be/.claude-plugin/plugin.json',
-    '.claude-plugin/marketplace.json',
-    'package.json',
-  ]) {
+  for (const rel of ['plugins/be/.claude-plugin/plugin.json', '.claude-plugin/marketplace.json', 'package.json']) {
     const abs = path.join(ROOT, rel);
     if (!fs.existsSync(abs)) continue;
     let json;

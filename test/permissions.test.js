@@ -8,8 +8,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { fixture, runScript } = require('./helpers.js');
 
 const perms = require('../plugins/be/scripts/permissions.js');
@@ -33,15 +33,23 @@ test('a stack with no settings file gets the file, with its allow and deny', () 
 test('what the project already decided is never changed, and its deny beats our allow', () => {
   const root = project({
     'pom.xml': '<project/>',
-    '.claude/settings.json': JSON.stringify({
-      model: 'opus',
-      permissions: { allow: ['mvn test', 'gh pr list'], deny: ['mvn -q *'] },
-    }, null, 2),
+    '.claude/settings.json': JSON.stringify(
+      {
+        model: 'opus',
+        permissions: { allow: ['mvn test', 'gh pr list'], deny: ['mvn -q *'] },
+      },
+      null,
+      2
+    ),
   });
   apply(root);
   const s = settingsOf(root);
   assert.strictEqual(s.model, 'opus', 'unrelated settings survive');
-  assert.deepStrictEqual(s.permissions.allow.filter((x) => x === 'mvn test'), ['mvn test'], 'no duplicate');
+  assert.deepStrictEqual(
+    s.permissions.allow.filter((x) => x === 'mvn test'),
+    ['mvn test'],
+    'no duplicate'
+  );
   assert.ok(s.permissions.allow.includes('gh pr list'), 'their own entry stays');
   assert.ok(!s.permissions.allow.includes('mvn -q *'), 'a rule they deny is never added to allow');
   assert.ok(s.permissions.deny.includes('mvn deploy'));
@@ -54,7 +62,11 @@ test('a second run adds nothing — and says so', () => {
   const again = apply(root);
   assert.ok(again.unchanged);
   assert.match(perms.report(again), /nothing to add/);
-  assert.strictEqual(fs.readFileSync(path.join(root, '.claude', 'settings.json'), 'utf8'), before, 'the file is byte-identical');
+  assert.strictEqual(
+    fs.readFileSync(path.join(root, '.claude', 'settings.json'), 'utf8'),
+    before,
+    'the file is byte-identical'
+  );
 });
 
 test('a dry run writes nothing, and reports exactly what it would add', () => {
@@ -88,7 +100,11 @@ test('the plan is computed from the settings it is given, not from disk', () => 
   const java = mappings.stacks.filter((s) => s.id === 'java-maven');
   assert.deepStrictEqual(perms.plan({}, java).deny, ['mvn deploy', 'mvn release:*']);
   assert.deepStrictEqual(perms.plan({ permissions: { deny: ['mvn deploy'] } }, java).deny, ['mvn release:*']);
-  assert.deepStrictEqual(perms.plan({ permissions: 'nonsense' }, java).allow, ['mvn test', 'mvn -q *'], 'a malformed block is read as empty');
+  assert.deepStrictEqual(
+    perms.plan({ permissions: 'nonsense' }, java).allow,
+    ['mvn test', 'mvn -q *'],
+    'a malformed block is read as empty'
+  );
   assert.deepStrictEqual(perms.plan({}, []).allow, []);
 });
 
@@ -99,7 +115,11 @@ test('as a CLI it runs, exits 0 and touches nothing on --dry-run', () => {
   assert.strictEqual(r.status, 0, r.stderr);
   assert.match(r.stdout, /dry run/);
   assert.ok(!fs.existsSync(path.join(root, '.claude')));
-  const required = require('child_process').spawnSync(process.execPath, ['-e', `require(${JSON.stringify(script)})`], { encoding: 'utf8' });
+  const required = require('node:child_process').spawnSync(
+    process.execPath,
+    ['-e', `require(${JSON.stringify(script)})`],
+    { encoding: 'utf8' }
+  );
   assert.strictEqual(required.stdout, '', 'requiring the module runs nothing');
 });
 
@@ -115,7 +135,10 @@ test('null, and a permissions block that is null or a string, are read without t
 });
 
 test('an existing settings file is reported as existing, and a null permissions block is replaced, not merged into', () => {
-  const root = project({ 'pom.xml': '<project/>', '.claude/settings.json': JSON.stringify({ permissions: null, model: 'opus' }) });
+  const root = project({
+    'pom.xml': '<project/>',
+    '.claude/settings.json': JSON.stringify({ permissions: null, model: 'opus' }),
+  });
   const r = apply(root);
   assert.strictEqual(r.existed, true, 'the file was already there');
   const s = settingsOf(root);
@@ -137,7 +160,10 @@ test('--root is read as a flag with a value; without it the working directory is
 });
 
 test('a permissions block that is a string is replaced by a real one, not spread into keys', () => {
-  const root = project({ 'pom.xml': '<project/>', '.claude/settings.json': JSON.stringify({ permissions: 'nonsense' }) });
+  const root = project({
+    'pom.xml': '<project/>',
+    '.claude/settings.json': JSON.stringify({ permissions: 'nonsense' }),
+  });
   apply(root);
   const s = settingsOf(root);
   assert.deepStrictEqual(Object.keys(s.permissions).sort(), ['allow', 'deny'], 'no stray keys from spreading a string');

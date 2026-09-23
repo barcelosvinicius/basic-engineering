@@ -24,10 +24,9 @@
  *   node distance.js [--root <dir>] [--json]
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { loadMappings, detectStacks } = require('./_stacks.js');
-
 
 /** Files under `dir` (relative to root) whose relative path matches `re`. */
 function walk(root, dir, re, out = [], depth = 0) {
@@ -49,7 +48,6 @@ function walk(root, dir, re, out = [], depth = 0) {
   }
   return out;
 }
-
 
 const baseName = (f) => path.basename(f).replace(/\.[^.]+$/, '');
 
@@ -90,7 +88,9 @@ function annotationPath(args, constants) {
   // names no path — its route is the class prefix — and taking the first
   // literal there would have published `application/json` as an endpoint.
   if (!named && /^\s*[A-Za-z_][A-Za-z0-9_]*\s*=/.test(args)) return { literal: '' };
-  const token = named ? named[1] : (args.match(/"[^"]*"/) || args.match(/^\s*([A-Za-z_][A-Za-z0-9_.]*)\s*(?:,|$)/) || [])[0];
+  const token = named
+    ? named[1]
+    : (args.match(/"[^"]*"/) || args.match(/^\s*([A-Za-z_][A-Za-z0-9_.]*)\s*(?:,|$)/) || [])[0];
   if (!token) return { literal: '' };
   const first = token.trim().startsWith('{') ? (token.match(/"[^"]*"/) || [''])[0] : token.trim();
   if (!first) return { literal: '' }; // `value = { }` lists no path at all
@@ -111,7 +111,11 @@ function routesInCode(root, d) {
   const routes = [];
   for (const rel of files) {
     let text;
-    try { text = fs.readFileSync(path.join(root, rel), 'utf8'); } catch { continue; }
+    try {
+      text = fs.readFileSync(path.join(root, rel), 'utf8');
+    } catch {
+      continue;
+    }
     const constants = {};
     for (const m of text.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]+)"/g)) constants[m[1]] = m[2];
     const found = [...text.matchAll(annotation)].map((m) => {
@@ -128,8 +132,14 @@ function routesInCode(root, d) {
     const methods = found.filter((_, i) => i !== classAt);
     const list = methods.length ? methods : [found[classAt]];
     for (const f of list) {
-      if (f.unresolved) { routes.push({ file: rel, route: f.unresolved, unresolved: true }); continue; }
-      if (unresolvedPrefix) { routes.push({ file: rel, route: unresolvedPrefix + (f.literal || ''), unresolved: true }); continue; }
+      if (f.unresolved) {
+        routes.push({ file: rel, route: f.unresolved, unresolved: true });
+        continue;
+      }
+      if (unresolvedPrefix) {
+        routes.push({ file: rel, route: unresolvedPrefix + (f.literal || ''), unresolved: true });
+        continue;
+      }
       const full = (prefix + (f.literal || '')).replace(/\/{2,}/g, '/') || '/';
       routes.push({ file: rel, route: full, unresolved: false });
     }
@@ -147,7 +157,11 @@ function routesNotDocumented(root, d, routes) {
   const docs = walk(root, d.docs.dir, new RegExp(d.docs.match));
   let text = '';
   for (const rel of docs) {
-    try { text += fs.readFileSync(path.join(root, rel), 'utf8') + '\n'; } catch { /* unreadable doc */ }
+    try {
+      text += fs.readFileSync(path.join(root, rel), 'utf8') + '\n';
+    } catch {
+      /* unreadable doc */
+    }
   }
   // Markdown wraps a route in emphasis, backticks or angle brackets, so those
   // are boundaries too — a class that ignored them called two documented routes
@@ -180,11 +194,17 @@ function measure(root, mappings) {
   const stacks = detectStacks(root, mappings);
   if (!stacks.length) return { skipped: 'no stack detected at the project root' };
   const withDistance = stacks.filter((s) => s.distance);
-  if (!withDistance.length) return { skipped: `detected ${stacks.map((s) => s.id).join(', ')}, which declare no distance block`, stacks };
+  if (!withDistance.length)
+    return { skipped: `detected ${stacks.map((s) => s.id).join(', ')}, which declare no distance block`, stacks };
   return {
     stacks: withDistance.map((s) => {
       const routes = routesInCode(root, s.distance);
-      return { id: s.id, units: unitsWithoutTest(root, s.distance), routes: routes && routesNotDocumented(root, s.distance, routes), routeCount: routes ? routes.length : null };
+      return {
+        id: s.id,
+        units: unitsWithoutTest(root, s.distance),
+        routes: routes && routesNotDocumented(root, s.distance, routes),
+        routeCount: routes ? routes.length : null,
+      };
     }),
   };
 }
@@ -198,13 +218,18 @@ function report(result) {
   for (const s of result.stacks) {
     lines.push(`distance · ${s.id}`);
     if (s.units) {
-      lines.push(`  ${s.units.label} with no test file ....... ${s.units.missing.length} of ${s.units.scanned}   (${s.units.tests} test files seen)`);
+      lines.push(
+        `  ${s.units.label} with no test file ....... ${s.units.missing.length} of ${s.units.scanned}   (${s.units.tests} test files seen)`
+      );
       for (const f of s.units.missing.slice(0, 10)) lines.push(`      ${f}`);
       if (s.units.missing.length > 10) lines.push(`      … ${s.units.missing.length - 10} more`);
     } else lines.push('  units with no test file ............. NOT MEASURED (no unit rule for this stack)');
     if (s.routes) {
-      lines.push(`  routes no document mentions ......... ${s.routes.missing.length} of ${s.routes.distinct}   (${s.routes.docs} documents read${s.routes.within ? `, ${s.routes.within} found only inside a longer path` : ''})`);
-      for (const r of s.routes.missing.slice(0, 10)) lines.push(`      ${r.route}${r.unresolved ? '' : ''}   ← ${r.file}`);
+      lines.push(
+        `  routes no document mentions ......... ${s.routes.missing.length} of ${s.routes.distinct}   (${s.routes.docs} documents read${s.routes.within ? `, ${s.routes.within} found only inside a longer path` : ''})`
+      );
+      for (const r of s.routes.missing.slice(0, 10))
+        lines.push(`      ${r.route}${r.unresolved ? '' : ''}   ← ${r.file}`);
       if (s.routes.missing.length > 10) lines.push(`      … ${s.routes.missing.length - 10} more`);
     } else lines.push('  routes no document mentions ......... NOT MEASURED (no route rule for this stack)');
   }
@@ -222,4 +247,15 @@ function main(argv, cwd = process.cwd()) {
 
 if (require.main === module) process.exitCode = main(process.argv.slice(2));
 
-module.exports = { measure, report, unitsWithoutTest, routesInCode, routesNotDocumented, detectStacks, walk, argsAt, annotationPath, main };
+module.exports = {
+  measure,
+  report,
+  unitsWithoutTest,
+  routesInCode,
+  routesNotDocumented,
+  detectStacks,
+  walk,
+  argsAt,
+  annotationPath,
+  main,
+};

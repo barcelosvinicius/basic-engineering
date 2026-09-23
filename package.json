@@ -43,10 +43,16 @@
     "audit:backlog": "node scripts/backlog-audit.js",
     "audit:graph": "node scripts/graph-audit.js",
     "audit:proposals": "node scripts/proposals-audit.js",
-    "mutation": "node scripts/mutation-check.js"
+    "mutation": "node scripts/mutation-check.js",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check:style": "biome check ."
   },
   "engines": {
     "node": ">=18"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14"
+  }
 }

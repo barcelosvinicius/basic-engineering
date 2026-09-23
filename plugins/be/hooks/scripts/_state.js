@@ -14,10 +14,10 @@
  * another platform.
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const { execFileSync } = require('child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const FUNCTIONAL =
   /\.(js|jsx|ts|tsx|mjs|cjs|py|java|kt|kts|go|rb|rs|cs|php|c|cc|cpp|h|hpp|swift|scala|sql|vue|svelte)$/i;
@@ -25,7 +25,12 @@ const DOC = /(HISTORY\.md|HISTORICO\.md|structural-analysis|analise-estrutural|a
 
 function git(cwd, args) {
   try {
-    return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).trim();
+    return execFileSync('git', args, {
+      cwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      timeout: 5000,
+    }).trim();
   } catch {
     return '';
   }
@@ -39,7 +44,12 @@ function git(cwd, args) {
  */
 function changedFiles(cwd) {
   const out = git(cwd, ['status', '--porcelain']);
-  return out ? out.split(/\r?\n/).map((l) => l.trim().replace(/^\S{1,2}\s+/, '')).filter(Boolean) : [];
+  return out
+    ? out
+        .split(/\r?\n/)
+        .map((l) => l.trim().replace(/^\S{1,2}\s+/, ''))
+        .filter(Boolean)
+    : [];
 }
 
 /** Whether code changed while the living docs did not — the one fact both hooks act on. */
@@ -66,13 +76,19 @@ function stateCard(cwd, now = new Date()) {
 }
 
 const dir = () => process.env.BE_HOOK_LOG_DIR || path.join(os.tmpdir(), 'be-hook-log');
-const key = (cwd) => String(cwd || '').replace(/[^A-Za-z0-9]+/g, '-').slice(-60) || 'no-cwd';
+const key = (cwd) =>
+  String(cwd || '')
+    .replace(/[^A-Za-z0-9]+/g, '-')
+    .slice(-60) || 'no-cwd';
 
 /** A note the next session start reads, once, and then clears. Fail-open. */
 function writeCarry(cwd, note) {
   try {
     fs.mkdirSync(dir(), { recursive: true });
-    fs.writeFileSync(path.join(dir(), `carry-${key(cwd)}.json`), JSON.stringify({ at: new Date().toISOString(), note }));
+    fs.writeFileSync(
+      path.join(dir(), `carry-${key(cwd)}.json`),
+      JSON.stringify({ at: new Date().toISOString(), note })
+    );
     return true;
   } catch {
     return false;
@@ -96,11 +112,21 @@ function clearCarry(cwd) {
   }
 }
 
+// Keyed by session alone, unlike writeCarry, which really is per project. It
+// used to take a `cwd` it never read — a signature that promised a scope it did
+// not have. The linter found it on its first run.
 /** Where a compaction's state card is kept, per session. */
-function writeStateCard(cwd, session, card) {
+function writeStateCard(session, card) {
   try {
     fs.mkdirSync(dir(), { recursive: true });
-    const file = path.join(dir(), `state-${String(session || 'no-session').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64) || 'no-session'}.md`);
+    const file = path.join(
+      dir(),
+      `state-${
+        String(session || 'no-session')
+          .replace(/[^A-Za-z0-9_-]/g, '')
+          .slice(0, 64) || 'no-session'
+      }.md`
+    );
     fs.appendFileSync(file, card + '\n\n');
     return file;
   } catch {
@@ -108,4 +134,14 @@ function writeStateCard(cwd, session, card) {
   }
 }
 
-module.exports = { changedFiles, codeWithoutDocs, stateCard, writeCarry, readCarry, clearCarry, writeStateCard, FUNCTIONAL, DOC };
+module.exports = {
+  changedFiles,
+  codeWithoutDocs,
+  stateCard,
+  writeCarry,
+  readCarry,
+  clearCarry,
+  writeStateCard,
+  FUNCTIONAL,
+  DOC,
+};

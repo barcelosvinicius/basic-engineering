@@ -12,9 +12,9 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 const doctor = require('../lib/doctor.js');
 
@@ -52,37 +52,49 @@ test('KNOWN POSITIVE: a declared hook whose script is absent is reported', () =>
 
 test('KNOWN POSITIVE: an older plugin on this machine is a finding, not a fact', () => {
   const installed = pluginFixture({ SessionStart: 'a.js' }, ['a.js']);
-  const repo = pluginFixture({ SessionStart: 'a.js', PreToolUse: 'b.js', Stop: 'c.js' },
-    ['a.js', 'b.js', 'c.js']);
+  const repo = pluginFixture({ SessionStart: 'a.js', PreToolUse: 'b.js', Stop: 'c.js' }, ['a.js', 'b.js', 'c.js']);
   const cfg = tmp();
   fs.mkdirSync(path.join(cfg, 'plugins'), { recursive: true });
-  fs.writeFileSync(path.join(cfg, 'plugins', 'installed_plugins.json'), JSON.stringify({
-    version: 2,
-    plugins: {
-      'be@basic-engineering': [{ scope: 'user', installPath: installed, version: '2.0.0', installedAt: '2026-06-10T00:00:00Z' }],
-      'other@somewhere': [{ scope: 'user', installPath: '/nope', version: '9.9.9' }],
-    },
-  }));
+  fs.writeFileSync(
+    path.join(cfg, 'plugins', 'installed_plugins.json'),
+    JSON.stringify({
+      version: 2,
+      plugins: {
+        'be@basic-engineering': [
+          { scope: 'user', installPath: installed, version: '2.0.0', installedAt: '2026-06-10T00:00:00Z' },
+        ],
+        'other@somewhere': [{ scope: 'user', installPath: '/nope', version: '9.9.9' }],
+      },
+    })
+  );
 
   const { findings } = doctor.diagnose({
-    cwd: tmp(), configDir: cfg, packageVersion: 'v20260101-000000',
-    pluginVersion: '3.0.0', repoPluginRoot: repo,
+    cwd: tmp(),
+    configDir: cfg,
+    packageVersion: 'v20260101-000000',
+    pluginVersion: '3.0.0',
+    repoPluginRoot: repo,
   });
 
-  assert.ok(findings.some((f) => /is 2\.0\.0 on this machine/.test(f)),
-    'a stale plugin version must be reported');
-  assert.ok(findings.some((f) => /PreToolUse, Stop/.test(f)),
-    'the reader needs to know WHICH guardrails are not running, not only that a number differs');
-  assert.ok(!findings.some((f) => /other@somewhere/.test(f)),
-    'other plugins are none of our business');
+  assert.ok(
+    findings.some((f) => /is 2\.0\.0 on this machine/.test(f)),
+    'a stale plugin version must be reported'
+  );
+  assert.ok(
+    findings.some((f) => /PreToolUse, Stop/.test(f)),
+    'the reader needs to know WHICH guardrails are not running, not only that a number differs'
+  );
+  assert.ok(!findings.some((f) => /other@somewhere/.test(f)), 'other plugins are none of our business');
 });
 
 test('KNOWN POSITIVE: a checkout that does not pin eol=lf is reported', () => {
   const repo = tmp();
   fs.mkdirSync(path.join(repo, '.git'));
   let r = doctor.diagnose({ cwd: repo, configDir: tmp() });
-  assert.ok(r.findings.some((f) => /eol=lf/.test(f)),
-    'without normalisation a byte count here does not reproduce in CI');
+  assert.ok(
+    r.findings.some((f) => /eol=lf/.test(f)),
+    'without normalisation a byte count here does not reproduce in CI'
+  );
 
   fs.writeFileSync(path.join(repo, '.gitattributes'), '* text=auto eol=lf\n');
   r = doctor.diagnose({ cwd: repo, configDir: tmp() });

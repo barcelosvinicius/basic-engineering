@@ -19,8 +19,8 @@
  *   node permissions.js [--root <dir>] [--dry-run] [--json]
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { loadMappings, detectStacks } = require('./_stacks.js');
 
 const SETTINGS = path.join('.claude', 'settings.json');
@@ -30,7 +30,8 @@ function readSettings(root) {
   if (!fs.existsSync(file)) return { settings: {}, existed: false };
   try {
     const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return { error: `${SETTINGS} is not a JSON object` };
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      return { error: `${SETTINGS} is not a JSON object` };
     return { settings: parsed, existed: true };
   } catch (e) {
     return { error: `${SETTINGS} does not parse (${e.message.split('\n')[0]})` };
@@ -79,7 +80,8 @@ function apply(root, stacks, { dryRun = false } = {}) {
 function report(result) {
   if (result.skipped) return `permissions: NOT APPLIED — ${result.skipped}`;
   const { added } = result;
-  if (result.unchanged) return `permissions: nothing to add — ${result.stacks.join(', ')} already covered by ${SETTINGS}`;
+  if (result.unchanged)
+    return `permissions: nothing to add — ${result.stacks.join(', ')} already covered by ${SETTINGS}`;
   const lines = [`permissions${result.written ? '' : ' (dry run)'}: ${result.stacks.join(', ')} → ${SETTINGS}`];
   for (const r of added.allow) lines.push(`  + allow  ${r}`);
   for (const r of added.deny) lines.push(`  + deny   ${r}`);

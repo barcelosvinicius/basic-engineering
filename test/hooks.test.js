@@ -5,12 +5,11 @@ const assert = require('node:assert');
 
 const lib = require('../plugins/be/hooks/scripts/_lib.js');
 const { generate, TARGETS } = require('../scripts/gen-capabilities.js');
-const fs = require('fs');
+const fs = require('node:fs');
+const { gitRepo } = require('./helpers.js');
 
 test('detectSecrets flags high-confidence secrets', () => {
-  assert.ok(
-    lib.detectSecrets('token = "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij12"').includes('GitHub token')
-  );
+  assert.ok(lib.detectSecrets('token = "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij12"').includes('GitHub token'));
   assert.ok(lib.detectSecrets('export K=AKIA1234567890ABCDEF').includes('AWS access key id'));
   assert.ok(lib.detectSecrets('-----BEGIN RSA PRIVATE KEY-----').includes('private key'));
   assert.ok(lib.detectSecrets('password = "hunter2secret"').includes('hardcoded credential'));
@@ -74,7 +73,11 @@ test('guard helpers hold on odd input: no id, non-string text, empty command, mi
   assert.strictEqual(lib.isNoVerify(undefined), false);
   assert.strictEqual(lib.pathExists(__filename), true);
   assert.strictEqual(lib.pathExists(__filename + '.missing'), false, 'ENOENT means absent');
-  assert.strictEqual(lib.pathExists(require('path').join(__filename, 'child')), true, 'any other error (ENOTDIR) is treated as present');
+  assert.strictEqual(
+    lib.pathExists(require('node:path').join(__filename, 'child')),
+    true,
+    'any other error (ENOTDIR) is treated as present'
+  );
 });
 
 test('hooksDisabled honors global and per-hook opt-out', () => {
@@ -98,7 +101,7 @@ test('generated guides (EN + PT) are in sync with the plugin frontmatter', () =>
     assert.strictEqual(
       current.replace(/\r\n/g, '\n'),
       generate(lang).replace(/\r\n/g, '\n'),
-      `${require('path').basename(file)} is stale — run \`npm run gen:guide\``
+      `${require('node:path').basename(file)} is stale — run \`npm run gen:guide\``
     );
   }
 });
@@ -109,10 +112,18 @@ test('gateguard modes: narrow by default, all when opted in, off when disabled',
   try {
     delete process.env.BE_GATEGUARD;
     assert.strictEqual(gate.mode(), 'narrow');
-    for (const v of ['on', 'all', '1', 'true']) { process.env.BE_GATEGUARD = v; assert.strictEqual(gate.mode(), 'all', v); }
-    for (const v of ['off', '0', 'false', 'no']) { process.env.BE_GATEGUARD = v; assert.strictEqual(gate.mode(), 'off', v); assert.ok(!gate.enabled()); }
+    for (const v of ['on', 'all', '1', 'true']) {
+      process.env.BE_GATEGUARD = v;
+      assert.strictEqual(gate.mode(), 'all', v);
+    }
+    for (const v of ['off', '0', 'false', 'no']) {
+      process.env.BE_GATEGUARD = v;
+      assert.strictEqual(gate.mode(), 'off', v);
+      assert.ok(!gate.enabled());
+    }
   } finally {
-    if (saved === undefined) delete process.env.BE_GATEGUARD; else process.env.BE_GATEGUARD = saved;
+    if (saved === undefined) delete process.env.BE_GATEGUARD;
+    else process.env.BE_GATEGUARD = saved;
   }
 });
 
@@ -129,15 +140,15 @@ test('gateguard narrow: high-impact classes gate, their nearest neighbours do no
     'pom.xml': 'build or dependency manifest',
     'frontend/package.json': 'build or dependency manifest',
     '.github/workflows/ci.yml': 'CI or deploy pipeline',
-    'Jenkinsfile': 'CI or deploy pipeline',
+    Jenkinsfile: 'CI or deploy pipeline',
   };
   for (const [p, cls] of Object.entries(gated)) assert.strictEqual(gate.riskClass(p), cls, p);
   const free = [
-    'src/app/user/user.component.ts',                 // ordinary code
-    'src/main/java/br/app/AuthorService.java',        // author is not auth
-    'src/test/java/br/app/SecurityConfigTest.java',   // a test of a gated file
-    'docs/security.md',                               // documentation
-    'package-lock.json',                              // generated
+    'src/app/user/user.component.ts', // ordinary code
+    'src/main/java/br/app/AuthorService.java', // author is not auth
+    'src/test/java/br/app/SecurityConfigTest.java', // a test of a gated file
+    'docs/security.md', // documentation
+    'package-lock.json', // generated
     'README.md',
   ];
   for (const p of free) assert.strictEqual(gate.riskClass(p), null, p);
@@ -157,27 +168,39 @@ test('gateguard narrow gates only an existing file; all gates every file; off ga
     assert.strictEqual(gate.shouldGate('pom.xml', true), false);
     assert.strictEqual(gate.shouldGate('', true), false);
   } finally {
-    if (saved === undefined) delete process.env.BE_GATEGUARD; else process.env.BE_GATEGUARD = saved;
+    if (saved === undefined) delete process.env.BE_GATEGUARD;
+    else process.env.BE_GATEGUARD = saved;
   }
 });
 
 test('the PreToolUse hook, run as Claude Code runs it: gates once, logs it, and judges the path relative to the project', () => {
-  const os = require('os');
-  const path = require('path');
-  const { spawnSync } = require('child_process');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
   const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'be-pretool-'));
   const project = path.join(base, 'auth-service'); // a repo NAME that looks high-impact
   const logDir = path.join(base, 'log');
-  const put = (rel) => { const f = path.join(project, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, 'x\n'); return f; };
+  const put = (rel) => {
+    const f = path.join(project, rel);
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    fs.writeFileSync(f, 'x\n');
+    return f;
+  };
   const security = put('src/main/java/app/SecurityConfig.java');
   const ordinary = put('src/app/user.ts');
   const pom = put('pom.xml');
   const session = 'hooktest-' + Math.random().toString(36).slice(2);
   const run = (tool, file, extraEnv = {}) => {
     const env = { ...process.env, BE_HOOK_LOG_DIR: logDir, ...extraEnv };
-    delete env.BE_HOOKS; if (!('BE_GATEGUARD' in extraEnv)) delete env.BE_GATEGUARD;
-    const input = JSON.stringify({ session_id: session, cwd: project, tool_name: tool, tool_input: { file_path: file } });
+    delete env.BE_HOOKS;
+    if (!('BE_GATEGUARD' in extraEnv)) delete env.BE_GATEGUARD;
+    const input = JSON.stringify({
+      session_id: session,
+      cwd: project,
+      tool_name: tool,
+      tool_input: { file_path: file },
+    });
     return spawnSync(process.execPath, [hook], { input, env, encoding: 'utf8' });
   };
 
@@ -185,13 +208,29 @@ test('the PreToolUse hook, run as Claude Code runs it: gates once, logs it, and 
   assert.strictEqual(first.status, 2, 'the first edit of an existing security file is gated');
   assert.match(first.stderr, /fact-forcing gate — before the first edit of SecurityConfig\.java \(security or auth\)/);
   assert.strictEqual(run('Edit', security).status, 0, 'once per file per session');
-  assert.strictEqual(run('Edit', ordinary).status, 0, 'ordinary code is not gated — even inside a repo named auth-service');
-  assert.strictEqual(run('Write', path.join(project, 'src/main/java/app/NewSecurityConfig.java')).status, 0, 'creating a file is not gated — even in a gated class');
+  assert.strictEqual(
+    run('Edit', ordinary).status,
+    0,
+    'ordinary code is not gated — even inside a repo named auth-service'
+  );
+  assert.strictEqual(
+    run('Write', path.join(project, 'src/main/java/app/NewSecurityConfig.java')).status,
+    0,
+    'creating a file is not gated — even in a gated class'
+  );
   assert.strictEqual(run('Edit', pom, { BE_GATEGUARD: 'off' }).status, 0, 'off disables it');
 
-  const lines = fs.readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((l) => l.kind === 'gate');
+  const lines = fs
+    .readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8')
+    .trim()
+    .split('\n')
+    .map((l) => JSON.parse(l))
+    .filter((l) => l.kind === 'gate');
   assert.strictEqual(lines.length, 1, 'exactly one interruption recorded');
-  assert.deepStrictEqual({ kind: lines[0].kind, file: lines[0].file, class: lines[0].class }, { kind: 'gate', file: path.join('src', 'main', 'java', 'app', 'SecurityConfig.java'), class: 'security or auth' });
+  assert.deepStrictEqual(
+    { kind: lines[0].kind, file: lines[0].file, class: lines[0].class },
+    { kind: 'gate', file: path.join('src', 'main', 'java', 'app', 'SecurityConfig.java'), class: 'security or auth' }
+  );
 });
 
 // ── The dispatcher end to end (added after the mutation pass of 2026-09-22) ──
@@ -202,13 +241,23 @@ test('the PreToolUse hook, run as Claude Code runs it: gates once, logs it, and 
 const SECRET = 'ghp_' + 'A'.repeat(36); // assembled so this file holds no literal token
 
 function runPreTool(tool, toolInput, extraEnv = {}) {
-  const os = require('os');
-  const path = require('path');
-  const { spawnSync } = require('child_process');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
   const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
-  const env = { ...process.env, BE_HOOK_LOG_DIR: path.join(os.tmpdir(), 'be-hooktest-log'), BE_GATEGUARD: 'off', ...extraEnv };
+  const env = {
+    ...process.env,
+    BE_HOOK_LOG_DIR: path.join(os.tmpdir(), 'be-hooktest-log'),
+    BE_GATEGUARD: 'off',
+    ...extraEnv,
+  };
   for (const k of Object.keys(env)) if (/^BE_HOOKS?(_|$)/.test(k) && !(k in extraEnv)) delete env[k];
-  const input = JSON.stringify({ session_id: 'disp-' + Math.random().toString(36).slice(2), cwd: os.tmpdir(), tool_name: tool, tool_input: toolInput });
+  const input = JSON.stringify({
+    session_id: 'disp-' + Math.random().toString(36).slice(2),
+    cwd: os.tmpdir(),
+    tool_name: tool,
+    tool_input: toolInput,
+  });
   return spawnSync(process.execPath, [hook], { input, env, encoding: 'utf8' });
 }
 
@@ -221,50 +270,101 @@ test('dispatcher, Bash: the bypass flag and a secret block; each opt-out and an 
   assert.strictEqual(runPreTool('Bash', {}).status, 0, 'a Bash call with no command passes');
   assert.strictEqual(runPreTool('Bash', { command: bypass }, { BE_HOOK_NO_VERIFY: 'off' }).status, 0);
   assert.strictEqual(runPreTool('Bash', { command: `echo ${SECRET}` }, { BE_HOOK_SECRET_SCAN: 'off' }).status, 0);
-  assert.strictEqual(runPreTool('Bash', { command: bypass }, { BE_HOOKS: 'off' }).status, 0, 'the global switch turns every guard off');
+  assert.strictEqual(
+    runPreTool('Bash', { command: bypass }, { BE_HOOKS: 'off' }).status,
+    0,
+    'the global switch turns every guard off'
+  );
 });
 
 test('dispatcher, Write/Edit/MultiEdit: config protection and secrets block; safe paths, new configs and other tools pass', () => {
-  const os = require('os');
-  const path = require('path');
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-disp-'));
+  const path = require('node:path');
+  // The config must be COMMITTED for the rule to fire: that is what makes it
+  // the project's policy rather than a draft someone is still writing.
+  const dir = gitRepo({ '.eslintrc.json': '{}\n', 'app.js': 'const a = 1;\n' }, {}, 'be-disp-');
   const eslint = path.join(dir, '.eslintrc.json');
-  fs.writeFileSync(eslint, '{}');
   const src = path.join(dir, 'app.js');
 
-  assert.strictEqual(runPreTool('Edit', { file_path: eslint }).status, 2, 'weakening an existing linter config');
+  assert.strictEqual(runPreTool('Edit', { file_path: eslint }).status, 2, 'weakening a committed linter config');
   assert.match(runPreTool('Edit', { file_path: eslint }).stderr, /linter\/formatter config/);
-  assert.strictEqual(runPreTool('Write', { file_path: path.join(dir, 'new', '.eslintrc.json') }).status, 0, 'creating a config is allowed');
+  assert.strictEqual(
+    runPreTool('Write', { file_path: path.join(dir, 'new', '.eslintrc.json') }).status,
+    0,
+    'creating a config is allowed'
+  );
+  const draft = path.join(dir, 'biome.jsonc');
+  fs.writeFileSync(draft, '{}\n');
+  assert.strictEqual(
+    runPreTool('Edit', { file_path: draft }).status,
+    0,
+    'tuning a config git has never seen is authoring'
+  );
   assert.strictEqual(runPreTool('Edit', { file_path: eslint }, { BE_HOOK_CONFIG_PROTECTION: 'off' }).status, 0);
 
-  assert.strictEqual(runPreTool('Write', { file_path: src, content: `const t = "${SECRET}";` }).status, 2, 'secret in Write content');
-  assert.strictEqual(runPreTool('Edit', { file_path: src, new_string: `const t = "${SECRET}";` }).status, 2, 'secret in Edit new_string');
-  assert.strictEqual(runPreTool('MultiEdit', { file_path: src, edits: [{ new_string: 'ok' }, { new_string: `k = "${SECRET}"` }] }).status, 2, 'secret in any MultiEdit edit');
-  assert.match(runPreTool('Edit', { file_path: src, new_string: SECRET }).stderr, /possible hardcoded secret in app\.js/);
-  assert.match(runPreTool('Write', { content: SECRET }).stderr, /possible hardcoded secret in content/, 'no path: named as content');
-  assert.strictEqual(runPreTool('Write', { file_path: path.join(dir, 'tests', 'fixture.js'), content: SECRET }).status, 0, 'a test fixture may hold one');
+  assert.strictEqual(
+    runPreTool('Write', { file_path: src, content: `const t = "${SECRET}";` }).status,
+    2,
+    'secret in Write content'
+  );
+  assert.strictEqual(
+    runPreTool('Edit', { file_path: src, new_string: `const t = "${SECRET}";` }).status,
+    2,
+    'secret in Edit new_string'
+  );
+  assert.strictEqual(
+    runPreTool('MultiEdit', { file_path: src, edits: [{ new_string: 'ok' }, { new_string: `k = "${SECRET}"` }] })
+      .status,
+    2,
+    'secret in any MultiEdit edit'
+  );
+  assert.match(
+    runPreTool('Edit', { file_path: src, new_string: SECRET }).stderr,
+    /possible hardcoded secret in app\.js/
+  );
+  assert.match(
+    runPreTool('Write', { content: SECRET }).stderr,
+    /possible hardcoded secret in content/,
+    'no path: named as content'
+  );
+  assert.strictEqual(
+    runPreTool('Write', { file_path: path.join(dir, 'tests', 'fixture.js'), content: SECRET }).status,
+    0,
+    'a test fixture may hold one'
+  );
   assert.strictEqual(runPreTool('Edit', { file_path: src, new_string: 'const ok = 1;' }).status, 0);
-  assert.strictEqual(runPreTool('MultiEdit', { file_path: src, edits: [null, { new_string: 'ok' }] }).status, 0, 'a malformed edit entry is skipped');
-  assert.strictEqual(runPreTool('MultiEdit', { file_path: src, edits: [null, { new_string: SECRET }] }).status, 2, '…and does not hide a secret after it');
+  assert.strictEqual(
+    runPreTool('MultiEdit', { file_path: src, edits: [null, { new_string: 'ok' }] }).status,
+    0,
+    'a malformed edit entry is skipped'
+  );
+  assert.strictEqual(
+    runPreTool('MultiEdit', { file_path: src, edits: [null, { new_string: SECRET }] }).status,
+    2,
+    '…and does not hide a secret after it'
+  );
   assert.strictEqual(runPreTool('Edit', { path: eslint }).status, 2, 'a tool input that names the file as path');
   assert.strictEqual(runPreTool('Read', { file_path: eslint }).status, 0, 'other tools are not inspected');
 });
 
 test('dispatcher, MultiEdit: the gate finds the file in edits[0] when file_path is absent', () => {
-  const os = require('os');
-  const path = require('path');
+  const os = require('node:os');
+  const path = require('node:path');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-disp-me-'));
   const pom = path.join(dir, 'pom.xml');
   fs.writeFileSync(pom, '<project/>');
   const r = runPreTool('MultiEdit', { edits: [{ file_path: pom, new_string: 'x' }] }, { BE_GATEGUARD: 'narrow' });
   assert.strictEqual(r.status, 2);
   assert.match(r.stderr, /before the first edit of pom\.xml \(build or dependency manifest\)/);
-  assert.strictEqual(runPreTool('Edit', { file_path: pom }, { BE_GATEGUARD: 'narrow', BE_HOOK_GATEGUARD: 'off' }).status, 0, 'per-hook opt-out');
+  assert.strictEqual(
+    runPreTool('Edit', { file_path: pom }, { BE_GATEGUARD: 'narrow', BE_HOOK_GATEGUARD: 'off' }).status,
+    0,
+    'per-hook opt-out'
+  );
 });
 
 test('logEvent writes one JSON line and reports failure instead of throwing; projectRelative keeps outside paths', () => {
-  const os = require('os');
-  const path = require('path');
+  const os = require('node:os');
+  const path = require('node:path');
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'be-log-'));
   const saved = process.env.BE_HOOK_LOG_DIR;
   try {
@@ -276,9 +376,14 @@ test('logEvent writes one JSON line and reports failure instead of throwing; pro
     const blocker = path.join(base, 'a-file');
     fs.writeFileSync(blocker, 'x');
     process.env.BE_HOOK_LOG_DIR = path.join(blocker, 'sub');
-    assert.strictEqual(lib.logEvent({ session_id: 's1' }, { kind: 'gate' }), false, 'an unwritable log dir is a false, not a throw');
+    assert.strictEqual(
+      lib.logEvent({ session_id: 's1' }, { kind: 'gate' }),
+      false,
+      'an unwritable log dir is a false, not a throw'
+    );
   } finally {
-    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR; else process.env.BE_HOOK_LOG_DIR = saved;
+    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR;
+    else process.env.BE_HOOK_LOG_DIR = saved;
   }
   assert.strictEqual(lib.projectRelative('/proj/src/a.ts', '/proj'), path.join('src', 'a.ts'));
   assert.strictEqual(lib.projectRelative('/other/a.ts', '/proj'), '/other/a.ts', 'outside the project: unchanged');
@@ -297,29 +402,42 @@ test('gateguard session key follows session_id, then transcript_path, then the e
   assert.notStrictEqual(gate.sessionKey({ transcript_path: '/t/1' }), gate.sessionKey({ transcript_path: '/t/2' }));
   const saved = { c: process.env.CLAUDE_SESSION_ID, b: process.env.BE_SESSION_ID };
   try {
-    process.env.CLAUDE_SESSION_ID = 'env-1'; delete process.env.BE_SESSION_ID;
+    process.env.CLAUDE_SESSION_ID = 'env-1';
+    delete process.env.BE_SESSION_ID;
     const fromClaude = gate.sessionKey({});
     process.env.CLAUDE_SESSION_ID = 'env-2';
     assert.notStrictEqual(gate.sessionKey({}), fromClaude, 'CLAUDE_SESSION_ID is read');
-    delete process.env.CLAUDE_SESSION_ID; process.env.BE_SESSION_ID = 'be-1';
+    delete process.env.CLAUDE_SESSION_ID;
+    process.env.BE_SESSION_ID = 'be-1';
     const fromBe = gate.sessionKey(null);
     process.env.BE_SESSION_ID = 'be-2';
     assert.notStrictEqual(gate.sessionKey(null), fromBe, 'BE_SESSION_ID is read');
   } finally {
-    for (const [k, v] of [['CLAUDE_SESSION_ID', saved.c], ['BE_SESSION_ID', saved.b]]) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
+    for (const [k, v] of [
+      ['CLAUDE_SESSION_ID', saved.c],
+      ['BE_SESSION_ID', saved.b],
+    ]) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
   }
 });
 
 test('gateguard state: a corrupt, malformed or expired state file starts clean, and an unwritable one fails open', () => {
-  const os = require('os');
-  const path = require('path');
-  const { spawnSync } = require('child_process');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
   const gate = require('../plugins/be/hooks/scripts/_gateguard.js');
   const stateDir = path.join(os.tmpdir(), 'be-gateguard');
   const data = { session_id: 'state-' + Math.random().toString(36).slice(2) };
   const file = path.join(stateDir, `state-${gate.sessionKey(data)}.json`);
   fs.mkdirSync(stateDir, { recursive: true });
-  for (const bad of ['not json', 'null', JSON.stringify({ checked: '/a', ts: Date.now() }), JSON.stringify({ checked: ['/a'], ts: 1 })]) {
+  for (const bad of [
+    'not json',
+    'null',
+    JSON.stringify({ checked: '/a', ts: Date.now() }),
+    JSON.stringify({ checked: ['/a'], ts: 1 }),
+  ]) {
     fs.writeFileSync(file, bad);
     assert.strictEqual(gate.isChecked(data, '/a'), false, `starts clean from: ${bad}`);
   }
@@ -333,7 +451,14 @@ test('gateguard state: a corrupt, malformed or expired state file starts clean, 
   // An unwritable temp dir: markChecked reports false, so the dispatcher never blocks in a loop.
   const tmpAsFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'be-tmpfile-')), 'file');
   fs.writeFileSync(tmpAsFile, 'x');
-  const r = spawnSync(process.execPath, ['-e', `process.stdout.write(String(require(${JSON.stringify(require.resolve('../plugins/be/hooks/scripts/_gateguard.js'))}).markChecked({session_id:'x'}, '/a')))`], { env: { ...process.env, TMPDIR: tmpAsFile, TMP: tmpAsFile, TEMP: tmpAsFile }, encoding: 'utf8' });
+  const r = spawnSync(
+    process.execPath,
+    [
+      '-e',
+      `process.stdout.write(String(require(${JSON.stringify(require.resolve('../plugins/be/hooks/scripts/_gateguard.js'))}).markChecked({session_id:'x'}, '/a')))`,
+    ],
+    { env: { ...process.env, TMPDIR: tmpAsFile, TMP: tmpAsFile, TEMP: tmpAsFile }, encoding: 'utf8' }
+  );
   assert.strictEqual(r.stdout, 'false');
 });
 
@@ -351,13 +476,22 @@ test('gestures are read from the commands a line runs — never from text that m
   };
   for (const [cmd, g] of Object.entries(runs)) assert.strictEqual(lib.bulkGesture(cmd), g, cmd);
   // Narrowed after the replay: one file is an edit, scratch files are not project text.
-  for (const cmd of ["sed -n '1,5p' f", "sed 's/a/b/' f > g", 'echo "use sed -i carefully"', 'grep "git mv" notes.md', 'npm test', '',
-    "sed -i 's/somir/sumir/' src/app/page.component.ts", "sed -i 's/a/b/' /tmp/x/one.md /tmp/x/two.md"]) {
+  for (const cmd of [
+    "sed -n '1,5p' f",
+    "sed 's/a/b/' f > g",
+    'echo "use sed -i carefully"',
+    'grep "git mv" notes.md',
+    'npm test',
+    '',
+    "sed -i 's/somir/sumir/' src/app/page.component.ts",
+    "sed -i 's/a/b/' /tmp/x/one.md /tmp/x/two.md",
+  ]) {
     assert.strictEqual(lib.bulkGesture(cmd), null, cmd);
   }
   assert.strictEqual(lib.removalGesture('git rm src/old.js'), 'git rm');
   assert.strictEqual(lib.removalGesture('git add . && git rm -r --cached build'), 'git rm');
-  for (const cmd of ['git remote -v', 'echo "git rm is permanent"', 'rm -rf /tmp/x', '']) assert.strictEqual(lib.removalGesture(cmd), null, cmd);
+  for (const cmd of ['git remote -v', 'echo "git rm is permanent"', 'rm -rf /tmp/x', ''])
+    assert.strictEqual(lib.removalGesture(cmd), null, cmd);
   assert.deepStrictEqual(lib.commandSegments('a && b "c ; d" ; e'), ['a', 'b ""', 'e']);
   assert.strictEqual(lib.bulkGesture('echo "a; sed -i x"'), null, 'a separator inside quotes does not start a command');
   // An unpaired apostrophe is literal, so it cannot hide the command after it —
@@ -365,24 +499,36 @@ test('gestures are read from the commands a line runs — never from text that m
   const flag = '--no' + '-verify';
   assert.deepStrictEqual(lib.commandSegments(`echo don't && git commit ${flag}`), ["echo don't", `git commit ${flag}`]);
   assert.ok(lib.isNoVerify(`echo don't && git commit ${flag}`));
-  assert.ok(lib.isNoVerify(`git commit -m "a \\" b" && git commit ${flag}`), 'an escaped quote inside "…" does not end it');
+  assert.ok(
+    lib.isNoVerify(`git commit -m "a \\" b" && git commit ${flag}`),
+    'an escaped quote inside "…" does not end it'
+  );
   // The narrowing made the earlier version of this case toothless (a one-file
   // sed no longer fires either), so it now carries a real bulk command inside
   // the quotes: an escaped quote must not end the string and free it.
-  assert.strictEqual(lib.bulkGesture('echo "a \\" ; sed -i \'s/x/y/\' a.md b.md"'), null, 'an escaped quote does not end the string');
+  assert.strictEqual(
+    lib.bulkGesture('echo "a \\" ; sed -i \'s/x/y/\' a.md b.md"'),
+    null,
+    'an escaped quote does not end the string'
+  );
   // How the in-place operands are counted: flags, -e/-f scripts and the quoted
   // or unquoted script itself are not files.
   assert.strictEqual(lib.bulkGesture('sed -i s/a/b/ only.md'), null, 'an unquoted script is not a second file');
   assert.strictEqual(lib.bulkGesture('sed -i s/a/b/ one.md two.md'), 'sed in place');
-  assert.strictEqual(lib.bulkGesture('sed -E -i \'s/a/b/\' only.md'), null, 'flags are not files');
+  assert.strictEqual(lib.bulkGesture("sed -E -i 's/a/b/' only.md"), null, 'flags are not files');
   assert.strictEqual(lib.bulkGesture('sed -i -e s/a/b/ -e s/c/d/ notes.md'), null, 'two -e scripts, one file');
-  assert.strictEqual(lib.bulkGesture('sed -i -f fix.sed one.md two.md'), 'sed in place', 'a -f script file is not a target');
-  for (const sep of ['; ', ' | ', ' & ', '\n']) assert.strictEqual(lib.removalGesture(`true${sep}git rm x`), 'git rm', JSON.stringify(sep));
+  assert.strictEqual(
+    lib.bulkGesture('sed -i -f fix.sed one.md two.md'),
+    'sed in place',
+    'a -f script file is not a target'
+  );
+  for (const sep of ['; ', ' | ', ' & ', '\n'])
+    assert.strictEqual(lib.removalGesture(`true${sep}git rm x`), 'git rm', JSON.stringify(sep));
 });
 
 test('stacks are read from the file directory upward, and a test file asks for none', () => {
-  const os = require('os');
-  const path = require('path');
+  const os = require('node:os');
+  const path = require('node:path');
   const mappings = require('../plugins/be/config/stack-mappings.json');
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-nested-'));
   fs.writeFileSync(path.join(root, 'pom.xml'), '');
@@ -390,23 +536,41 @@ test('stacks are read from the file directory upward, and a test file asks for n
   fs.mkdirSync(path.join(root, 'src/main/java/app'), { recursive: true });
   fs.writeFileSync(path.join(root, 'src/main/frontend/package.json'), '{}');
   const ids = (p) => lib.detectStacksFor(path.join(root, p), root, mappings).map((s) => s.id);
-  assert.deepStrictEqual(ids('src/main/frontend/src/app/x.component.ts'), ['node-typescript'], 'the frontend has its own manifest');
-  assert.deepStrictEqual(ids('src/main/java/app/App.java'), ['java-maven'], 'the backend falls back to the project root');
-  assert.deepStrictEqual(lib.detectStacksFor('/elsewhere/App.java', root, mappings), [], 'a file outside the project has no stack');
+  assert.deepStrictEqual(
+    ids('src/main/frontend/src/app/x.component.ts'),
+    ['node-typescript'],
+    'the frontend has its own manifest'
+  );
+  assert.deepStrictEqual(
+    ids('src/main/java/app/App.java'),
+    ['java-maven'],
+    'the backend falls back to the project root'
+  );
+  assert.deepStrictEqual(
+    lib.detectStacksFor('/elsewhere/App.java', root, mappings),
+    [],
+    'a file outside the project has no stack'
+  );
   assert.deepStrictEqual(lib.detectStacksFor('', root, mappings), []);
   assert.deepStrictEqual(lib.detectStacksFor(root, root, mappings), [], 'the project root itself is not a file in it');
   // A file outside the project is not judged by ITS repository's manifests.
   assert.deepStrictEqual(lib.detectStacksFor(path.join(__dirname, '..', 'lib', 'installer.js'), root, mappings), []);
   // Without a project root there is nothing to be inside of — not even the cwd.
   assert.deepStrictEqual(lib.detectStacksFor(path.join(process.cwd(), 'x.ts'), '', mappings), []);
-  for (const p of ['src/test/java/app/AppTest.java', 'src/app/x.spec.ts', 'e2e/login.ts', 'tests/test_x.py']) assert.ok(lib.isTestFile(p), p);
+  for (const p of ['src/test/java/app/AppTest.java', 'src/app/x.spec.ts', 'e2e/login.ts', 'tests/test_x.py'])
+    assert.ok(lib.isTestFile(p), p);
   for (const p of ['src/app/x.ts', 'src/main/java/app/App.java']) assert.ok(!lib.isTestFile(p), p);
 });
 
 test('removedLines nets old against new over every edit; isCodeFile is for source, not docs', () => {
   const lines = (n) => Array.from({ length: n }, (_, i) => `l${i}`).join('\n');
   assert.strictEqual(lib.removedLines({ old_string: lines(20), new_string: lines(2) }), 18);
-  assert.strictEqual(lib.removedLines({ edits: [{ old_string: lines(10), new_string: lines(1) }, null, { old_string: lines(8), new_string: lines(2) }] }), 15);
+  assert.strictEqual(
+    lib.removedLines({
+      edits: [{ old_string: lines(10), new_string: lines(1) }, null, { old_string: lines(8), new_string: lines(2) }],
+    }),
+    15
+  );
   assert.strictEqual(lib.removedLines({ content: lines(50) }), 0, 'a Write removes nothing by this measure');
   assert.strictEqual(lib.removedLines(null), 0);
   for (const f of ['A.java', 'x.ts', 'y.py', 'z.sql']) assert.ok(lib.isCodeFile(f), f);
@@ -414,23 +578,42 @@ test('removedLines nets old against new over every edit; isCodeFile is for sourc
 });
 
 test('detectStacks reads the indicators at the project root, globs included', () => {
-  const os = require('os');
-  const path = require('path');
+  const os = require('node:os');
+  const path = require('node:path');
   const mappings = require('../plugins/be/config/stack-mappings.json');
-  const mk = (files) => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'be-stack-')); for (const f of files) fs.writeFileSync(path.join(d, f), ''); return d; };
-  assert.deepStrictEqual(lib.detectStacks(mk(['pom.xml']), mappings).map((s) => s.id), ['java-maven']);
-  assert.deepStrictEqual(lib.detectStacks(mk(['App.csproj']), mappings).map((s) => s.id), ['dotnet'], 'a *.csproj glob');
+  const mk = (files) => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'be-stack-'));
+    for (const f of files) fs.writeFileSync(path.join(d, f), '');
+    return d;
+  };
+  assert.deepStrictEqual(
+    lib.detectStacks(mk(['pom.xml']), mappings).map((s) => s.id),
+    ['java-maven']
+  );
+  assert.deepStrictEqual(
+    lib.detectStacks(mk(['App.csproj']), mappings).map((s) => s.id),
+    ['dotnet'],
+    'a *.csproj glob'
+  );
   assert.deepStrictEqual(lib.detectStacks(mk(['README.md']), mappings), []);
-  assert.deepStrictEqual(lib.detectStacks(mk(['my-pom.xml']), mappings), [], 'a plain indicator is an exact name, not a suffix');
+  assert.deepStrictEqual(
+    lib.detectStacks(mk(['my-pom.xml']), mappings),
+    [],
+    'a plain indicator is an exact name, not a suffix'
+  );
   assert.deepStrictEqual(lib.detectStacks('', mappings), []);
   assert.deepStrictEqual(lib.detectStacks(mk(['pom.xml']), null), []);
-  assert.deepStrictEqual(lib.detectStacks(path.join(os.tmpdir(), 'does-not-exist-be'), { stacks: [{ id: 'x', indicators: ['*.csproj'] }] }), [], 'an unreadable root is no stack');
+  assert.deepStrictEqual(
+    lib.detectStacks(path.join(os.tmpdir(), 'does-not-exist-be'), { stacks: [{ id: 'x', indicators: ['*.csproj'] }] }),
+    [],
+    'an unreadable root is no stack'
+  );
 });
 
 test('reminders, run as Claude Code runs the hook: once per kind per session, logged, never a block', () => {
-  const os = require('os');
-  const path = require('path');
-  const { spawnSync } = require('child_process');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
   const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
   const project = fs.mkdtempSync(path.join(os.tmpdir(), 'be-remind-'));
   fs.writeFileSync(path.join(project, 'pom.xml'), '<project/>');
@@ -438,32 +621,65 @@ test('reminders, run as Claude Code runs the hook: once per kind per session, lo
   const session = 'remind-' + Math.random().toString(36).slice(2);
   const at = (tool, toolInput, extraEnv = {}, sid = session) => {
     const env = { ...process.env, BE_HOOK_LOG_DIR: logDir, BE_GATEGUARD: 'off', ...extraEnv };
-    for (const k of Object.keys(env)) if (/^BE_HOOKS?_(?!LOG_DIR)|^BE_HOOKS$/.test(k) && !(k in extraEnv)) delete env[k];
-    const r = spawnSync(process.execPath, [hook], { input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }), env, encoding: 'utf8' });
+    for (const k of Object.keys(env))
+      if (/^BE_HOOKS?_(?!LOG_DIR)|^BE_HOOKS$/.test(k) && !(k in extraEnv)) delete env[k];
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }),
+      env,
+      encoding: 'utf8',
+    });
     assert.strictEqual(r.status, 0, 'a reminder never blocks');
     return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput.additionalContext : '';
   };
   const code = path.join(project, 'src', 'App.java');
 
-  assert.match(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), /stack detected: java-maven — .*be-db-migrations/);
-  assert.strictEqual(at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }), '', 'the stack reminder comes once');
+  assert.match(
+    at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }),
+    /stack detected: java-maven — .*be-db-migrations/
+  );
+  assert.strictEqual(
+    at('Edit', { file_path: code, old_string: 'a', new_string: 'b' }),
+    '',
+    'the stack reminder comes once'
+  );
   assert.strictEqual(at('Edit', { file_path: path.join(project, 'README.md'), old_string: 'a', new_string: 'b' }), '');
-  assert.match(at('Bash', { command: "sed -i 's/5.6/5.5/' docs/*.md" }), /bulk rewrite \(sed in place\): run it on text already at rest/);
-  assert.strictEqual(at('Bash', { command: 'git mv a.md b.md' }), '', 'the lot reminder comes once, whatever the gesture');
+  assert.match(
+    at('Bash', { command: "sed -i 's/5.6/5.5/' docs/*.md" }),
+    /bulk rewrite \(sed in place\): run it on text already at rest/
+  );
+  assert.strictEqual(
+    at('Bash', { command: 'git mv a.md b.md' }),
+    '',
+    'the lot reminder comes once, whatever the gesture'
+  );
   assert.strictEqual(at('Bash', { command: 'echo "git rm"' }), '', 'a mention is not a gesture');
   const block = Array.from({ length: 20 }, (_, i) => `line ${i}`).join('\n');
-  assert.match(at('Edit', { file_path: code, old_string: block, new_string: '' }), /removing code \(20 lines in one edit\): clear proc-safe-removal/);
+  assert.match(
+    at('Edit', { file_path: code, old_string: block, new_string: '' }),
+    /removing code \(20 lines in one edit\): clear proc-safe-removal/
+  );
   assert.strictEqual(at('Bash', { command: 'git rm src/Old.java' }), '', 'the removal reminder comes once');
-  assert.strictEqual(at('Bash', { command: 'git rm x' }, { BE_HOOK_REMINDERS: 'off' }, 'optout-' + Math.random().toString(36).slice(2)), '', 'opt-out');
+  assert.strictEqual(
+    at('Bash', { command: 'git rm x' }, { BE_HOOK_REMINDERS: 'off' }, 'optout-' + Math.random().toString(36).slice(2)),
+    '',
+    'opt-out'
+  );
 
-  const log = fs.readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-  assert.deepStrictEqual(log.map((l) => `${l.kind}:${l.rule}`), ['reminder:stack', 'reminder:lot', 'reminder:removal']);
+  const log = fs
+    .readFileSync(path.join(logDir, `${session}.jsonl`), 'utf8')
+    .trim()
+    .split('\n')
+    .map((l) => JSON.parse(l));
+  assert.deepStrictEqual(
+    log.map((l) => `${l.kind}:${l.rule}`),
+    ['reminder:stack', 'reminder:lot', 'reminder:removal']
+  );
 });
 
 test('reminders: each fires on its own gesture only — fresh sessions, one trigger at a time', () => {
-  const os = require('os');
-  const path = require('path');
-  const { spawnSync } = require('child_process');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
   const hook = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', 'pre-tooluse.js');
   const withPom = fs.mkdtempSync(path.join(os.tmpdir(), 'be-remind2-'));
   fs.writeFileSync(path.join(withPom, 'pom.xml'), '<project/>');
@@ -472,15 +688,41 @@ test('reminders: each fires on its own gesture only — fresh sessions, one trig
     const env = { ...process.env, BE_HOOK_LOG_DIR: path.join(project, '.log'), BE_GATEGUARD: 'off' };
     for (const k of Object.keys(env)) if (/^BE_HOOKS?_(?!LOG_DIR)|^BE_HOOKS$/.test(k)) delete env[k];
     const sid = 'fresh-' + Math.random().toString(36).slice(2);
-    const r = spawnSync(process.execPath, [hook], { input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }), env, encoding: 'utf8' });
+    const r = spawnSync(process.execPath, [hook], {
+      input: JSON.stringify({ session_id: sid, cwd: project, tool_name: tool, tool_input: toolInput }),
+      env,
+      encoding: 'utf8',
+    });
     return r.stdout ? JSON.parse(r.stdout).hookSpecificOutput.additionalContext : '';
   };
   assert.strictEqual(at(withPom, 'Bash', { command: 'npm test' }), '', 'an ordinary command carries no rule');
   assert.match(at(withPom, 'Bash', { command: 'git rm src/Old.java' }), /removing code \(git rm\)/);
-  assert.strictEqual(at(withPom, 'Edit', { file_path: path.join(withPom, 'README.md'), old_string: 'a', new_string: 'b' }), '', 'docs do not get the stack reminder');
-  assert.strictEqual(at(withPom, 'Edit', { file_path: path.join(withPom, 'src/test/java/AppTest.java'), old_string: 'a', new_string: 'b' }), '', 'nor does a test file');
-  assert.match(at(withPom, 'MultiEdit', { edits: [{ file_path: path.join(withPom, 'App.java'), old_string: 'a', new_string: 'b' }] }), /stack detected: java-maven/, 'the file can come from edits[0]');
-  assert.strictEqual(at(noStack, 'Edit', { file_path: path.join(noStack, 'App.java'), old_string: 'a', new_string: 'b' }), '', 'no indicator, no stack reminder');
+  assert.strictEqual(
+    at(withPom, 'Edit', { file_path: path.join(withPom, 'README.md'), old_string: 'a', new_string: 'b' }),
+    '',
+    'docs do not get the stack reminder'
+  );
+  assert.strictEqual(
+    at(withPom, 'Edit', {
+      file_path: path.join(withPom, 'src/test/java/AppTest.java'),
+      old_string: 'a',
+      new_string: 'b',
+    }),
+    '',
+    'nor does a test file'
+  );
+  assert.match(
+    at(withPom, 'MultiEdit', {
+      edits: [{ file_path: path.join(withPom, 'App.java'), old_string: 'a', new_string: 'b' }],
+    }),
+    /stack detected: java-maven/,
+    'the file can come from edits[0]'
+  );
+  assert.strictEqual(
+    at(noStack, 'Edit', { file_path: path.join(noStack, 'App.java'), old_string: 'a', new_string: 'b' }),
+    '',
+    'no indicator, no stack reminder'
+  );
 });
 
 test('gateguard remembers checked files per session', () => {
@@ -498,9 +740,9 @@ test('gateguard remembers checked files per session', () => {
 // fail-open behaviour: a companion that cannot be read must never turn a session
 // start into an error.
 
-const os = require('os');
-const path = require('path');
-const { execSync, spawnSync } = require('child_process');
+const os = require('node:os');
+const path = require('node:path');
+const { execSync, spawnSync } = require('node:child_process');
 
 function projectWith(mapJson) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-comp-'));
@@ -520,8 +762,11 @@ test('a declared companion repo is reported at session start', () => {
   const root = projectWith('{"companions":["../sibling"]}');
   const sib = path.join(root, 'sibling');
   fs.mkdirSync(sib);
-  execSync('git init -q && git config user.email t@t && git config user.name t && ' +
-    'echo x > a.txt && git add . && git commit -qm w', { cwd: sib, stdio: 'ignore' });
+  execSync(
+    'git init -q && git config user.email t@t && git config user.name t && ' +
+      'echo x > a.txt && git add . && git commit -qm w',
+    { cwd: sib, stdio: 'ignore' }
+  );
   const { status, out } = runHook(path.join(root, 'main'));
   assert.strictEqual(status, 0);
   assert.match(out, /Companion repo \.\.\/sibling/);
@@ -543,4 +788,30 @@ test('a malformed .be-paths.json never breaks session start', () => {
   assert.strictEqual(status, 0);
   assert.ok(out.includes('Session-continuity protocol active'));
   fs.rmSync(root, { recursive: true, force: true });
+});
+
+// Found by wearing the guardrail, 2026-09-23: adopting Biome in this repository
+// meant creating biome.jsonc and tuning it three times in the same hour, and
+// this rule blocked every step after the first. "Do not weaken the rules" is a
+// statement about a config the project already agreed on. Git says which is
+// which, and no judgment is needed.
+test('a linter config is protected once committed, and editable while it is still a draft', () => {
+  const root = gitRepo(
+    { 'app.js': 'const a = 1;\n', 'biome.jsonc': '{"linter":{"enabled":true}}\n' },
+    {},
+    'be-cfgprot-'
+  );
+  const committed = path.join(root, 'biome.jsonc');
+  assert.ok(lib.isTrackedByGit(committed), 'committed: git tracks it');
+
+  const draft = path.join(root, '.eslintrc.json');
+  fs.writeFileSync(draft, '{"rules":{}}\n');
+  assert.ok(lib.pathExists(draft), 'the draft exists on disk — the old rule stopped here and blocked');
+  assert.ok(!lib.isTrackedByGit(draft), 'but git has never seen it: it is being authored');
+
+  assert.ok(
+    !lib.isTrackedByGit(path.join(os.tmpdir(), 'nowhere-at-all', 'biome.jsonc')),
+    'outside a repository: nothing to protect'
+  );
+  assert.ok(!lib.isTrackedByGit(''), 'an empty path is not tracked');
 });

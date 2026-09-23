@@ -20,7 +20,7 @@ function main() {
   const data = lib.parseInput(lib.readStdin());
   const cwd = data.cwd || process.cwd();
   const card = state.stateCard(cwd);
-  const file = state.writeStateCard(cwd, data.session_id, card);
+  const file = state.writeStateCard(data.session_id, card);
   lib.logEvent(data, { kind: 'precompact', trigger: data.trigger || 'unknown', saved: Boolean(file) });
   lib.warn(
     'PreCompact',

@@ -17,9 +17,9 @@
  * marketplace updates from the same main push on its own.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2);
@@ -69,8 +69,8 @@ const prevBaseVersion = read('BASE_VERSION').trim();
 if (prevBaseVersion && baseVersion <= prevBaseVersion) {
   fail(
     `BASE_VERSION ${baseVersion} is not newer than ${prevBaseVersion}. ` +
-    'The installer compares these lexicographically, so a value that does not ' +
-    'increase would make this release look older than the last.'
+      'The installer compares these lexicographically, so a value that does not ' +
+      'increase would make this release look older than the last.'
   );
 }
 
@@ -92,7 +92,7 @@ try {
 } catch {
   fail(
     'the fact panel in docs/structural-analysis.md no longer matches the repo — ' +
-    'run `node scripts/graph-audit.js --md` and commit it'
+      'run `node scripts/graph-audit.js --md` and commit it'
   );
 }
 
@@ -105,7 +105,7 @@ try {
 } catch {
   fail(
     'a mutant of a guard survived its tests — add the test that would notice it, ' +
-    'or record in scripts/mutation-equivalents.json why it cannot change behaviour'
+      'or record in scripts/mutation-equivalents.json why it cannot change behaviour'
   );
 }
 
@@ -144,7 +144,11 @@ const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/i
       // space — match the status field rather than counting columns (same
       // reason as the `dirtyBefore` note below).
       for (const line of shOut('git status --porcelain').split(/\r?\n/)) {
-        const file = line.replace(/^[ MADRCU?!]{1,2}\s+/, '').split(' -> ').pop().trim();
+        const file = line
+          .replace(/^[ MADRCU?!]{1,2}\s+/, '')
+          .split(' -> ')
+          .pop()
+          .trim();
         if (file && !changed.includes(file)) changed.push(file);
       }
     } catch {
@@ -162,10 +166,10 @@ const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/i
       } else {
         fail(
           `this release changes what users see, and README.md did not change since ${lastTag}:\n` +
-          touched.map((f) => `        ${f}`).join('\n') +
-          '\n\n  Answer the question before releasing: does a README reader need to know\n' +
-          '  something new? Either edit README.md, or record why not with\n' +
-          '  `--readme-ok="<reason>"` and put the same line in the CHANGELOG entry.'
+            touched.map((f) => `        ${f}`).join('\n') +
+            '\n\n  Answer the question before releasing: does a README reader need to know\n' +
+            '  something new? Either edit README.md, or record why not with\n' +
+            '  `--readme-ok="<reason>"` and put the same line in the CHANGELOG entry.'
         );
       }
     }
@@ -192,11 +196,7 @@ const dirtyBefore = dryRun
   : [];
 
 // ── 1) bump semver in the three manifests ────────────────────────────────────
-for (const f of [
-  'package.json',
-  'plugins/be/.claude-plugin/plugin.json',
-  '.claude-plugin/marketplace.json',
-]) {
+for (const f of ['package.json', 'plugins/be/.claude-plugin/plugin.json', '.claude-plugin/marketplace.json']) {
   const before = read(f);
   const after = before.split(`"version": "${cur}"`).join(`"version": "${next}"`);
   if (after === before) console.warn(`  warn: no '"version": "${cur}"' in ${f}`);
@@ -260,8 +260,12 @@ sh(`git commit -m "chore(release): v${next}"`);
 
 if (push) {
   sh('git push origin HEAD');
-  console.log(`\n  Pushed to main. CI publishes v${next} to npm (OIDC) and tags it; the marketplace updates from the same push.\n`);
+  console.log(
+    `\n  Pushed to main. CI publishes v${next} to npm (OIDC) and tags it; the marketplace updates from the same push.\n`
+  );
 } else {
-  console.log(`\n  Committed v${next}. Push to publish — CI does npm + tag + release; the marketplace updates from main:`);
+  console.log(
+    `\n  Committed v${next}. Push to publish — CI does npm + tag + release; the marketplace updates from main:`
+  );
   console.log('  git push origin HEAD\n');
 }

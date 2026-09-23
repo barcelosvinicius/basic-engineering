@@ -10,9 +10,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
-const { fixture, runScript } = require('./helpers.js');
+const path = require('node:path');
+const { fixture } = require('./helpers.js');
 
 const d = require('../plugins/be/scripts/distance.js');
 const mappings = require('../plugins/be/config/stack-mappings.json');
@@ -20,7 +19,8 @@ const JAVA = mappings.stacks.find((s) => s.id === 'java-maven').distance;
 
 const project = (files) => fixture(files, 'be-distance-');
 
-const controller = (name, body) => `package app;\n@RestController\n@RequestMapping("/${name.toLowerCase()}")\npublic class ${name}Controller {\n${body}\n}\n`;
+const controller = (name, body) =>
+  `package app;\n@RestController\n@RequestMapping("/${name.toLowerCase()}")\npublic class ${name}Controller {\n${body}\n}\n`;
 
 test('units of work with no test file, and the mirror: one that has it', () => {
   const root = project({
@@ -51,7 +51,10 @@ public class JobController {
 }
 `,
   });
-  const routes = d.routesInCode(root, JAVA).map((r) => r.route).sort();
+  const routes = d
+    .routesInCode(root, JAVA)
+    .map((r) => r.route)
+    .sort();
   assert.deepStrictEqual(routes, ['/admin', '/admin/jobs', '/admin/jobs', '/admin/jobs/{id}', '/admin/jobs/{id}/logs']);
 });
 
@@ -70,7 +73,11 @@ public class AController {
   };
   const root = project(files);
   const report = d.routesNotDocumented(root, JAVA, d.routesInCode(root, JAVA));
-  assert.deepStrictEqual(report.missing.map((r) => r.route), ['/orders/hidden'], 'only the undocumented one');
+  assert.deepStrictEqual(
+    report.missing.map((r) => r.route),
+    ['/orders/hidden'],
+    'only the undocumented one'
+  );
   assert.strictEqual(report.within, 1, 'the external path counts as documented, and is counted apart');
   assert.strictEqual(report.distinct, 3);
   assert.strictEqual(report.docs, 1, 'the denominator: documents read');
@@ -105,7 +112,13 @@ test('the report names the numbers and says it never blocks; main always exits 0
 });
 
 test('this repository: the scanner never walks into node_modules, .git, target or dist', () => {
-  const root = project({ 'src/a.java': 'x', 'node_modules/p/b.java': 'x', 'target/c.java': 'x', 'dist/d.java': 'x', '.git/e.java': 'x' });
+  const root = project({
+    'src/a.java': 'x',
+    'node_modules/p/b.java': 'x',
+    'target/c.java': 'x',
+    'dist/d.java': 'x',
+    '.git/e.java': 'x',
+  });
   assert.deepStrictEqual(d.walk(root, '.', /\.java$/), ['src/a.java']);
 });
 
@@ -132,7 +145,11 @@ test('every reader returns null or empty when its rules are absent — never a m
   const root = project({ 'pom.xml': '<project/>' });
   assert.deepStrictEqual(d.detectStacks(root, null), []);
   assert.deepStrictEqual(d.detectStacks(root, {}), []);
-  assert.deepStrictEqual(d.detectStacks(root, { stacks: [{ id: 'x' }] }), [], 'a stack with no indicators matches nothing');
+  assert.deepStrictEqual(
+    d.detectStacks(root, { stacks: [{ id: 'x' }] }),
+    [],
+    'a stack with no indicators matches nothing'
+  );
   for (const rules of [null, {}]) {
     assert.strictEqual(d.unitsWithoutTest(root, rules), null);
     assert.strictEqual(d.routesInCode(root, rules), null);
@@ -143,13 +160,24 @@ test('every reader returns null or empty when its rules are absent — never a m
 
 test('an indicator that is not a string matches nothing', () => {
   const { detectStacks } = require('../plugins/be/scripts/_stacks.js');
-  assert.deepStrictEqual(detectStacks(project({ 'pom.xml': '' }), { stacks: [{ id: 'x', indicators: [null, 42] }] }), [], 'a malformed indicator is not a match');
+  assert.deepStrictEqual(
+    detectStacks(project({ 'pom.xml': '' }), { stacks: [{ id: 'x', indicators: [null, 42] }] }),
+    [],
+    'a malformed indicator is not a match'
+  );
   assert.deepStrictEqual(detectStacks('', mappings), []);
 });
 
 test('indicators match by exact name or by glob, and the scan stops at 20 levels', () => {
-  assert.deepStrictEqual(d.detectStacks(project({ 'App.csproj': '' }), mappings).map((s) => s.id), ['dotnet']);
-  assert.deepStrictEqual(d.detectStacks(project({ 'my-pom.xml': '' }), mappings), [], 'an exact indicator is not a suffix');
+  assert.deepStrictEqual(
+    d.detectStacks(project({ 'App.csproj': '' }), mappings).map((s) => s.id),
+    ['dotnet']
+  );
+  assert.deepStrictEqual(
+    d.detectStacks(project({ 'my-pom.xml': '' }), mappings),
+    [],
+    'an exact indicator is not a suffix'
+  );
   const deep = 'a/'.repeat(25) + 'Deep.java';
   const root = project({ 'src/ok.java': 'x', 'src/note.md': 'x', [`src/${deep}`]: 'x' });
   const found = d.walk(root, 'src', /\.java$/);
@@ -174,11 +202,17 @@ public class BController {
     'docs/a.md': 'cites `/dup`, `/exact1` and `/exact2`, plus /api/v1/deep/only-inside\n',
   });
   const routes = d.routesInCode(root, JAVA);
-  assert.deepStrictEqual(routes.filter((r) => r.unresolved).map((r) => r.route), ['OUTRO_PATH']);
+  assert.deepStrictEqual(
+    routes.filter((r) => r.unresolved).map((r) => r.route),
+    ['OUTRO_PATH']
+  );
   assert.ok(!routes.some((r) => r.route.includes('application/json')), 'produces is not a route');
   const rep = d.routesNotDocumented(root, JAVA, routes);
   assert.strictEqual(rep.distinct, 4, 'five annotations, four distinct routes: the duplicate counts once');
-  assert.deepStrictEqual(rep.missing.map((r) => r.route), ['OUTRO_PATH']);
+  assert.deepStrictEqual(
+    rep.missing.map((r) => r.route),
+    ['OUTRO_PATH']
+  );
   assert.strictEqual(rep.within, 0, 'two exact mentions are exact, not "within"');
 
   const node = project({ 'package.json': '{}', 'tsconfig.json': '{}', 'src/a.service.ts': 'x' });
@@ -189,7 +223,8 @@ public class BController {
 
 test('a long list is truncated with a count, and --root defaults to the working directory', () => {
   const files = { 'pom.xml': '<project/>' };
-  for (let i = 0; i < 12; i++) files[`src/main/java/app/C${i}Controller.java`] = `package app;\npublic class C${i}Controller {}\n`;
+  for (let i = 0; i < 12; i++)
+    files[`src/main/java/app/C${i}Controller.java`] = `package app;\npublic class C${i}Controller {}\n`;
   const root = project(files);
   const text = d.report(d.measure(root, mappings));
   assert.match(text, /controllers with no test file \.+ 12 of 12/);
@@ -206,9 +241,12 @@ test('a long list is truncated with a count, and --root defaults to the working 
 });
 
 test('as a CLI it runs and exits 0; requiring the module runs nothing', () => {
-  const { spawnSync } = require('child_process');
+  const { spawnSync } = require('node:child_process');
   const script = path.join(__dirname, '..', 'plugins', 'be', 'scripts', 'distance.js');
-  const root = project({ 'pom.xml': '<project/>', 'src/main/java/app/AController.java': 'package app;\npublic class AController {}\n' });
+  const root = project({
+    'pom.xml': '<project/>',
+    'src/main/java/app/AController.java': 'package app;\npublic class AController {}\n',
+  });
   const run = spawnSync(process.execPath, [script, '--root', root], { encoding: 'utf8' });
   assert.strictEqual(run.status, 0, run.stderr);
   assert.match(run.stdout, /distance · java-maven/);
@@ -232,12 +270,25 @@ public class CController {
     'docs/a.md': 'nothing\n',
   });
   const routes = d.routesInCode(root, JAVA);
-  assert.ok(!routes.some((r) => String(r.route).startsWith('undefined')), 'an unresolved class prefix never becomes "undefined/…"');
-  assert.ok(routes.every((r) => r.unresolved), 'a prefix nobody can resolve leaves every route in the file unresolved');
-  assert.deepStrictEqual(routes.map((r) => r.route).sort(), ['BASE_UNKNOWN', 'BASE_UNKNOWN/same', 'BASE_UNKNOWN/same'],
-    'and an argument that starts on the next line is read as no path, not as "/"');
+  assert.ok(
+    !routes.some((r) => String(r.route).startsWith('undefined')),
+    'an unresolved class prefix never becomes "undefined/…"'
+  );
+  assert.ok(
+    routes.every((r) => r.unresolved),
+    'a prefix nobody can resolve leaves every route in the file unresolved'
+  );
+  assert.deepStrictEqual(
+    routes.map((r) => r.route).sort(),
+    ['BASE_UNKNOWN', 'BASE_UNKNOWN/same', 'BASE_UNKNOWN/same'],
+    'and an argument that starts on the next line is read as no path, not as "/"'
+  );
   const rep = d.routesNotDocumented(root, JAVA, routes);
-  assert.strictEqual(rep.missing.filter((r) => r.route === 'BASE_UNKNOWN/same').length, 1, 'a repeated route is reported once');
+  assert.strictEqual(
+    rep.missing.filter((r) => r.route === 'BASE_UNKNOWN/same').length,
+    1,
+    'a repeated route is reported once'
+  );
 });
 
 test('the report says NOT MEASURED per missing rule, and truncates each list at ten', () => {
@@ -245,9 +296,15 @@ test('the report says NOT MEASURED per missing rule, and truncates each list at 
   const text = d.report({ stacks: [{ id: 'x', units: null, routes: null }] });
   assert.match(text, /units with no test file \.+ NOT MEASURED \(no unit rule/);
   assert.match(text, /routes no document mentions \.+ NOT MEASURED \(no route rule/);
-  const full = d.report({ stacks: [{ id: 'x',
-    units: { label: 'controllers', scanned: 12, tests: 0, missing: many(12, (i) => `C${i}.java`) },
-    routes: { docs: 1, distinct: 12, missing: many(12, (i) => ({ route: `/r${i}`, file: 'f.java' })), within: 0 } }] });
+  const full = d.report({
+    stacks: [
+      {
+        id: 'x',
+        units: { label: 'controllers', scanned: 12, tests: 0, missing: many(12, (i) => `C${i}.java`) },
+        routes: { docs: 1, distinct: 12, missing: many(12, (i) => ({ route: `/r${i}`, file: 'f.java' })), within: 0 },
+      },
+    ],
+  });
   assert.strictEqual((full.match(/… 2 more/g) || []).length, 2, 'both lists truncate at ten and count the rest');
 });
 
@@ -255,11 +312,30 @@ test('a controller with no class annotation, an empty bracketed value, and a lis
   assert.deepStrictEqual(d.annotationPath('value = { }', {}), { literal: '' }, 'a bracketed value with no path');
   const root = project({
     'pom.xml': '<project/>',
-    'src/main/java/app/FlatController.java': 'package app;\npublic class FlatController {\n  @GetMapping("/flat") void a() {}\n}\n',
+    'src/main/java/app/FlatController.java':
+      'package app;\npublic class FlatController {\n  @GetMapping("/flat") void a() {}\n}\n',
   });
-  assert.deepStrictEqual(d.routesInCode(root, JAVA).map((r) => r.route), ['/flat'], 'no class annotation: the method path is the route');
-  const short = d.report({ stacks: [{ id: 'x',
-    units: { label: 'controllers', scanned: 2, tests: 0, missing: ['A.java', 'B.java'] },
-    routes: { docs: 1, distinct: 2, missing: [{ route: '/a', file: 'f' }, { route: '/b', file: 'f' }], within: 0 } }] });
+  assert.deepStrictEqual(
+    d.routesInCode(root, JAVA).map((r) => r.route),
+    ['/flat'],
+    'no class annotation: the method path is the route'
+  );
+  const short = d.report({
+    stacks: [
+      {
+        id: 'x',
+        units: { label: 'controllers', scanned: 2, tests: 0, missing: ['A.java', 'B.java'] },
+        routes: {
+          docs: 1,
+          distinct: 2,
+          missing: [
+            { route: '/a', file: 'f' },
+            { route: '/b', file: 'f' },
+          ],
+          within: 0,
+        },
+      },
+    ],
+  });
   assert.doesNotMatch(short, /more/, 'two items are listed, not truncated');
 });

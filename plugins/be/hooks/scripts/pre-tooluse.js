@@ -22,9 +22,12 @@ const gate = require('./_gateguard.js');
 // Never a block; once per kind per session; opt-out BE_HOOK_REMINDERS=off.
 const ONCE = '(once per session; BE_HOOK_REMINDERS=off)';
 const REMIND = {
-  lot: (g) => `bulk rewrite (${g}): run it on text already at rest — never in the same step as new writing — and read the generated output before trusting the check that follows. A bulk renumber in the same pass as new text is how a correct pointer turns into a wrong one. ${ONCE}`,
-  removal: (g) => `removing code (${g}): clear proc-safe-removal's four axes first — who calls it, what depends on it, what it documented, and where the reason goes (// NB:). ${ONCE}`,
-  stack: (s) => `stack detected: ${s.map((x) => x.id).join(', ')} — skills for this code, consult when the change touches their topic: ${[...new Set(s.flatMap((x) => x.skills || []))].join(', ')}. ${ONCE}`,
+  lot: (g) =>
+    `bulk rewrite (${g}): run it on text already at rest — never in the same step as new writing — and read the generated output before trusting the check that follows. A bulk renumber in the same pass as new text is how a correct pointer turns into a wrong one. ${ONCE}`,
+  removal: (g) =>
+    `removing code (${g}): clear proc-safe-removal's four axes first — who calls it, what depends on it, what it documented, and where the reason goes (// NB:). ${ONCE}`,
+  stack: (s) =>
+    `stack detected: ${s.map((x) => x.id).join(', ')} — skills for this code, consult when the change touches their topic: ${[...new Set(s.flatMap((x) => x.skills || []))].join(', ')}. ${ONCE}`,
 };
 
 function remindOnce(data, kind, detail, text, keySuffix = '') {
@@ -77,11 +80,19 @@ function main() {
   if (tool === 'Write' || tool === 'Edit' || tool === 'MultiEdit') {
     const filePath = input.file_path || input.path || '';
 
-    if (!lib.hooksDisabled('config-protection') && lib.isProtectedConfig(filePath) && lib.pathExists(filePath)) {
+    // Three conditions, and the third was added after the rule blocked the very
+    // adoption of a linter in this repository: a config git does not track yet
+    // is a draft being written, not the policy the project settled on.
+    if (
+      !lib.hooksDisabled('config-protection') &&
+      lib.isProtectedConfig(filePath) &&
+      lib.pathExists(filePath) &&
+      lib.isTrackedByGit(filePath)
+    ) {
       lib.block(
         'editing ' +
           lib.basename(filePath) +
-          ' (linter/formatter config) is blocked — fix the code to satisfy the rules instead of weakening the config. Creating a new config is allowed. (BE_HOOK_CONFIG_PROTECTION=off to allow)'
+          ' (linter/formatter config) is blocked — fix the code to satisfy the rules instead of weakening the config. Creating a new config, or tuning one not yet committed, is allowed. (BE_HOOK_CONFIG_PROTECTION=off to allow)'
       );
     }
 
@@ -110,10 +121,7 @@ function main() {
     // until the agent investigates (narrow by default; BE_GATEGUARD=all|off).
     // Fail-open if session state can't persist.
     if (gate.enabled() && !lib.hooksDisabled('gateguard')) {
-      const gp =
-        filePath ||
-        (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) ||
-        '';
+      const gp = filePath || (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) || '';
       const rel = lib.projectRelative(gp, data.cwd || process.cwd());
       const exists = Boolean(gp) && lib.pathExists(gp);
       if (gate.shouldGate(rel, exists) && !gate.isChecked(data, gp) && gate.markChecked(data, gp)) {
@@ -125,7 +133,8 @@ function main() {
     }
 
     const removed = lib.removedLines(input);
-    if (removed >= 15) remindOnce(data, 'removal', `${removed} lines removed`, REMIND.removal(`${removed} lines in one edit`));
+    if (removed >= 15)
+      remindOnce(data, 'removal', `${removed} lines removed`, REMIND.removal(`${removed} lines in one edit`));
     const target = filePath || (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) || '';
     if (lib.isCodeFile(target) && !lib.isTestFile(target)) {
       const stacks = lib.detectStacksFor(target, data.cwd || process.cwd(), stackMappings());

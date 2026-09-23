@@ -29,8 +29,8 @@
  *       constant here.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const HEADING = /^#{2,3} (\d+)\. (.*)$/;
@@ -71,11 +71,14 @@ function check(text) {
     const state = STATES.find((s) => p.estado.startsWith(s));
     if (!state) return errors.push(`${at}: state must start with ${STATES.join(' | ')}`);
     if (state !== 'aberta' && !DATE.test(p.estado)) errors.push(`${at}: "${state}" needs a date`);
-    if (state === 'implantada' && !COMMIT.test(p.estado)) errors.push(`${at}: "implantada" needs the commit that proves it`);
-    if (state === 'descartada' && !/porque/.test(p.estado)) errors.push(`${at}: "descartada" needs its reason ("porque …")`);
+    if (state === 'implantada' && !COMMIT.test(p.estado))
+      errors.push(`${at}: "implantada" needs the commit that proves it`);
+    if (state === 'descartada' && !/porque/.test(p.estado))
+      errors.push(`${at}: "descartada" needs its reason ("porque …")`);
   });
   const max = Math.max(0, ...seen);
-  for (let n = 1; n <= max; n++) if (!seen.has(n)) errors.push(`proposal ${n}: missing — the numbers run 1..${max} with a gap`);
+  for (let n = 1; n <= max; n++)
+    if (!seen.has(n)) errors.push(`proposal ${n}: missing — the numbers run 1..${max} with a gap`);
   return errors;
 }
 
@@ -83,7 +86,8 @@ function check(text) {
 function ledgers(root = ROOT) {
   const dir = path.join(root, 'feedback');
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir, { withFileTypes: true })
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory() && fs.existsSync(path.join(dir, d.name, 'SUGESTOES.md')))
     .map((d) => path.join('feedback', d.name, 'SUGESTOES.md'));
 }
@@ -122,10 +126,21 @@ function renderIndex(props, draftProps, fromRel, date) {
     '',
     '| # | Proposta | Estado | Prova ou destino |',
     '|---|---|---|---|',
-    ...props.map((p) => { const [s, d] = split(p.estado); return `| ${p.n} | ${cell(p.title)} | ${cell(s)} | ${cell(d)} |`; }),
+    ...props.map((p) => {
+      const [s, d] = split(p.estado);
+      return `| ${p.n} | ${cell(p.title)} | ${cell(s)} | ${cell(d)} |`;
+    }),
   ];
-  if (onlyInDraft.length) lines.push('', `**Só neste rascunho — ainda sem estado no \`be\`:** ${onlyInDraft.map((d) => `${d.n} (${d.title})`).join(' · ')}`);
-  if (collisions.length) lines.push('', `**Mesmo número, proposta diferente:** ${collisions.map((d) => `${d.n} — aqui "${d.title}", no \`be\` "${props.find((p) => p.n === d.n).title}"`).join(' · ')}`);
+  if (onlyInDraft.length)
+    lines.push(
+      '',
+      `**Só neste rascunho — ainda sem estado no \`be\`:** ${onlyInDraft.map((d) => `${d.n} (${d.title})`).join(' · ')}`
+    );
+  if (collisions.length)
+    lines.push(
+      '',
+      `**Mesmo número, proposta diferente:** ${collisions.map((d) => `${d.n} — aqui "${d.title}", no \`be\` "${props.find((p) => p.n === d.n).title}"`).join(' · ')}`
+    );
   lines.push(END);
   return lines.join('\n');
 }
@@ -138,7 +153,10 @@ function renderIndex(props, draftProps, fromRel, date) {
 function applyDraft(draftText, block) {
   const b = draftText.indexOf(BEGIN);
   const e = draftText.indexOf(END);
-  if ((b >= 0) !== (e >= 0) || (b >= 0 && e < b)) throw new Error('the draft has one generated-block marker without the other — restore or remove both, then run again');
+  if (b >= 0 !== e >= 0 || (b >= 0 && e < b))
+    throw new Error(
+      'the draft has one generated-block marker without the other — restore or remove both, then run again'
+    );
   if (b >= 0) return draftText.slice(0, b) + block + draftText.slice(e + END.length);
   const lines = draftText.split('\n');
   const at = lines.findIndex((l) => l.trim() === '---');
@@ -148,16 +166,27 @@ function applyDraft(draftText, block) {
 }
 
 function main(argv, root = ROOT) {
-  const arg = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
+  const arg = (name) => {
+    const i = argv.indexOf(name);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
   const draft = arg('--draft');
   if (draft) {
     const fromRel = arg('--from');
-    if (!fromRel) { console.error('proposals-audit: --draft needs --from <feedback/…/SUGESTOES.md>'); return 2; }
+    if (!fromRel) {
+      console.error('proposals-audit: --draft needs --from <feedback/…/SUGESTOES.md>');
+      return 2;
+    }
     const props = parse(fs.readFileSync(path.join(root, fromRel), 'utf8'));
     const text = fs.readFileSync(draft, 'utf8');
     const draftProps = parse(text.replace(new RegExp(`${BEGIN}[\\s\\S]*?${END}`), ''));
     const block = renderIndex(props, draftProps, fromRel, new Date().toISOString().slice(0, 10));
-    try { fs.writeFileSync(draft, applyDraft(text, block)); } catch (err) { console.error(`proposals-audit: ${err.message}`); return 2; }
+    try {
+      fs.writeFileSync(draft, applyDraft(text, block));
+    } catch (err) {
+      console.error(`proposals-audit: ${err.message}`);
+      return 2;
+    }
     const { onlyInDraft, collisions } = drift(props, draftProps);
     console.log(`proposals-audit: index written to the draft — ${props.length} proposals from ${fromRel}.`);
     onlyInDraft.forEach((d) => console.log(`  only in the draft: ${d.n}. ${d.title}`));
@@ -169,9 +198,19 @@ function main(argv, root = ROOT) {
     const text = fs.readFileSync(path.join(root, rel), 'utf8');
     const errors = check(text);
     const n = parse(text).length;
-    if (errors.length) { failed++; console.log(`✗ ${rel}`); errors.forEach((e) => console.log(`    ${e}`)); } else console.log(n ? `✔ ${rel}  (${n} proposals, each with its state)` : `·  ${rel}  (no numbered proposals — nothing to check)`);
+    if (errors.length) {
+      failed++;
+      console.log(`✗ ${rel}`);
+      errors.forEach((e) => console.log(`    ${e}`));
+    } else
+      console.log(
+        n ? `✔ ${rel}  (${n} proposals, each with its state)` : `·  ${rel}  (no numbered proposals — nothing to check)`
+      );
   }
-  if (argv.includes('--check') && failed) { console.error(`proposals-audit: ${failed} ledger(s) with a proposal whose state is missing or unproven.`); return 1; }
+  if (argv.includes('--check') && failed) {
+    console.error(`proposals-audit: ${failed} ledger(s) with a proposal whose state is missing or unproven.`);
+    return 1;
+  }
   return 0;
 }
 

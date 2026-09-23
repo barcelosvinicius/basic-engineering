@@ -1,0 +1,61 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  // One dev dependency, covering the lint and format phases this base sells in
+  // qa-verification-loop and could not run on itself. Admitted on two measured
+  // incidents, not on a score: a `runHook` redeclared in test/hooks.test.js sent
+  // every dispatcher call to the wrong script for a whole session (noRedeclare),
+  // and the test/helpers.js extraction left dead imports behind the same day
+  // (noUnusedVariables).
+  "files": {
+    "includes": [
+      "**/*.js",
+      "**/*.json",
+      "!node_modules",
+      "!package-lock.json",
+      "!plugins/be/templates",
+      "!feedback",
+      "!.claude"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        // Every hit was `while ((m = RE.exec(text)))`, the standard way to walk
+        // regex captures; the double parens ARE the convention marking the
+        // assignment deliberate. Read as data about the check, not the corpus.
+        "noAssignInExpressions": "off",
+        // Every hit was `arr.forEach((d) => console.log(d))`, where the
+        // expression-bodied arrow "returns" console.log undefined.
+        "useIterableCallbackReturn": "off",
+        // test/doctor.test.js asserts on the literal ${CLAUDE_PLUGIN_ROOT},
+        // which is the subject of the test: no shell expands it.
+        "noTemplateCurlyInString": "off"
+      },
+      "style": {
+        "noParameterAssign": "off",
+        "useTemplate": "off"
+      },
+      "complexity": {
+        // `a && a.b` and `a?.b` are NOT equivalent: they differ when `a` is
+        // falsy but not nullish (0, ''). Rewriting 22 guard conditions in bulk on
+        // that assumption is the silent behaviour change this base exists to stop.
+        "useOptionalChain": "off",
+        "useLiteralKeys": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "es5"
+    }
+  }
+}

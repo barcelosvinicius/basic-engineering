@@ -13,48 +13,18 @@
     {
       "id": "node-typescript",
       "name": "TypeScript / JavaScript (Node)",
-      "indicators": [
-        "tsconfig.json",
-        "package.json"
-      ],
+      "indicators": ["tsconfig.json", "package.json"],
       "commands": {
-        "build": [
-          "npm run build",
-          "npx tsc --noEmit"
-        ],
-        "typecheck": [
-          "npx tsc --noEmit"
-        ],
-        "test": [
-          "npm test",
-          "npx vitest run",
-          "npx jest"
-        ],
-        "lint": [
-          "npm run lint",
-          "npx eslint ."
-        ],
-        "format": [
-          "npx prettier --check ."
-        ]
+        "build": ["npm run build", "npx tsc --noEmit"],
+        "typecheck": ["npx tsc --noEmit"],
+        "test": ["npm test", "npx vitest run", "npx jest"],
+        "lint": ["npm run lint", "npx eslint ."],
+        "format": ["npx prettier --check ."]
       },
-      "skills": [
-        "fe-ux-patterns",
-        "fe-accessibility-patterns",
-        "be-pagination-patterns",
-        "qa-test-data-builders"
-      ],
+      "skills": ["fe-ux-patterns", "fe-accessibility-patterns", "be-pagination-patterns", "qa-test-data-builders"],
       "permissions": {
-        "allow": [
-          "npx tsc",
-          "npx eslint",
-          "npx prettier",
-          "npm test",
-          "npm run *"
-        ],
-        "deny": [
-          "npm publish"
-        ]
+        "allow": ["npx tsc", "npx eslint", "npx prettier", "npm test", "npm run *"],
+        "deny": ["npm publish"]
       },
       "distance": {
         "unit": {
@@ -73,71 +43,29 @@
     {
       "id": "python",
       "name": "Python",
-      "indicators": [
-        "pyproject.toml",
-        "requirements.txt",
-        "setup.py",
-        "setup.cfg"
-      ],
+      "indicators": ["pyproject.toml", "requirements.txt", "setup.py", "setup.cfg"],
       "commands": {
-        "build": [
-          "python -m build"
-        ],
-        "typecheck": [
-          "mypy .",
-          "pyright"
-        ],
-        "test": [
-          "pytest -q",
-          "python -m pytest"
-        ],
-        "lint": [
-          "ruff check .",
-          "flake8"
-        ],
-        "format": [
-          "ruff format --check .",
-          "black --check ."
-        ]
+        "build": ["python -m build"],
+        "typecheck": ["mypy .", "pyright"],
+        "test": ["pytest -q", "python -m pytest"],
+        "lint": ["ruff check .", "flake8"],
+        "format": ["ruff format --check .", "black --check ."]
       },
-      "skills": [
-        "be-api-error-handling",
-        "be-pagination-patterns",
-        "qa-test-data-builders"
-      ],
+      "skills": ["be-api-error-handling", "be-pagination-patterns", "qa-test-data-builders"],
       "permissions": {
-        "allow": [
-          "pytest",
-          "ruff",
-          "mypy",
-          "black"
-        ],
-        "deny": [
-          "twine upload",
-          "python -m twine"
-        ]
+        "allow": ["pytest", "ruff", "mypy", "black"],
+        "deny": ["twine upload", "python -m twine"]
       }
     },
     {
       "id": "java-maven",
       "name": "Java / Kotlin (Maven)",
-      "indicators": [
-        "pom.xml"
-      ],
+      "indicators": ["pom.xml"],
       "commands": {
-        "build": [
-          "mvn -q -DskipTests package"
-        ],
-        "test": [
-          "mvn -q test"
-        ],
-        "lint": [
-          "mvn -q checkstyle:check",
-          "mvn -q spotless:check"
-        ],
-        "format": [
-          "mvn -q spotless:check"
-        ]
+        "build": ["mvn -q -DskipTests package"],
+        "test": ["mvn -q test"],
+        "lint": ["mvn -q checkstyle:check", "mvn -q spotless:check"],
+        "format": ["mvn -q spotless:check"]
       },
       "skills": [
         "be-api-error-handling",
@@ -147,14 +75,8 @@
         "be-pagination-patterns"
       ],
       "permissions": {
-        "allow": [
-          "mvn test",
-          "mvn -q *"
-        ],
-        "deny": [
-          "mvn deploy",
-          "mvn release:*"
-        ]
+        "allow": ["mvn test", "mvn -q *"],
+        "deny": ["mvn deploy", "mvn release:*"]
       },
       "distance": {
         "unit": {
@@ -179,25 +101,12 @@
     {
       "id": "java-gradle",
       "name": "Java / Kotlin (Gradle)",
-      "indicators": [
-        "build.gradle",
-        "build.gradle.kts",
-        "settings.gradle"
-      ],
+      "indicators": ["build.gradle", "build.gradle.kts", "settings.gradle"],
       "commands": {
-        "build": [
-          "./gradlew assemble -q"
-        ],
-        "test": [
-          "./gradlew test -q"
-        ],
-        "lint": [
-          "./gradlew check -q",
-          "./gradlew spotlessCheck"
-        ],
-        "format": [
-          "./gradlew spotlessCheck"
-        ]
+        "build": ["./gradlew assemble -q"],
+        "test": ["./gradlew test -q"],
+        "lint": ["./gradlew check -q", "./gradlew spotlessCheck"],
+        "format": ["./gradlew spotlessCheck"]
       },
       "skills": [
         "be-api-error-handling",
@@ -207,14 +116,8 @@
         "be-pagination-patterns"
       ],
       "permissions": {
-        "allow": [
-          "./gradlew test",
-          "./gradlew check",
-          "./gradlew assemble"
-        ],
-        "deny": [
-          "./gradlew publish"
-        ]
+        "allow": ["./gradlew test", "./gradlew check", "./gradlew assemble"],
+        "deny": ["./gradlew publish"]
       },
       "distance": {
         "unit": {
@@ -239,111 +142,49 @@
     {
       "id": "go",
       "name": "Go",
-      "indicators": [
-        "go.mod"
-      ],
+      "indicators": ["go.mod"],
       "commands": {
-        "build": [
-          "go build ./..."
-        ],
-        "test": [
-          "go test ./... -cover"
-        ],
-        "lint": [
-          "go vet ./...",
-          "golangci-lint run"
-        ],
-        "format": [
-          "gofmt -l ."
-        ]
+        "build": ["go build ./..."],
+        "test": ["go test ./... -cover"],
+        "lint": ["go vet ./...", "golangci-lint run"],
+        "format": ["gofmt -l ."]
       },
-      "skills": [
-        "be-api-error-handling",
-        "be-pagination-patterns",
-        "qa-test-data-builders"
-      ],
+      "skills": ["be-api-error-handling", "be-pagination-patterns", "qa-test-data-builders"],
       "permissions": {
-        "allow": [
-          "go build",
-          "go test",
-          "go vet",
-          "golangci-lint"
-        ],
+        "allow": ["go build", "go test", "go vet", "golangci-lint"],
         "deny": []
       }
     },
     {
       "id": "rust",
       "name": "Rust",
-      "indicators": [
-        "Cargo.toml"
-      ],
+      "indicators": ["Cargo.toml"],
       "commands": {
-        "build": [
-          "cargo build"
-        ],
-        "test": [
-          "cargo test"
-        ],
-        "lint": [
-          "cargo clippy -- -D warnings"
-        ],
-        "format": [
-          "cargo fmt --check"
-        ]
+        "build": ["cargo build"],
+        "test": ["cargo test"],
+        "lint": ["cargo clippy -- -D warnings"],
+        "format": ["cargo fmt --check"]
       },
-      "skills": [
-        "be-api-error-handling",
-        "qa-test-data-builders"
-      ],
+      "skills": ["be-api-error-handling", "qa-test-data-builders"],
       "permissions": {
-        "allow": [
-          "cargo build",
-          "cargo test",
-          "cargo clippy",
-          "cargo fmt"
-        ],
-        "deny": [
-          "cargo publish"
-        ]
+        "allow": ["cargo build", "cargo test", "cargo clippy", "cargo fmt"],
+        "deny": ["cargo publish"]
       }
     },
     {
       "id": "dotnet",
       "name": ".NET (C#)",
-      "indicators": [
-        "*.csproj",
-        "*.sln",
-        "global.json"
-      ],
+      "indicators": ["*.csproj", "*.sln", "global.json"],
       "commands": {
-        "build": [
-          "dotnet build"
-        ],
-        "test": [
-          "dotnet test"
-        ],
-        "lint": [
-          "dotnet format --verify-no-changes"
-        ],
-        "format": [
-          "dotnet format --verify-no-changes"
-        ]
+        "build": ["dotnet build"],
+        "test": ["dotnet test"],
+        "lint": ["dotnet format --verify-no-changes"],
+        "format": ["dotnet format --verify-no-changes"]
       },
-      "skills": [
-        "be-api-error-handling",
-        "be-api-versioning",
-        "be-pagination-patterns"
-      ],
+      "skills": ["be-api-error-handling", "be-api-versioning", "be-pagination-patterns"],
       "permissions": {
-        "allow": [
-          "dotnet build",
-          "dotnet test",
-          "dotnet format"
-        ],
-        "deny": [
-          "dotnet nuget push"
-        ]
+        "allow": ["dotnet build", "dotnet test", "dotnet format"],
+        "deny": ["dotnet nuget push"]
       }
     }
   ]

@@ -13,10 +13,10 @@
  * process, and silence output.
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const { execFileSync, spawnSync } = require('child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 

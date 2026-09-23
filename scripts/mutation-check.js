@@ -35,11 +35,11 @@
  *   node scripts/mutation-check.js --root <dir>     run against another checkout
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const crypto = require('crypto');
-const { spawn, execFileSync } = require('child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { spawn, execFileSync } = require('node:child_process');
 
 const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_lib.js', tests: ['test/hooks.test.js'] },
@@ -69,19 +69,29 @@ function mask(line, state) {
     if (state.block) {
       const end = line.indexOf('*/', i);
       const stop = end < 0 ? line.length : end + 2;
-      out += ' '.repeat(stop - i); i = stop;
+      out += ' '.repeat(stop - i);
+      i = stop;
       if (end >= 0) state.block = false;
       continue;
     }
-    if (c === '/' && line[i + 1] === '/') { out += ' '.repeat(line.length - i); break; }
-    if (c === '/' && line[i + 1] === '*') { state.block = true; continue; }
+    if (c === '/' && line[i + 1] === '/') {
+      out += ' '.repeat(line.length - i);
+      break;
+    }
+    if (c === '/' && line[i + 1] === '*') {
+      state.block = true;
+      continue;
+    }
     const regexStart = c === '/' && (lastCode === '' || /[(,=:[!&|?{};]/.test(lastCode) || /\breturn\s*$/.test(out));
     if (c === '"' || c === "'" || c === '`' || regexStart) {
       const close = regexStart ? '/' : c;
       let j = i + 1;
       let inClass = false;
       while (j < line.length) {
-        if (line[j] === '\\') { j += 2; continue; }
+        if (line[j] === '\\') {
+          j += 2;
+          continue;
+        }
         if (regexStart && line[j] === '[') inClass = true;
         else if (regexStart && line[j] === ']') inClass = false;
         else if (line[j] === close && !inClass) break;
@@ -89,7 +99,8 @@ function mask(line, state) {
       }
       const stop = Math.min(j + 1, line.length);
       out += c + ' '.repeat(Math.max(0, stop - i - 2)) + (stop - i > 1 ? line[stop - 1] : '');
-      i = stop; lastCode = close;
+      i = stop;
+      lastCode = close;
       continue;
     }
     out += c;
@@ -110,9 +121,17 @@ function closeParen(masked, open) {
 }
 
 const SWAPS = [
-  [/===/g, '!=='], [/!==/g, '==='], [/&&/g, '||'], [/\|\|/g, '&&'],
-  [/ >= /g, ' < '], [/ <= /g, ' > '], [/ > /g, ' <= '], [/ < /g, ' >= '],
-  [/\btrue\b/g, 'false'], [/\bfalse\b/g, 'true'], [/(?<![?!=])!(?=[\w(])/g, ''],
+  [/===/g, '!=='],
+  [/!==/g, '==='],
+  [/&&/g, '||'],
+  [/\|\|/g, '&&'],
+  [/ >= /g, ' < '],
+  [/ <= /g, ' > '],
+  [/ > /g, ' <= '],
+  [/ < /g, ' >= '],
+  [/\btrue\b/g, 'false'],
+  [/\bfalse\b/g, 'true'],
+  [/(?<![?!=])!(?=[\w(])/g, ''],
 ];
 
 /** Every single-point mutant of a source text: { line, op, from, to, text }. */
@@ -124,10 +143,17 @@ function mutants(source) {
     const masked = mask(line, state);
     const at = (start, end, to, op) => {
       const mutated = line.slice(0, start) + to + line.slice(end);
-      out.push({ line: n + 1, op, from: line.trim(), to: mutated.trim(), text: [...lines.slice(0, n), mutated, ...lines.slice(n + 1)].join('\n') });
+      out.push({
+        line: n + 1,
+        op,
+        from: line.trim(),
+        to: mutated.trim(),
+        text: [...lines.slice(0, n), mutated, ...lines.slice(n + 1)].join('\n'),
+      });
     };
     for (const [re, to] of SWAPS) {
-      for (const m of masked.matchAll(re)) at(m.index, m.index + m[0].length, to, `${m[0].trim() || '!'} → ${to.trim() || '(removed)'}`);
+      for (const m of masked.matchAll(re))
+        at(m.index, m.index + m[0].length, to, `${m[0].trim() || '!'} → ${to.trim() || '(removed)'}`);
     }
     for (const m of masked.matchAll(/\bif \(/g)) {
       const open = m.index + 3;
@@ -149,32 +175,56 @@ function mutants(source) {
 function sweepLeftovers(dir = os.tmpdir(), maxAgeMs = 2 * 60 * 60 * 1000, now = Date.now()) {
   let removed = 0;
   let entries = [];
-  try { entries = fs.readdirSync(dir).filter((n) => n.startsWith('be-mutation-')); } catch { return 0; }
+  try {
+    entries = fs.readdirSync(dir).filter((n) => n.startsWith('be-mutation-'));
+  } catch {
+    return 0;
+  }
   for (const name of entries) {
     const full = path.join(dir, name);
     try {
       if (now - fs.statSync(full).mtimeMs < maxAgeMs) continue;
       fs.rmSync(full, { recursive: true, force: true });
       removed++;
-    } catch { /* someone else's, or already gone */ }
+    } catch {
+      /* someone else's, or already gone */
+    }
   }
   return removed;
 }
 
 const hashOf = (text) => crypto.createHash('sha1').update(text).digest('hex').slice(0, 12);
-const fmt = (ms) => (ms < 60000 ? `${Math.round(ms / 1000)}s` : `${Math.floor(ms / 60000)}m${String(Math.round((ms % 60000) / 1000)).padStart(2, '0')}s`);
+const fmt = (ms) =>
+  ms < 60000
+    ? `${Math.round(ms / 1000)}s`
+    : `${Math.floor(ms / 60000)}m${String(Math.round((ms % 60000) / 1000)).padStart(2, '0')}s`;
 
 /** Modules whose file or tests changed since a git ref — the lot worth measuring. */
 function changedSince(root, ref, targets = TARGETS) {
   let out = '';
   try {
-    out = execFileSync('git', ['diff', '--name-only', ref], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    out += execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
-      .split(/\r?\n/).map((l) => l.trim().replace(/^\S{1,2}\s+/, '')).join('\n');
+    out = execFileSync('git', ['diff', '--name-only', ref], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    out += execFileSync('git', ['status', '--porcelain'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split(/\r?\n/)
+      .map((l) => l.trim().replace(/^\S{1,2}\s+/, ''))
+      .join('\n');
   } catch {
     return null; // not a repository, or an unknown ref: measure everything
   }
-  const touched = new Set(out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
+  const touched = new Set(
+    out
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+  );
   return targets.filter((t) => touched.has(t.file) || t.tests.some((f) => touched.has(f)));
 }
 
@@ -182,25 +232,42 @@ function changedSince(root, ref, targets = TARGETS) {
 function runTests(cwd, tests, env) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, ['--test', ...tests], { cwd, env, stdio: 'ignore' });
-    const timer = setTimeout(() => { child.kill('SIGKILL'); resolve(false); }, 120000);
-    child.on('exit', (code) => { clearTimeout(timer); resolve(code === 0); });
-    child.on('error', () => { clearTimeout(timer); resolve(false); });
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      resolve(false);
+    }, 120000);
+    child.on('exit', (code) => {
+      clearTimeout(timer);
+      resolve(code === 0);
+    });
+    child.on('error', () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
   });
 }
 
 async function main(argv, log = console.log) {
-  const arg = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
+  const arg = (name) => {
+    const i = argv.indexOf(name);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
   const root = path.resolve(arg('--root') || path.join(__dirname, '..'));
   const only = arg('--only');
   const jobs = Math.max(1, Number(arg('-j') || arg('--jobs') || 4));
   const eqFile = path.join(root, 'scripts', 'mutation-equivalents.json');
   const equivalents = fs.existsSync(eqFile) ? JSON.parse(fs.readFileSync(eqFile, 'utf8')) : [];
-  const isEquivalent = (file, m) => equivalents.find((e) => e.file === file && e.op === m.op && e.from === m.from && e.to === m.to);
+  const isEquivalent = (file, m) =>
+    equivalents.find((e) => e.file === file && e.op === m.op && e.from === m.from && e.to === m.to);
 
   // Stamp mode: record what each equivalent was accepted against, and stop.
   if (argv.includes('--stamp')) {
     for (const e of equivalents) {
-      try { e.fileHash = hashOf(fs.readFileSync(path.join(root, e.file), 'utf8')); } catch { /* a file that moved */ }
+      try {
+        e.fileHash = hashOf(fs.readFileSync(path.join(root, e.file), 'utf8'));
+      } catch {
+        /* a file that moved */
+      }
     }
     fs.writeFileSync(eqFile, JSON.stringify(equivalents, null, 2) + '\n');
     log(`mutation-check: ${equivalents.length} equivalent(s) stamped with the current file hash.`);
@@ -234,7 +301,10 @@ async function main(argv, log = console.log) {
   try {
     for (const t of targets) {
       const source = path.join(root, t.file);
-      if (!fs.existsSync(source) || !t.tests.every((f) => fs.existsSync(path.join(root, f)))) { log(`·  ${t.file}  (not in this checkout — skipped)`); continue; }
+      if (!fs.existsSync(source) || !t.tests.every((f) => fs.existsSync(path.join(root, f)))) {
+        log(`·  ${t.file}  (not in this checkout — skipped)`);
+        continue;
+      }
       const original = fs.readFileSync(source, 'utf8');
       const all = mutants(original);
       const slots = Math.max(1, Math.min(jobs, all.length || 1));
@@ -289,29 +359,42 @@ async function main(argv, log = console.log) {
         const eq = isEquivalent(t.file, m);
         const outdated = Boolean(eq && eq.fileHash && eq.fileHash !== current);
         if (outdated) stale++;
-        log(`    ${eq ? (outdated ? 'RE-CHECK  ' : 'equivalent') : 'SURVIVED  '} L${m.line}  ${m.op}\n        ${m.from}\n      → ${m.to}` +
-          (eq ? `\n        (${eq.reason})` : '') +
-          (outdated ? '\n        (accepted against an older version of this file — confirm it still holds, then --stamp)' : ''));
+        log(
+          `    ${eq ? (outdated ? 'RE-CHECK  ' : 'equivalent') : 'SURVIVED  '} L${m.line}  ${m.op}\n        ${m.from}\n      → ${m.to}` +
+            (eq ? `\n        (${eq.reason})` : '') +
+            (outdated
+              ? '\n        (accepted against an older version of this file — confirm it still holds, then --stamp)'
+              : '')
+        );
       }
     }
   } finally {
     for (const tmp of copies) fs.rmSync(tmp, { recursive: true, force: true });
   }
   if (argv.includes('--check') && failedBaseline) {
-    console.error(`mutation-check: ${failedBaseline} module(s) could not be measured — their tests fail without any mutant.`);
+    console.error(
+      `mutation-check: ${failedBaseline} module(s) could not be measured — their tests fail without any mutant.`
+    );
     return 1;
   }
   if (argv.includes('--check') && stale) {
-    console.error(`mutation-check: ${stale} equivalent(s) were accepted against an older version of their file — re-confirm them, then run --stamp.`);
+    console.error(
+      `mutation-check: ${stale} equivalent(s) were accepted against an older version of their file — re-confirm them, then run --stamp.`
+    );
     return 1;
   }
   if (argv.includes('--check') && unrecorded) {
-    console.error(`mutation-check: ${unrecorded} surviving mutant(s) — a test that would notice them is missing, or record why they cannot change behaviour.`);
+    console.error(
+      `mutation-check: ${unrecorded} surviving mutant(s) — a test that would notice them is missing, or record why they cannot change behaviour.`
+    );
     return 1;
   }
   return 0;
 }
 
-if (require.main === module) main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
+if (require.main === module)
+  main(process.argv.slice(2)).then((code) => {
+    process.exitCode = code;
+  });
 
 module.exports = { mask, mutants, main, changedSince, hashOf, sweepLeftovers, TARGETS };

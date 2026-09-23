@@ -15,9 +15,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { gitRepo, copyRepo, runScript, tmpDir } = require('./helpers.js');
 
 const run = (script, args = [], opts = {}) => runScript(script, { args, ...opts });
@@ -28,7 +27,8 @@ const run = (script, args = [], opts = {}) => runScript(script, { args, ...opts 
 const runIn = (dir, script, args = []) => runScript(script, { args, dir });
 
 const copyOfRepo = () => copyRepo('be-entry-');
-const project = (dirty = {}) => gitRepo({ 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n' }, dirty, 'be-proj-');
+const project = (dirty = {}) =>
+  gitRepo({ 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n' }, dirty, 'be-proj-');
 
 test('the Stop hook reminds only when code changed and the living docs did not', () => {
   const dirty = project({ 'app.js': 'const a = 2;\n' });
@@ -44,7 +44,10 @@ test('the Stop hook reminds only when code changed and the living docs did not',
 
   const off = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: { BE_HOOKS: 'off' } });
   assert.strictEqual(off.stderr, '', 'the global switch turns it off');
-  const perHook = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: { BE_HOOK_SESSION_END_REMINDER: 'off' } });
+  const perHook = run('plugins/be/hooks/scripts/stop.js', [], {
+    cwd: dirty,
+    env: { BE_HOOK_SESSION_END_REMINDER: 'off' },
+  });
   assert.strictEqual(perHook.stderr, '', 'and so does its own');
 });
 
@@ -98,7 +101,11 @@ test('the installer never deletes what it did not write', () => {
   const projectFile = path.join(target, 'IMPORTANT.md');
   fs.writeFileSync(projectFile, 'do not touch\n');
   run('bin/be.js', ['install', target]);
-  assert.strictEqual(fs.readFileSync(mine, 'utf8'), 'notes I wrote\n', 'a file under .be/ that the base did not write survives');
+  assert.strictEqual(
+    fs.readFileSync(mine, 'utf8'),
+    'notes I wrote\n',
+    'a file under .be/ that the base did not write survives'
+  );
   assert.strictEqual(fs.readFileSync(projectFile, 'utf8'), 'do not touch\n');
 });
 

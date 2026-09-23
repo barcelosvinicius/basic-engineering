@@ -24,16 +24,18 @@
  * if state can't be read/written, the operation is allowed (never loop forever).
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const crypto = require('crypto');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
 
 const STATE_DIR = path.join(os.tmpdir(), 'be-gateguard');
 const TIMEOUT_MS = 30 * 60 * 1000;
 
 function mode() {
-  const v = String(process.env.BE_GATEGUARD || '').trim().toLowerCase();
+  const v = String(process.env.BE_GATEGUARD || '')
+    .trim()
+    .toLowerCase();
   if (/^(0|off|false|no)$/.test(v)) return 'off';
   if (/^(1|on|true|yes|all)$/.test(v)) return 'all';
   return 'narrow';
@@ -47,13 +49,34 @@ function enabled() {
 // project, or a repository named `auth-service` would gate every file it holds.
 // Tests, docs and generated files never gate.
 const S = '(^|[\\\\/])'; // start of the path or of a segment
-const NEVER = new RegExp(`(\\.(md|mdx|txt|rst|adoc|lock)$|${S}(tests?|__tests__|__mocks__|fixtures?|spec)[\\\\/]|\\.(test|spec)\\.[a-z]+$|Tests?\\.(java|kt|cs)$|_test\\.(go|py)$|${S}test_[^\\\\/]+\\.py$|${S}(package-lock\\.json|yarn\\.lock|pnpm-lock\\.yaml)$)`, 'i');
+const NEVER = new RegExp(
+  `(\\.(md|mdx|txt|rst|adoc|lock)$|${S}(tests?|__tests__|__mocks__|fixtures?|spec)[\\\\/]|\\.(test|spec)\\.[a-z]+$|Tests?\\.(java|kt|cs)$|_test\\.(go|py)$|${S}test_[^\\\\/]+\\.py$|${S}(package-lock\\.json|yarn\\.lock|pnpm-lock\\.yaml)$)`,
+  'i'
+);
 const CLASSES = [
-  ['schema or migration', new RegExp(`(${S}db[\\\\/]|${S}migrations?[\\\\/]|flyway|liquibase|${S}changelog[^\\\\/]*\\.(xml|ya?ml|sql)$|\\.sql$)`, 'i')],
+  [
+    'schema or migration',
+    new RegExp(
+      `(${S}db[\\\\/]|${S}migrations?[\\\\/]|flyway|liquibase|${S}changelog[^\\\\/]*\\.(xml|ya?ml|sql)$|\\.sql$)`,
+      'i'
+    ),
+  ],
   ['security or auth', new RegExp(`(security|jwt|oauth|permission|${S}auth|[\\\\/_.-]auth)`, 'i')],
   ['API contract', /(openapi|swagger)[^\\/]*\.(ya?ml|json)$|\.(proto|graphql|gql)$/i],
-  ['build or dependency manifest', new RegExp(`${S}(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|package\\.json|requirements[^\\\\/]*\\.txt|pyproject\\.toml|go\\.mod|Cargo\\.toml|[^\\\\/]+\\.csproj)$`, 'i')],
-  ['CI or deploy pipeline', new RegExp(`(${S}\\.github[\\\\/]workflows[\\\\/]|${S}(Jenkinsfile|Dockerfile|docker-compose[^\\\\/]*\\.ya?ml|\\.gitlab-ci\\.yml)$|${S}(helm|k8s|kubernetes|deploy)[\\\\/])`, 'i')],
+  [
+    'build or dependency manifest',
+    new RegExp(
+      `${S}(pom\\.xml|build\\.gradle(\\.kts)?|settings\\.gradle(\\.kts)?|package\\.json|requirements[^\\\\/]*\\.txt|pyproject\\.toml|go\\.mod|Cargo\\.toml|[^\\\\/]+\\.csproj)$`,
+      'i'
+    ),
+  ],
+  [
+    'CI or deploy pipeline',
+    new RegExp(
+      `(${S}\\.github[\\\\/]workflows[\\\\/]|${S}(Jenkinsfile|Dockerfile|docker-compose[^\\\\/]*\\.ya?ml|\\.gitlab-ci\\.yml)$|${S}(helm|k8s|kubernetes|deploy)[\\\\/])`,
+      'i'
+    ),
+  ],
 ];
 // `author` is not `auth` — but `authorize`, `authorization`, `authority` are.
 const NOT_AUTH = /author(?!i[sz]|it)/i;
@@ -133,11 +156,11 @@ function markChecked(data, key) {
 function gateMessage(fileName, action, why) {
   return [
     `fact-forcing gate — before the first ${action} of ${fileName}${why ? ` (${why})` : ''}, state these facts:`,
-    "  1. Which files import/call it (use Grep)",
-    "  2. The public functions/types this change affects",
-    "  3. Any data it reads/writes — field names/shape (redacted or synthetic, never raw prod data)",
+    '  1. Which files import/call it (use Grep)',
+    '  2. The public functions/types this change affects',
+    '  3. Any data it reads/writes — field names/shape (redacted or synthetic, never raw prod data)',
     "  4. The user's current instruction, quoted verbatim",
-    "Then retry the same operation. (BE_GATEGUARD=off to disable this gate.)",
+    'Then retry the same operation. (BE_GATEGUARD=off to disable this gate.)',
   ].join('\n');
 }
 

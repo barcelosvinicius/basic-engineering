@@ -20,7 +20,10 @@ function main() {
   const cwd = data.cwd || process.cwd();
   const files = state.changedFiles(cwd);
   if (!files.length || !state.codeWithoutDocs(files)) return;
-  state.writeCarry(cwd, `the previous session ended with ${files.length} uncommitted file(s) and the living docs untouched (${(data.reason || 'ended')})`);
+  state.writeCarry(
+    cwd,
+    `the previous session ended with ${files.length} uncommitted file(s) and the living docs untouched (${data.reason || 'ended'})`
+  );
   lib.logEvent(data, { kind: 'session-end', files: files.length, reason: data.reason || 'ended' });
 }
 

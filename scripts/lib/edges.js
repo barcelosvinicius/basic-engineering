@@ -19,8 +19,8 @@
  * example is not a declaration. Caught by the validator on its own example.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const HEADING = /^##\s+Activation edges\s*$/im;
 const ROW = /^\|\s*`?(consult|invoke)`?\s*\|\s*`?([a-z0-9-]+)`?\s*\|(.*)\|\s*$/i;
@@ -47,9 +47,7 @@ function parseEdges(raw) {
 
 /** Read every skill in `skillsDir` and return { skills: [], edges: Map }. */
 function collect(skillsDir) {
-  const skills = fs
-    .readdirSync(skillsDir)
-    .filter((d) => fs.existsSync(path.join(skillsDir, d, 'SKILL.md')));
+  const skills = fs.readdirSync(skillsDir).filter((d) => fs.existsSync(path.join(skillsDir, d, 'SKILL.md')));
   const edges = new Map();
   for (const s of skills) {
     edges.set(s, parseEdges(fs.readFileSync(path.join(skillsDir, s, 'SKILL.md'), 'utf8')));
@@ -74,7 +72,10 @@ function findInvokeCycles(edges) {
       if (state.get(t) === 'open') {
         const cycle = stack.slice(stack.indexOf(t)).concat(t);
         const key = [...cycle].slice(0, -1).sort().join('>');
-        if (!seen.has(key)) { seen.add(key); cycles.push(cycle); }
+        if (!seen.has(key)) {
+          seen.add(key);
+          cycles.push(cycle);
+        }
       } else if (state.get(t) !== 'done' && edges.has(t)) {
         walk(t, stack);
       }

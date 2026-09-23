@@ -23,8 +23,8 @@
  *   { kind: 'everyFile', dir, name, re }            every matching file matches `re`
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 /** Read a file as text, or null when it does not exist / cannot be read. */
 function readOrNull(abs) {
@@ -58,8 +58,7 @@ function run(root, check) {
       return fs.existsSync(abs(check.path)) && fs.statSync(abs(check.path)).isFile();
 
     case 'dir':
-      return fs.existsSync(abs(check.dir || check.path)) &&
-        fs.statSync(abs(check.dir || check.path)).isDirectory();
+      return fs.existsSync(abs(check.dir || check.path)) && fs.statSync(abs(check.dir || check.path)).isDirectory();
 
     case 'anyFile':
       return listOrEmpty(abs(check.dir)).some((f) => check.name.test(f));

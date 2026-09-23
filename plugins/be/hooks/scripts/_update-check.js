@@ -25,12 +25,11 @@
  * and the day the versions match the notice disappears on its own.
  */
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
-const REGISTRY_URL =
-  'https://registry.npmjs.org/@barcelosvinicius/basic-engineering/latest';
+const REGISTRY_URL = 'https://registry.npmjs.org/@barcelosvinicius/basic-engineering/latest';
 const TTL_MS = 24 * 60 * 60 * 1000; // one live call per day, per machine
 const TIMEOUT_MS = 2000;
 
@@ -75,7 +74,7 @@ function fetchLatest(url = REGISTRY_URL, timeoutMs = TIMEOUT_MS) {
       }
     };
     try {
-      const https = require('https');
+      const https = require('node:https');
       const req = https.get(
         url,
         { headers: { accept: 'application/vnd.npm.install-v1+json, application/json' } },
@@ -129,8 +128,7 @@ function localCounts(pluginRoot) {
       return null;
     }
   };
-  const skills = count('skills', (d) =>
-    fs.existsSync(path.join(pluginRoot, 'skills', d, 'SKILL.md')));
+  const skills = count('skills', (d) => fs.existsSync(path.join(pluginRoot, 'skills', d, 'SKILL.md')));
   const agents = count('agents', (f) => f.endsWith('.md'));
   const commands = count('commands', (f) => f.endsWith('.md'));
   let hookEvents = [];
@@ -145,7 +143,10 @@ function localCounts(pluginRoot) {
 
 /** Semver compare limited to what versions here look like. Non-numeric -> unequal. */
 function isNewer(latest, installed) {
-  const p = (v) => String(v || '').split('.').map((n) => parseInt(n, 10));
+  const p = (v) =>
+    String(v || '')
+      .split('.')
+      .map((n) => parseInt(n, 10));
   const [a, b] = [p(latest), p(installed)];
   if (a.some(Number.isNaN) || b.some(Number.isNaN)) return latest !== installed;
   for (let i = 0; i < 3; i++) {

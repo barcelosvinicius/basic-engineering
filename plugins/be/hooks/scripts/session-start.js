@@ -19,9 +19,9 @@
  */
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 const state = require('./_state.js');
 
 const MAX_LINES = 40;
@@ -188,7 +188,9 @@ async function main() {
   // so the note cannot linger and become noise.
   const carry = state.readCarry(cwd);
   if (carry && carry.note) {
-    parts.push(`[be] Carried from the last session (${String(carry.at).slice(0, 16).replace('T', ' ')}): ${carry.note}.`);
+    parts.push(
+      `[be] Carried from the last session (${String(carry.at).slice(0, 16).replace('T', ' ')}): ${carry.note}.`
+    );
     state.clearCarry(cwd);
   }
 

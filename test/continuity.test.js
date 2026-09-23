@@ -7,17 +7,20 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { gitRepo, tmpDir, runScript, hookContext } = require('./helpers.js');
 
 const state = require('../plugins/be/hooks/scripts/_state.js');
-const HOOKS = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts');
 
 /** A repository with the two files every continuity rule is about. */
 const repo = (dirty = {}) =>
-  gitRepo({ 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n\n## Current State\n\nnothing yet\n' }, dirty, 'be-continuity-');
+  gitRepo(
+    { 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n\n## Current State\n\nnothing yet\n' },
+    dirty,
+    'be-continuity-'
+  );
 
 // Claude Code runs a hook INSIDE the project, and session-start takes the
 // project from its working directory rather than from the payload — so the test
@@ -68,7 +71,8 @@ test('the carry note is written once, read once, and cleared', () => {
     assert.strictEqual(state.readCarry(cwd), null, 'read once');
     assert.strictEqual(state.readCarry('/other/project'), null, 'a note belongs to its project');
   } finally {
-    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR; else process.env.BE_HOOK_LOG_DIR = saved;
+    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR;
+    else process.env.BE_HOOK_LOG_DIR = saved;
   }
 });
 
@@ -76,15 +80,24 @@ test('SessionEnd leaves a note only when the session ended with code changed and
   const logDir = tmpDir('be-end-');
   const dirty = repo({ 'app.js': 'const a = 2;\n' });
   assert.strictEqual(runHook('session-end.js', { session_id: 'e1', cwd: dirty, reason: 'exit' }, logDir).status, 0);
-  assert.match(fs.readFileSync(path.join(logDir, `carry-${dirty.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`), 'utf8'), /1 uncommitted file\(s\).*exit/);
+  assert.match(
+    fs.readFileSync(path.join(logDir, `carry-${dirty.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`), 'utf8'),
+    /1 uncommitted file\(s\).*exit/
+  );
 
   const documented = repo({ 'app.js': 'const a = 2;\n', 'docs/HISTORY.md': '# History\n\nupdated\n' });
   runHook('session-end.js', { session_id: 'e2', cwd: documented, reason: 'exit' }, logDir);
-  assert.ok(!fs.existsSync(path.join(logDir, `carry-${documented.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`)), 'docs updated: nothing to carry');
+  assert.ok(
+    !fs.existsSync(path.join(logDir, `carry-${documented.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`)),
+    'docs updated: nothing to carry'
+  );
 
   const clean = repo();
   runHook('session-end.js', { session_id: 'e3', cwd: clean, reason: 'exit' }, logDir);
-  assert.ok(!fs.existsSync(path.join(logDir, `carry-${clean.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`)), 'nothing changed: nothing to carry');
+  assert.ok(
+    !fs.existsSync(path.join(logDir, `carry-${clean.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`)),
+    'nothing changed: nothing to carry'
+  );
 
   const off = runHook('session-end.js', { session_id: 'e4', cwd: dirty, reason: 'exit' }, logDir);
   assert.strictEqual(off.status, 0);
@@ -99,8 +112,15 @@ test('PreCompact hands the state back as context and writes it down, without blo
   assert.match(ctx, /context is being compacted/);
   assert.match(ctx, /living docs untouched/);
   assert.match(fs.readFileSync(path.join(logDir, 'state-pc1.md'), 'utf8'), /# Session state/);
-  const log = fs.readFileSync(path.join(logDir, 'pc1.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l));
-  assert.deepStrictEqual({ kind: log[0].kind, trigger: log[0].trigger, saved: log[0].saved }, { kind: 'precompact', trigger: 'auto', saved: true });
+  const log = fs
+    .readFileSync(path.join(logDir, 'pc1.jsonl'), 'utf8')
+    .trim()
+    .split('\n')
+    .map((l) => JSON.parse(l));
+  assert.deepStrictEqual(
+    { kind: log[0].kind, trigger: log[0].trigger, saved: log[0].saved },
+    { kind: 'precompact', trigger: 'auto', saved: true }
+  );
 });
 
 test('SessionStart surfaces the carried note once and clears it', () => {
@@ -128,8 +148,9 @@ test('the card truncates a long list with a count, and a note that cannot be wri
   process.env.BE_HOOK_LOG_DIR = path.join(blocker, 'sub');
   try {
     assert.strictEqual(state.writeCarry('/p', 'nota'), false, 'an unwritable directory is a false, not a throw');
-    assert.strictEqual(state.writeStateCard('/p', 's', 'card'), null);
+    assert.strictEqual(state.writeStateCard('s', 'card'), null);
   } finally {
-    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR; else process.env.BE_HOOK_LOG_DIR = saved;
+    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR;
+    else process.env.BE_HOOK_LOG_DIR = saved;
   }
 });

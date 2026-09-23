@@ -9,7 +9,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const path = require('path');
+const path = require('node:path');
 
 const inv = require('../scripts/lib/inventory.js');
 const PLUGIN = path.join(__dirname, '..', 'plugins', 'be');
@@ -31,8 +31,10 @@ test('KNOWN POSITIVE: a skill outside the declared prefixes is reported', () => 
 
 test('a declared exception passes the prefix rule', () => {
   assert.deepStrictEqual(inv.badPrefixes(['engineering-principles'], inv.SKILL_PREFIXES), []);
-  assert.ok(inv.PREFIX_EXCEPTIONS.includes('engineering-principles'),
-    'the exception must be declared in one place, not tolerated silently');
+  assert.ok(
+    inv.PREFIX_EXCEPTIONS.includes('engineering-principles'),
+    'the exception must be declared in one place, not tolerated silently'
+  );
 });
 
 test('KNOWN POSITIVE: a stale count in a manifest description is reported', () => {
@@ -53,7 +55,7 @@ test('the shipped manifests claim the inventory they actually ship', () => {
   const actual = {
     skills: inv.listSkills(PLUGIN).length,
     agents: inv.listAgents(PLUGIN).length,
-    commands: require('fs')
+    commands: require('node:fs')
       .readdirSync(path.join(PLUGIN, 'commands'))
       .filter((f) => f.endsWith('.md')).length,
   };
@@ -61,7 +63,7 @@ test('the shipped manifests claim the inventory they actually ship', () => {
     path.join(PLUGIN, '.claude-plugin', 'plugin.json'),
     path.join(__dirname, '..', '.claude-plugin', 'marketplace.json'),
   ]) {
-    const json = JSON.parse(require('fs').readFileSync(rel, 'utf8'));
+    const json = JSON.parse(require('node:fs').readFileSync(rel, 'utf8'));
     for (const text of inv.manifestDescriptions(json)) {
       assert.deepStrictEqual(inv.wrongCounts(text, actual), [], `${rel}: ${text}`);
     }
@@ -75,8 +77,13 @@ test('KNOWN POSITIVE: a backticked name that resolves to nothing is reported', (
 });
 
 test('a name inside a code fence is an example, not a reference', () => {
-  const doc = ['Real: `qa-security-reviewer`.', '', '```markdown',
-    '| `invoke` | `your-new-skill` | condition |', '```'].join('\n');
+  const doc = [
+    'Real: `qa-security-reviewer`.',
+    '',
+    '```markdown',
+    '| `invoke` | `your-new-skill` | condition |',
+    '```',
+  ].join('\n');
   assert.deepStrictEqual(inv.danglingRefs(doc, new Set(['qa-security-reviewer'])), []);
 });
 
@@ -87,19 +94,17 @@ test('declared reference exceptions are hypothetical names, not ghosts', () => {
 });
 
 test('KNOWN POSITIVE: a stale count asserted in prose is reported', () => {
-  const bad = inv.wrongCounts('The base ships 28 skills and 15 agents.',
-    { skills: 29, agents: 15, commands: 11 });
+  const bad = inv.wrongCounts('The base ships 28 skills and 15 agents.', { skills: 29, agents: 15, commands: 11 });
   assert.deepStrictEqual(bad, [{ claimed: 28, kind: 'skills', real: 29 }]);
 });
 
 test('the shipped inventory is fully registered and correctly named', () => {
-  const fs = require('fs');
+  const fs = require('node:fs');
   const skills = inv.listSkills(PLUGIN);
   const agents = inv.listAgents(PLUGIN);
   assert.ok(skills.length > 0 && agents.length > 0, 'inventory must not be empty');
 
-  const index = fs.readFileSync(
-    path.join(PLUGIN, 'skills', 'proc-session-continuity', 'resources.md'), 'utf8');
+  const index = fs.readFileSync(path.join(PLUGIN, 'skills', 'proc-session-continuity', 'resources.md'), 'utf8');
   assert.deepStrictEqual(inv.missingFromIndex(index, skills.concat(agents)), []);
   assert.deepStrictEqual(inv.badPrefixes(skills, inv.SKILL_PREFIXES), []);
   assert.deepStrictEqual(inv.badPrefixes(agents, inv.AGENT_PREFIXES), []);
@@ -123,7 +128,9 @@ test('the shipped inventory is fully registered and correctly named', () => {
 test('manifestDescriptions reads only string descriptions, whatever the manifest shape', () => {
   assert.deepStrictEqual(inv.manifestDescriptions(null), []);
   assert.deepStrictEqual(inv.manifestDescriptions({ description: 42 }), []);
-  assert.deepStrictEqual(inv.manifestDescriptions({ plugins: [null, {}, { description: 7 }, { description: 'x' }] }), ['x']);
+  assert.deepStrictEqual(inv.manifestDescriptions({ plugins: [null, {}, { description: 7 }, { description: 'x' }] }), [
+    'x',
+  ]);
 });
 
 // The README table said 28 skills and 15 agents for weeks while the prose and
@@ -133,13 +140,16 @@ test('a count is caught in both shapes: the prose and the table column', () => {
   const actual = { skills: 31, agents: 18, commands: 11 };
   assert.deepStrictEqual(inv.wrongCounts('the base ships 31 skills today', actual), []);
   assert.deepStrictEqual(inv.wrongCounts('| **Skills** | 31 | what it is |', actual), []);
-  assert.deepStrictEqual(
-    inv.wrongCounts('| **Skills** | 28 | what it is |', actual),
-    [{ claimed: 28, kind: 'skills', real: 31 }]
-  );
+  assert.deepStrictEqual(inv.wrongCounts('| **Skills** | 28 | what it is |', actual), [
+    { claimed: 28, kind: 'skills', real: 31 },
+  ]);
   assert.deepStrictEqual(
     inv.wrongCounts('| **Agents** | 15 |', actual).map((b) => `${b.kind}:${b.claimed}!=${b.real}`),
     ['agents:15!=18']
   );
-  assert.deepStrictEqual(inv.wrongCounts('| **Doc templates** | 11 |', actual), [], 'a row this guard knows nothing about');
+  assert.deepStrictEqual(
+    inv.wrongCounts('| **Doc templates** | 11 |', actual),
+    [],
+    'a row this guard knows nothing about'
+  );
 });

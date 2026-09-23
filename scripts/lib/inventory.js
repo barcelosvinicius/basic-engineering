@@ -13,8 +13,8 @@
  * A rule with no check is a suggestion. These are the checks.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const SKILL_PREFIXES = ['proc-', 'be-', 'fe-', 'qa-', 'sec-', 'ops-', 'infra-'];
 const AGENT_PREFIXES = ['dev-', 'mgmt-', 'qa-', 'infra-', 'ops-'];
@@ -29,15 +29,16 @@ const PREFIX_EXCEPTIONS = ['engineering-principles'];
 
 function listSkills(pluginDir) {
   const d = path.join(pluginDir, 'skills');
-  return fs.existsSync(d)
-    ? fs.readdirSync(d).filter((n) => fs.existsSync(path.join(d, n, 'SKILL.md')))
-    : [];
+  return fs.existsSync(d) ? fs.readdirSync(d).filter((n) => fs.existsSync(path.join(d, n, 'SKILL.md'))) : [];
 }
 
 function listAgents(pluginDir) {
   const d = path.join(pluginDir, 'agents');
   return fs.existsSync(d)
-    ? fs.readdirSync(d).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3))
+    ? fs
+        .readdirSync(d)
+        .filter((f) => f.endsWith('.md'))
+        .map((f) => f.slice(0, -3))
     : [];
 }
 
@@ -48,9 +49,7 @@ function missingFromIndex(indexText, names) {
 
 /** Names whose prefix is outside `prefixes` and that are not declared exceptions. */
 function badPrefixes(names, prefixes, exceptions = PREFIX_EXCEPTIONS) {
-  return names.filter(
-    (n) => !exceptions.includes(n) && !prefixes.some((p) => n.startsWith(p))
-  );
+  return names.filter((n) => !exceptions.includes(n) && !prefixes.some((p) => n.startsWith(p)));
 }
 
 /** Strip fenced code blocks — an example name is not a reference. */

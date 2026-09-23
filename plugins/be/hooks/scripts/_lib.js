@@ -15,7 +15,7 @@
  * spawning a process.
  */
 
-const fs = require('fs');
+const fs = require('node:fs');
 
 // ── opt-out ──────────────────────────────────────────────────────────────────
 
@@ -81,11 +81,14 @@ function allow() {
 // content. Fail-open: a log that cannot be written never affects the tool call.
 function logEvent(data, event) {
   try {
-    const os = require('os');
-    const path = require('path');
+    const os = require('node:os');
+    const path = require('node:path');
     const dir = process.env.BE_HOOK_LOG_DIR || path.join(os.tmpdir(), 'be-hook-log');
     fs.mkdirSync(dir, { recursive: true });
-    const session = String((data && data.session_id) || 'no-session').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64) || 'no-session';
+    const session =
+      String((data && data.session_id) || 'no-session')
+        .replace(/[^A-Za-z0-9_-]/g, '')
+        .slice(0, 64) || 'no-session';
     const line = { ts: new Date().toISOString(), session, cwd: (data && data.cwd) || process.cwd(), ...event };
     fs.appendFileSync(path.join(dir, `${session}.jsonl`), JSON.stringify(line) + '\n');
     return true;
@@ -96,7 +99,7 @@ function logEvent(data, event) {
 
 /** A path relative to the project when it lies inside it; otherwise unchanged. */
 function projectRelative(filePath, cwd) {
-  const path = require('path');
+  const path = require('node:path');
   const p = String(filePath || '');
   if (!p || !cwd) return p;
   const rel = path.relative(cwd, p);
@@ -118,7 +121,7 @@ const SECRET_PATTERNS = [
   { name: 'AWS access key id', re: /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/ },
   { name: 'GitHub token', re: /\bgh[pousr]_[A-Za-z0-9]{36,}\b/ },
   { name: 'Slack token', re: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/ },
-  { name: 'Google API key', re: /\bAIza[0-9A-Za-z_\-]{35}\b/ },
+  { name: 'Google API key', re: /\bAIza[0-9A-Za-z_-]{35}\b/ },
   { name: 'Anthropic API key', re: /\bsk-ant-[A-Za-z0-9-]{20,}\b/ },
   { name: 'Stripe secret key', re: /\bsk_(?:live|test)_[A-Za-z0-9]{20,}\b/ },
   {
@@ -147,17 +150,39 @@ function detectSecrets(text) {
 // ── linter/formatter config protection ───────────────────────────────────────
 
 const PROTECTED_CONFIGS = new Set([
-  '.eslintrc', '.eslintrc.js', '.eslintrc.cjs', '.eslintrc.json', '.eslintrc.yml', '.eslintrc.yaml',
-  'eslint.config.js', 'eslint.config.mjs', 'eslint.config.cjs', 'eslint.config.ts',
-  '.prettierrc', '.prettierrc.js', '.prettierrc.cjs', '.prettierrc.json', '.prettierrc.yml', '.prettierrc.yaml',
-  'prettier.config.js', 'prettier.config.cjs', 'prettier.config.mjs',
-  'biome.json', 'biome.jsonc',
-  '.ruff.toml', 'ruff.toml',
-  '.flake8', '.pylintrc',
-  '.stylelintrc', '.stylelintrc.json', '.stylelintrc.yml', '.stylelintrc.yaml',
+  '.eslintrc',
+  '.eslintrc.js',
+  '.eslintrc.cjs',
+  '.eslintrc.json',
+  '.eslintrc.yml',
+  '.eslintrc.yaml',
+  'eslint.config.js',
+  'eslint.config.mjs',
+  'eslint.config.cjs',
+  'eslint.config.ts',
+  '.prettierrc',
+  '.prettierrc.js',
+  '.prettierrc.cjs',
+  '.prettierrc.json',
+  '.prettierrc.yml',
+  '.prettierrc.yaml',
+  'prettier.config.js',
+  'prettier.config.cjs',
+  'prettier.config.mjs',
+  'biome.json',
+  'biome.jsonc',
+  '.ruff.toml',
+  'ruff.toml',
+  '.flake8',
+  '.pylintrc',
+  '.stylelintrc',
+  '.stylelintrc.json',
+  '.stylelintrc.yml',
+  '.stylelintrc.yaml',
   '.editorconfig',
   'sonar-project.properties',
-  'checkstyle.xml', '.checkstyle',
+  'checkstyle.xml',
+  '.checkstyle',
 ]);
 
 function basename(filePath) {
@@ -166,6 +191,32 @@ function basename(filePath) {
 
 function isProtectedConfig(filePath) {
   return PROTECTED_CONFIGS.has(basename(filePath));
+}
+
+/**
+ * True when git already tracks this path — i.e. the file is the project's
+ * settled policy rather than something being authored right now.
+ *
+ * Found by wearing the guardrail, 2026-09-23: adopting a linter means creating
+ * its config and then tuning it several times in the same hour, and the rule
+ * blocked every step after the first. "Do not weaken the rules" is a statement
+ * about a config the project already agreed on; an untracked file is a draft,
+ * and no one has agreed to anything yet. Any failure answers "not tracked" —
+ * outside a repository the rule has nothing to protect.
+ */
+function isTrackedByGit(filePath) {
+  try {
+    const { execFileSync } = require('node:child_process');
+    const dir = String(filePath || '').replace(/[\\/][^\\/]*$/, '') || '.';
+    execFileSync('git', ['ls-files', '--error-unmatch', '--', filePath], {
+      cwd: dir,
+      stdio: ['ignore', 'ignore', 'ignore'],
+      timeout: 5000,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** True when the path already exists on disk (treat any non-ENOENT error as "exists"). */
@@ -211,11 +262,24 @@ function commandSegments(command) {
     if (c === "'" || c === '"') {
       let j = i + 1;
       while (j < s.length && s[j] !== c) j += c === '"' && s[j] === '\\' ? 2 : 1;
-      if (j < s.length) { cur += c + c; i = j; continue; } // paired: blank the content
+      if (j < s.length) {
+        cur += c + c;
+        i = j;
+        continue;
+      } // paired: blank the content
     }
     const two = s.slice(i, i + 2);
-    if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }
-    if (c === ';' || c === '|' || c === '&' || c === '\n') { out.push(cur); cur = ''; continue; }
+    if (two === '&&' || two === '||') {
+      out.push(cur);
+      cur = '';
+      i++;
+      continue;
+    }
+    if (c === ';' || c === '|' || c === '&' || c === '\n') {
+      out.push(cur);
+      cur = '';
+      continue;
+    }
     cur += c;
   }
   out.push(cur);
@@ -262,10 +326,20 @@ function inPlaceTargets(seg) {
   let scriptGiven = false;
   for (let i = 0; i < tokens.length; i++) {
     const t = tokens[i];
-    if (t === '-e' || t === '--expression' || t === '-f') { scriptGiven = true; i++; continue; }
+    if (t === '-e' || t === '--expression' || t === '-f') {
+      scriptGiven = true;
+      i++;
+      continue;
+    }
     if (t.startsWith('-')) continue;
-    if (t === "''" || t === '""') { scriptGiven = true; continue; }
-    if (!scriptGiven) { scriptGiven = true; continue; } // an unquoted script
+    if (t === "''" || t === '""') {
+      scriptGiven = true;
+      continue;
+    }
+    if (!scriptGiven) {
+      scriptGiven = true;
+      continue;
+    } // an unquoted script
     out.push(t);
   }
   return out;
@@ -302,14 +376,16 @@ function removedLines(input) {
   return edits.reduce((n, e) => n + (e ? count(e.old_string) - count(e.new_string) : 0), 0);
 }
 
-const CODE = /\.(java|kt|kts|scala|groovy|js|jsx|mjs|cjs|ts|tsx|vue|svelte|py|go|rs|rb|php|cs|fs|swift|c|cc|cpp|h|hpp|sql)$/i;
+const CODE =
+  /\.(java|kt|kts|scala|groovy|js|jsx|mjs|cjs|ts|tsx|vue|svelte|py|go|rs|rb|php|cs|fs|swift|c|cc|cpp|h|hpp|sql)$/i;
 
 /** Whether a path is source code (the stack reminder is for code, not docs or config). */
 function isCodeFile(filePath) {
   return CODE.test(String(filePath || ''));
 }
 
-const TEST_PATH = /((^|[\\/])(tests?|__tests__|__mocks__|spec|e2e)[\\/]|\.(test|spec)\.[a-z]+$|Tests?\.(java|kt|cs)$|_test\.(go|py)$|(^|[\\/])test_[^\\/]+\.py$)/i;
+const TEST_PATH =
+  /((^|[\\/])(tests?|__tests__|__mocks__|spec|e2e)[\\/]|\.(test|spec)\.[a-z]+$|Tests?\.(java|kt|cs)$|_test\.(go|py)$|(^|[\\/])test_[^\\/]+\.py$)/i;
 
 /** Whether a path is a test (its stack's skills are about the code under test, not the test). */
 function isTestFile(filePath) {
@@ -323,7 +399,7 @@ function isTestFile(filePath) {
  * package.json sat two levels up. A file outside the project gets none.
  */
 function detectStacksFor(fileAbs, projectRoot, mappings) {
-  const path = require('path');
+  const path = require('node:path');
   if (!fileAbs || !projectRoot) return [];
   const rel = path.relative(projectRoot, fileAbs);
   if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return [];
@@ -338,12 +414,18 @@ function detectStacksFor(fileAbs, projectRoot, mappings) {
 
 /** Stacks whose indicator files exist in `cwd`, per config/stack-mappings.json. */
 function detectStacks(cwd, mappings) {
-  const path = require('path');
+  const path = require('node:path');
   if (!cwd || !mappings || !Array.isArray(mappings.stacks)) return [];
   let names = null;
   const has = (ind) => {
     if (!ind.includes('*')) return fs.existsSync(path.join(cwd, ind));
-    if (names === null) { try { names = fs.readdirSync(cwd); } catch { names = []; } }
+    if (names === null) {
+      try {
+        names = fs.readdirSync(cwd);
+      } catch {
+        names = [];
+      }
+    }
     const suffix = ind.replace(/^\*/, '');
     return names.some((n) => n.endsWith(suffix));
   };
@@ -361,6 +443,7 @@ module.exports = {
   projectRelative,
   detectSecrets,
   isProtectedConfig,
+  isTrackedByGit,
   pathExists,
   isNoVerify,
   commandSegments,
