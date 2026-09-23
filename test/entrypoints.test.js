@@ -143,3 +143,28 @@ test('the repo runs the hooks it ships, and validate refuses the two declaration
   assert.strictEqual(red.status, 1);
   assert.match(red.stderr, /would stop running the hooks it ships/);
 });
+
+// The links exist because .claude/settings.json made this repo run its own
+// hooks, and the same change told developers to disable the published plugin --
+// which took the skills, agents and commands away with it.
+test('dev:link points .claude at the working tree, unlinks cleanly, and never deletes a real directory', () => {
+  const copy = copyOfRepo();
+  const link = runIn(copy, 'scripts/dev-link.js');
+  assert.strictEqual(link.status, 0, link.stderr);
+  for (const name of ['skills', 'agents', 'commands']) {
+    const p = path.join(copy, '.claude', name);
+    assert.ok(fs.lstatSync(p).isSymbolicLink(), `.claude/${name} is a link`);
+    assert.strictEqual(fs.realpathSync(p), fs.realpathSync(path.join(copy, 'plugins', 'be', name)));
+  }
+
+  assert.strictEqual(runIn(copy, 'scripts/dev-link.js', ['--remove']).status, 0);
+  assert.ok(!fs.existsSync(path.join(copy, '.claude', 'skills')), 'unlinked');
+
+  // The installer's rule, which this script must follow too.
+  const mine = path.join(copy, '.claude', 'skills');
+  fs.mkdirSync(mine, { recursive: true });
+  fs.writeFileSync(path.join(mine, 'my-own.md'), 'files I wrote\n');
+  const guarded = runIn(copy, 'scripts/dev-link.js');
+  assert.match(guarded.stdout, /real directory, not a link — left untouched/);
+  assert.strictEqual(fs.readFileSync(path.join(mine, 'my-own.md'), 'utf8'), 'files I wrote\n');
+});

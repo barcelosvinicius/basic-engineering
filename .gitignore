@@ -15,3 +15,10 @@ node_modules/
 # the guide's own drift check exists to prevent.
 /BE-GUIDE.md
 /BE-GUIDE.pt.md
+
+# Local links from .claude/ to the working tree (npm run dev:link). A symlink
+# in git is a cross-platform trap; these stay on the machine that made them.
+/.claude/skills
+/.claude/agents
+/.claude/commands
+/.claude/settings.local.json

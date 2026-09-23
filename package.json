@@ -47,7 +47,8 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check:style": "biome check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:link": "node scripts/dev-link.js"
   },
   "engines": {
     "node": ">=18"
