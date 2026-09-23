@@ -353,6 +353,36 @@ function checkActivationEdges() {
   }
 }
 
+/**
+ * This repo wears its own hooks: .claude/settings.json declares the same events
+ * as the shipped plugins/be/hooks/hooks.json, rooted at the working tree instead
+ * of an installed copy. So a hook being edited is the hook that runs.
+ *
+ * Two declarations of the same thing is the drift this base exists to remove, so
+ * it is a check and not a promise. Written 2026-09-23, after the config-protection
+ * rule was fixed here and the fix did not reach this machine: the hook that fired
+ * came from the published 3.1.1 in the plugin cache.
+ */
+function checkSelfHooks() {
+  const local = path.join(ROOT, '.claude', 'settings.json');
+  const shipped = path.join(PLUGIN, 'hooks', 'hooks.json');
+  if (!fs.existsSync(local) || !fs.existsSync(shipped)) return;
+  let a;
+  let b;
+  try {
+    a = JSON.parse(fs.readFileSync(local, 'utf8'));
+    b = JSON.parse(fs.readFileSync(shipped, 'utf8'));
+  } catch (e) {
+    return fail(`.claude/settings.json or hooks.json: invalid JSON (${e.message})`);
+  }
+  const rooted = JSON.parse(JSON.stringify(b).replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, '$CLAUDE_PROJECT_DIR/plugins/be'));
+  if (JSON.stringify(a.hooks) !== JSON.stringify(rooted.hooks)) {
+    fail(
+      '.claude/settings.json no longer matches plugins/be/hooks/hooks.json — this repo would stop running the hooks it ships'
+    );
+  }
+}
+
 checkSkills();
 checkMarkdownDir('plugins/be/agents', ['name', 'description']);
 checkMarkdownDir('plugins/be/commands', ['description']);
@@ -362,6 +392,7 @@ checkGuide();
 checkConfigAndHooks();
 checkActivationEdges();
 checkInventory();
+checkSelfHooks();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);

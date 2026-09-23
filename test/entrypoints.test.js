@@ -123,3 +123,23 @@ test('the release refuses a version that would not move forward, before writing 
   assert.match(refused.stdout + refused.stderr, /lexicographically/, 'and it says why it matters');
   assert.strictEqual(fs.readFileSync(path.join(future, 'package.json'), 'utf8'), before, 'nothing was written');
 });
+
+// This repo wears its own hooks, and two declarations of the same thing drift.
+// Written the day the config-protection fix did not reach this machine: the
+// hook that fired came from the published 3.1.1 in the plugin cache, not from
+// the file being edited.
+test('the repo runs the hooks it ships, and validate refuses the two declarations drifting apart', () => {
+  const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '.claude', 'settings.json'), 'utf8'));
+  const shipped = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'plugins/be/hooks/hooks.json'), 'utf8'));
+  assert.deepStrictEqual(Object.keys(settings.hooks).sort(), Object.keys(shipped.hooks).sort(), 'the same events');
+  assert.match(JSON.stringify(settings.hooks), /\$CLAUDE_PROJECT_DIR\/plugins\/be/, 'rooted at the working tree');
+  assert.doesNotMatch(JSON.stringify(settings.hooks), /CLAUDE_PLUGIN_ROOT/, 'never at an installed copy');
+
+  const copy = copyOfRepo();
+  const drifted = JSON.parse(fs.readFileSync(path.join(copy, '.claude', 'settings.json'), 'utf8'));
+  delete drifted.hooks.PreCompact;
+  fs.writeFileSync(path.join(copy, '.claude', 'settings.json'), JSON.stringify(drifted, null, 2));
+  const red = runIn(copy, 'scripts/validate.js');
+  assert.strictEqual(red.status, 1);
+  assert.match(red.stderr, /would stop running the hooks it ships/);
+});

@@ -41,10 +41,19 @@ Engineering base distributed two ways from one canonical source (`plugins/be/`):
 ## Verification
 
 ```bash
-npm run validate   # frontmatter/manifest/version checks (scripts/validate.js)
-npm test           # installer tests (node --test)
+npm run validate     # frontmatter/manifest/version checks (scripts/validate.js)
+npm test             # installer tests (node --test)
+npm run check:style  # biome: lint + format (phases 2-3 of qa-verification-loop)
+npm run typecheck    # tsc --noEmit over scripts, hooks and lib
 node bin/be.js install <tmpdir> --dry-run   # installer smoke test
 ```
+
+**This repo wears its own hooks.** `.claude/settings.json` declares the same
+events as `plugins/be/hooks/hooks.json`, rooted at `$CLAUDE_PROJECT_DIR` instead
+of an installed copy, so the hook you are editing is the hook that runs — the
+fix you just wrote does not wait for a release to reach you. `validate` fails if
+the two declarations drift. If you also have the **published** `be` plugin
+installed, disable it while working here (`/plugin`), or every hook fires twice.
 
 ## Gotchas
 
