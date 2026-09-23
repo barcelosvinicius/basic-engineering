@@ -7,6 +7,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+> **The git history of this repository was rewritten before this version.**
+> Every commit hash changed, and so did the `v3.0.0`, `v3.1.0` and `v3.1.1`
+> tags. A clone made before this release cannot fast-forward: re-clone it, or
+> reset your local `main` onto the new remote one. Packages published to npm are
+> unaffected — no released artifact changed.
+
 ### Fixed
 
 - **The `--no-verify` guardrail no longer blocks writing about `--no-verify`.**
