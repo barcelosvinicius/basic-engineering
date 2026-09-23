@@ -28,8 +28,26 @@ project adheres to [Semantic Versioning](https://semver.org/).
   patched by hand, with no record. The release now rewrites the panel after the
   bump and commits it with the other release files.
 
+- **The count guard only ever read one phrasing.** It looked for `N skills` in
+  prose, and the README writes the same numbers in a table, where the number
+  sits in its own column: `| **Skills** | 28 |`. The table said 28 skills and
+  15 agents for weeks — while the prose, the manifests and the guard were all
+  green — because nothing measured that shape. It now reads both, and the test
+  feeds it each shape in both directions, including a table row it should have
+  no opinion about.
+
 ### Added
 
+- **`test/helpers.js`** — the throwaway repository, the repo copy, the cleaned
+  environment and the script runner were written again in each test file, with
+  small differences that were themselves defects: one copy of `runHook` was
+  shadowed by a later function of the same name, and every call it made went to
+  the wrong script for a whole session without failing. One definition each,
+  used by all seven files.
+- **The mutation runner sweeps what an interrupted run leaves behind.** 138
+  whole-repository copies (235 MB) were found on this machine, left by runs that
+  were killed before their cleanup. The next run removes them by age, so a copy
+  a concurrent run is still using is never touched.
 - **`scripts/graph-audit.js --write`** rewrites the fact panel in
   `docs/structural-analysis.md` in place. `--md` only ever printed the block for
   a human to paste, which is fine for a hand edit and wrong for the one moment

@@ -140,6 +140,27 @@ function mutants(source) {
   return out;
 }
 
+/**
+ * Throwaway copies this tool left behind. A run that is interrupted never
+ * reaches its cleanup, and each copy is the whole repository: 138 of them were
+ * found on this machine before this existed. Swept on the next run, by age, so
+ * a copy in use is never touched.
+ */
+function sweepLeftovers(dir = os.tmpdir(), maxAgeMs = 2 * 60 * 60 * 1000, now = Date.now()) {
+  let removed = 0;
+  let entries = [];
+  try { entries = fs.readdirSync(dir).filter((n) => n.startsWith('be-mutation-')); } catch { return 0; }
+  for (const name of entries) {
+    const full = path.join(dir, name);
+    try {
+      if (now - fs.statSync(full).mtimeMs < maxAgeMs) continue;
+      fs.rmSync(full, { recursive: true, force: true });
+      removed++;
+    } catch { /* someone else's, or already gone */ }
+  }
+  return removed;
+}
+
 const hashOf = (text) => crypto.createHash('sha1').update(text).digest('hex').slice(0, 12);
 const fmt = (ms) => (ms < 60000 ? `${Math.round(ms / 1000)}s` : `${Math.floor(ms / 60000)}m${String(Math.round((ms % 60000) / 1000)).padStart(2, '0')}s`);
 
@@ -202,6 +223,9 @@ async function main(argv, log = console.log) {
   // test/mutation.test.js; the known-failing case had passed for that wrong reason.
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
+
+  const swept = sweepLeftovers();
+  if (swept) log(`mutation-check: swept ${swept} copy(ies) left by an interrupted run.`);
 
   const copies = [];
   let unrecorded = 0;
@@ -290,4 +314,4 @@ async function main(argv, log = console.log) {
 
 if (require.main === module) main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
 
-module.exports = { mask, mutants, main, changedSince, hashOf, TARGETS };
+module.exports = { mask, mutants, main, changedSince, hashOf, sweepLeftovers, TARGETS };

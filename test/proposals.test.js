@@ -92,32 +92,27 @@ test('draft: the index is inserted once and regenerated in place, never duplicat
 // `--check` promises — had no test at all.
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { fixture } = require('./helpers.js');
 
-function fixtureRoot(files) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-proposals-'));
-  for (const [rel, content] of Object.entries(files)) {
-    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
-    fs.writeFileSync(path.join(dir, rel), content);
-  }
-  return dir;
-}
-
-/** Run main() with its console output swallowed; returns the exit code. */
-function quiet(fn) {
+/** The sync form: audit.main returns a number, not a promise. */
+function quietSync(fn) {
   const { log, error } = console;
   console.log = console.error = () => {};
   try { return fn(); } finally { console.log = log; console.error = error; }
 }
 
+const fixtureRoot = (files) => fixture(files, 'be-proposals-');
+
+
+
 test('main --check exits 1 on a defective ledger, 0 on an honest one, and 0 without --check', () => {
   const bad = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger('## 1. Sem estado\n\ntexto.\n') });
   const good = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger(ok(1, IMPL)) });
-  assert.strictEqual(quiet(() => audit.main(['--check'], bad)), 1);
-  assert.strictEqual(quiet(() => audit.main([], bad)), 0);
-  assert.strictEqual(quiet(() => audit.main(['--check'], good)), 0);
+  assert.strictEqual(quietSync(() => audit.main(['--check'], bad)), 1);
+  assert.strictEqual(quietSync(() => audit.main([], bad)), 0);
+  assert.strictEqual(quietSync(() => audit.main(['--check'], good)), 0);
 });
 
 test('main --draft refuses without --from, and refuses a draft with half a generated block', () => {
@@ -125,8 +120,8 @@ test('main --draft refuses without --from, and refuses a draft with half a gener
   const draft = path.join(root, 'draft.md');
   fs.writeFileSync(draft, `# R\n\n---\n\n${audit.BEGIN}\nlixo sem fim\n\n## 1. Proposta 1\n`);
   const before = fs.readFileSync(draft, 'utf8');
-  assert.strictEqual(quiet(() => audit.main(['--draft', draft], root)), 2);
-  assert.strictEqual(quiet(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 2);
+  assert.strictEqual(quietSync(() => audit.main(['--draft', draft], root)), 2);
+  assert.strictEqual(quietSync(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 2);
   assert.strictEqual(fs.readFileSync(draft, 'utf8'), before, 'a refused draft is left untouched');
   assert.throws(() => audit.applyDraft(`${audit.END}\n${audit.BEGIN}`, 'x'), /one generated-block marker/);
 });
@@ -135,7 +130,7 @@ test('main --draft writes the index into the draft, after its title block', () =
   const root = fixtureRoot({ 'feedback/x/SUGESTOES.md': ledger(ok(1, IMPL), ok(2, 'aberta')) });
   const draft = path.join(root, 'draft.md');
   fs.writeFileSync(draft, '# R\n\ncabeçalho\n\n---\n\n## 1. Proposta 1\n');
-  assert.strictEqual(quiet(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 0);
+  assert.strictEqual(quietSync(() => audit.main(['--draft', draft, '--from', 'feedback/x/SUGESTOES.md'], root)), 0);
   const text = fs.readFileSync(draft, 'utf8');
   assert.ok(text.indexOf(audit.BEGIN) > text.indexOf('---'), 'inserted after the first ---, not at the top');
   assert.match(text, /\*\*2 propostas · 1 implantadas/);

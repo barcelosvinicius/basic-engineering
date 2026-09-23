@@ -87,7 +87,12 @@ function danglingRefs(text, knownNames) {
 }
 
 /** Counts asserted in prose as "N skills" / "N agents" / "N commands". */
+// Two shapes, because the repository writes counts in two places: prose says
+// "31 skills", and the README table puts the number in its own column. The
+// second was invisible to this guard until 2026-09-23, when the table had said
+// 28 skills and 15 agents for weeks while prose and manifests were correct.
 const COUNT_RE = /\b(\d{1,3})\s+(skills|agents|commands)\b/g;
+const TABLE_COUNT_RE = /\|\s*\*\*(Skills|Agents|Commands)\*\*\s*\|\s*(\d{1,3})\s*\|/gi;
 
 function wrongCounts(text, actual) {
   const bad = [];
@@ -98,6 +103,13 @@ function wrongCounts(text, actual) {
     if (real !== undefined && claimed !== real) bad.push({ claimed, kind: m[2], real });
   }
   COUNT_RE.lastIndex = 0;
+  while ((m = TABLE_COUNT_RE.exec(text))) {
+    const claimed = Number(m[2]);
+    const kind = m[1].toLowerCase();
+    const real = actual[kind];
+    if (real !== undefined && claimed !== real) bad.push({ claimed, kind, real });
+  }
+  TABLE_COUNT_RE.lastIndex = 0;
   return bad;
 }
 

@@ -125,3 +125,21 @@ test('manifestDescriptions reads only string descriptions, whatever the manifest
   assert.deepStrictEqual(inv.manifestDescriptions({ description: 42 }), []);
   assert.deepStrictEqual(inv.manifestDescriptions({ plugins: [null, {}, { description: 7 }, { description: 'x' }] }), ['x']);
 });
+
+// The README table said 28 skills and 15 agents for weeks while the prose and
+// the manifests were right: the guard only ever looked for "N skills", and the
+// table writes the number in its own column.
+test('a count is caught in both shapes: the prose and the table column', () => {
+  const actual = { skills: 31, agents: 18, commands: 11 };
+  assert.deepStrictEqual(inv.wrongCounts('the base ships 31 skills today', actual), []);
+  assert.deepStrictEqual(inv.wrongCounts('| **Skills** | 31 | what it is |', actual), []);
+  assert.deepStrictEqual(
+    inv.wrongCounts('| **Skills** | 28 | what it is |', actual),
+    [{ claimed: 28, kind: 'skills', real: 31 }]
+  );
+  assert.deepStrictEqual(
+    inv.wrongCounts('| **Agents** | 15 |', actual).map((b) => `${b.kind}:${b.claimed}!=${b.real}`),
+    ['agents:15!=18']
+  );
+  assert.deepStrictEqual(inv.wrongCounts('| **Doc templates** | 11 |', actual), [], 'a row this guard knows nothing about');
+});

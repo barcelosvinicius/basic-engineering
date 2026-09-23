@@ -14,6 +14,7 @@ const os = require('os');
 const path = require('path');
 
 const mc = require('../scripts/mutation-check.js');
+const { quiet } = require('./helpers.js');
 
 test('mutants are made only in code — never inside a comment, a string or a regex literal', () => {
   const src = [
@@ -41,11 +42,7 @@ function checkout(testBody) {
   return root;
 }
 
-async function quiet(fn) {
-  const { log, error } = console;
-  console.log = console.error = () => {};
-  try { return await fn(); } finally { console.log = log; console.error = error; }
-}
+
 
 test('known case: a suite that runs the line but checks nothing fails --check', async () => {
   const root = checkout("test('returns a string', () => assert.strictEqual(typeof f(1, 2), 'string'));");
@@ -131,4 +128,22 @@ test('--stamp writes the current hash into every equivalent', async () => {
   await mc.main(['--stamp', '--root', root], () => {});
   const stamped = JSON.parse(fs.readFileSync(file, 'utf8'))[0];
   assert.strictEqual(stamped.fileHash, mc.hashOf(fs.readFileSync(path.join(root, 'scripts', 'lib', 'probes.js'), 'utf8')));
+});
+
+// 138 whole-repository copies were found on this machine, left by runs that were
+// interrupted before their cleanup. The next run sweeps them, by age, so a copy
+// another run is using is never touched.
+test('copies left by an interrupted run are swept by age, and fresh ones are left alone', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-sweep-'));
+  const old = path.join(dir, 'be-mutation-old');
+  const fresh = path.join(dir, 'be-mutation-fresh');
+  const foreign = path.join(dir, 'someone-elses-dir');
+  for (const d of [old, fresh, foreign]) fs.mkdirSync(d);
+  const twoHours = 2 * 60 * 60 * 1000;
+  fs.utimesSync(old, new Date(Date.now() - twoHours * 2), new Date(Date.now() - twoHours * 2));
+  assert.strictEqual(mc.sweepLeftovers(dir, twoHours), 1);
+  assert.ok(!fs.existsSync(old), 'the old copy is gone');
+  assert.ok(fs.existsSync(fresh), 'a fresh one may be in use');
+  assert.ok(fs.existsSync(foreign), 'nothing else is touched');
+  assert.strictEqual(mc.sweepLeftovers(path.join(dir, 'does-not-exist')), 0, 'a missing directory is not an error');
 });

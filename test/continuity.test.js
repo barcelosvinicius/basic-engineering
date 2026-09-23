@@ -10,40 +10,22 @@ const assert = require('node:assert');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { execFileSync, spawnSync } = require('child_process');
+const { gitRepo, tmpDir, runScript, hookContext } = require('./helpers.js');
 
 const state = require('../plugins/be/hooks/scripts/_state.js');
 const HOOKS = path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts');
 
-/** A throwaway git repository with one commit and, optionally, dirty files. */
-function repo(dirty = {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-continuity-'));
-  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'ignore' });
-  git('init', '-q', '.');
-  git('config', 'user.email', 'test@example.com');
-  git('config', 'user.name', 'test');
-  fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
-  fs.writeFileSync(path.join(root, 'app.js'), 'const a = 1;\n');
-  fs.writeFileSync(path.join(root, 'docs', 'HISTORY.md'), '# History\n\n## Current State\n\nnothing yet\n');
-  git('add', '-A');
-  git('commit', '-qm', 'base');
-  for (const [rel, content] of Object.entries(dirty)) {
-    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
-    fs.writeFileSync(path.join(root, rel), content);
-  }
-  return root;
-}
+/** A repository with the two files every continuity rule is about. */
+const repo = (dirty = {}) =>
+  gitRepo({ 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n\n## Current State\n\nnothing yet\n' }, dirty, 'be-continuity-');
 
 // Claude Code runs a hook INSIDE the project, and session-start takes the
 // project from its working directory rather than from the payload — so the test
 // spawns it the same way, or it would measure this repository instead.
-function runHook(script, input, logDir) {
-  const env = { ...process.env, BE_HOOK_LOG_DIR: logDir };
-  for (const k of Object.keys(env)) if (/^BE_HOOKS$|^BE_HOOK_(?!LOG_DIR)/.test(k)) delete env[k];
-  return spawnSync(process.execPath, [path.join(HOOKS, script)], { input: JSON.stringify(input), env, cwd: input.cwd, encoding: 'utf8' });
-}
+const runHook = (script, input, logDir) =>
+  runScript(`plugins/be/hooks/scripts/${script}`, { input, cwd: input.cwd, env: { BE_HOOK_LOG_DIR: logDir } });
 
-const context = (r) => { try { return JSON.parse(r.stdout).hookSpecificOutput.additionalContext; } catch { return ''; } };
+const context = hookContext;
 
 test('code changed with the living docs untouched is the fact both hooks act on', () => {
   assert.ok(state.codeWithoutDocs(['app.js']));
@@ -73,7 +55,7 @@ test('the state card carries what a compaction would lose, and says when the doc
 });
 
 test('the carry note is written once, read once, and cleared', () => {
-  const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-carry-'));
+  const logDir = tmpDir('be-carry-');
   const saved = process.env.BE_HOOK_LOG_DIR;
   process.env.BE_HOOK_LOG_DIR = logDir;
   try {
@@ -91,7 +73,7 @@ test('the carry note is written once, read once, and cleared', () => {
 });
 
 test('SessionEnd leaves a note only when the session ended with code changed and docs untouched', () => {
-  const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-end-'));
+  const logDir = tmpDir('be-end-');
   const dirty = repo({ 'app.js': 'const a = 2;\n' });
   assert.strictEqual(runHook('session-end.js', { session_id: 'e1', cwd: dirty, reason: 'exit' }, logDir).status, 0);
   assert.match(fs.readFileSync(path.join(logDir, `carry-${dirty.replace(/[^A-Za-z0-9]+/g, '-').slice(-60)}.json`), 'utf8'), /1 uncommitted file\(s\).*exit/);
@@ -109,7 +91,7 @@ test('SessionEnd leaves a note only when the session ended with code changed and
 });
 
 test('PreCompact hands the state back as context and writes it down, without blocking', () => {
-  const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-pc-'));
+  const logDir = tmpDir('be-pc-');
   const root = repo({ 'app.js': 'const a = 2;\n' });
   const r = runHook('pre-compact.js', { session_id: 'pc1', cwd: root, trigger: 'auto' }, logDir);
   assert.strictEqual(r.status, 0, 'a compaction is never blocked');
@@ -122,7 +104,7 @@ test('PreCompact hands the state back as context and writes it down, without blo
 });
 
 test('SessionStart surfaces the carried note once and clears it', () => {
-  const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-start-'));
+  const logDir = tmpDir('be-start-');
   const root = repo({ 'app.js': 'const a = 2;\n' });
   runHook('session-end.js', { session_id: 'x1', cwd: root, reason: 'exit' }, logDir);
   const first = context(runHook('session-start.js', { session_id: 'x2', cwd: root }, logDir));

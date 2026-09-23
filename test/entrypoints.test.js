@@ -18,62 +18,33 @@ const assert = require('node:assert');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { spawnSync, execFileSync } = require('child_process');
+const { gitRepo, copyRepo, runScript, tmpDir } = require('./helpers.js');
 
-const ROOT = path.join(__dirname, '..');
-const run = (script, args = [], opts = {}) =>
-  spawnSync(process.execPath, [path.join(ROOT, script), ...args], { encoding: "utf8", timeout: 120000, ...opts });
+const run = (script, args = [], opts = {}) => runScript(script, { args, ...opts });
 // A script resolves its paths from ITS OWN location, not from the working
 // directory — so running the repository's copy of it with `cwd` pointing
 // elsewhere measures (and edits) the repository. Measured the hard way: a
 // release dry run bumped this repo's version twice from inside a test.
-const runIn = (dir, script, args = []) =>
-  spawnSync(process.execPath, [path.join(dir, script), ...args], { cwd: dir, encoding: "utf8", timeout: 120000 });
+const runIn = (dir, script, args = []) => runScript(script, { args, dir });
 
-/** A copy of this repository, without .git, to run destructive things against. */
-function copyOfRepo() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-entry-'));
-  fs.cpSync(ROOT, dir, { recursive: true, filter: (src) => !/[\\/](\.git|node_modules)$/.test(src) });
-  return dir;
-}
-
-/** A small git repository with one commit, and whatever dirt is asked for. */
-function project(dirty = {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-proj-'));
-  const git = (...a) => execFileSync('git', a, { cwd: root, stdio: 'ignore' });
-  git('init', '-q', '.');
-  git('config', 'user.email', 'test@example.com');
-  git('config', 'user.name', 'test');
-  fs.mkdirSync(path.join(root, 'docs'));
-  fs.writeFileSync(path.join(root, 'app.js'), 'const a = 1;\n');
-  fs.writeFileSync(path.join(root, 'docs', 'HISTORY.md'), '# History\n');
-  git('add', '-A');
-  git('commit', '-qm', 'base');
-  for (const [rel, content] of Object.entries(dirty)) fs.writeFileSync(path.join(root, rel), content);
-  return root;
-}
-
-const cleanEnv = (extra = {}) => {
-  const env = { ...process.env, ...extra };
-  for (const k of Object.keys(env)) if (/^BE_HOOKS?(_|$)/.test(k) && !(k in extra)) delete env[k];
-  return env;
-};
+const copyOfRepo = () => copyRepo('be-entry-');
+const project = (dirty = {}) => gitRepo({ 'app.js': 'const a = 1;\n', 'docs/HISTORY.md': '# History\n' }, dirty, 'be-proj-');
 
 test('the Stop hook reminds only when code changed and the living docs did not', () => {
   const dirty = project({ 'app.js': 'const a = 2;\n' });
-  const reminder = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: cleanEnv() });
+  const reminder = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty });
   assert.strictEqual(reminder.status, 0, 'a reminder never blocks');
   assert.match(reminder.stderr, /living docs .* were not updated/);
 
   const documented = project({ 'app.js': 'const a = 2;\n', 'docs/HISTORY.md': '# History\n\nupdated\n' });
-  assert.strictEqual(run('plugins/be/hooks/scripts/stop.js', [], { cwd: documented, env: cleanEnv() }).stderr, '');
+  assert.strictEqual(run('plugins/be/hooks/scripts/stop.js', [], { cwd: documented }).stderr, '');
 
   const clean = project();
-  assert.strictEqual(run('plugins/be/hooks/scripts/stop.js', [], { cwd: clean, env: cleanEnv() }).stderr, '');
+  assert.strictEqual(run('plugins/be/hooks/scripts/stop.js', [], { cwd: clean }).stderr, '');
 
-  const off = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: cleanEnv({ BE_HOOKS: 'off' }) });
+  const off = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: { BE_HOOKS: 'off' } });
   assert.strictEqual(off.stderr, '', 'the global switch turns it off');
-  const perHook = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: cleanEnv({ BE_HOOK_SESSION_END_REMINDER: 'off' }) });
+  const perHook = run('plugins/be/hooks/scripts/stop.js', [], { cwd: dirty, env: { BE_HOOK_SESSION_END_REMINDER: 'off' } });
   assert.strictEqual(perHook.stderr, '', 'and so does its own');
 });
 
@@ -104,7 +75,7 @@ test('the installer CLI writes .be/, reports the version, and refuses an unknown
   assert.strictEqual(version.status, 0);
   assert.match(version.stdout, /v\d{8}-\d{6}/, 'it prints BASE_VERSION, the value the installer compares');
 
-  const target = fs.mkdtempSync(path.join(os.tmpdir(), 'be-install-'));
+  const target = tmpDir('be-install-');
   const dry = run('bin/be.js', ['install', target, '--dry-run']);
   assert.strictEqual(dry.status, 0, dry.stderr);
   assert.ok(!fs.existsSync(path.join(target, '.be')), 'a dry run writes nothing');
@@ -120,7 +91,7 @@ test('the installer CLI writes .be/, reports the version, and refuses an unknown
 });
 
 test('the installer never deletes what it did not write', () => {
-  const target = fs.mkdtempSync(path.join(os.tmpdir(), 'be-install2-'));
+  const target = tmpDir('be-install2-');
   run('bin/be.js', ['install', target]);
   const mine = path.join(target, '.be', 'my-notes.md');
   fs.writeFileSync(mine, 'notes I wrote\n');

@@ -9,22 +9,14 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { fixture, runScript } = require('./helpers.js');
 
 const perms = require('../plugins/be/scripts/permissions.js');
 const { loadMappings, detectStacks } = require('../plugins/be/scripts/_stacks.js');
 const mappings = loadMappings(path.join(__dirname, '..', 'plugins', 'be', 'scripts'));
 
-function project(files) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-perms-'));
-  for (const [rel, content] of Object.entries(files)) {
-    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
-    fs.writeFileSync(path.join(root, rel), content);
-  }
-  return root;
-}
+const project = (files) => fixture(files, 'be-perms-');
 const settingsOf = (root) => JSON.parse(fs.readFileSync(path.join(root, '.claude', 'settings.json'), 'utf8'));
 const apply = (root, opts) => perms.apply(root, detectStacks(root, mappings), opts);
 
@@ -103,11 +95,11 @@ test('the plan is computed from the settings it is given, not from disk', () => 
 test('as a CLI it runs, exits 0 and touches nothing on --dry-run', () => {
   const root = project({ 'pom.xml': '<project/>' });
   const script = path.join(__dirname, '..', 'plugins', 'be', 'scripts', 'permissions.js');
-  const r = spawnSync(process.execPath, [script, '--root', root, '--dry-run'], { encoding: 'utf8' });
+  const r = runScript('plugins/be/scripts/permissions.js', { args: ['--root', root, '--dry-run'] });
   assert.strictEqual(r.status, 0, r.stderr);
   assert.match(r.stdout, /dry run/);
   assert.ok(!fs.existsSync(path.join(root, '.claude')));
-  const required = spawnSync(process.execPath, ['-e', `require(${JSON.stringify(script)})`], { encoding: 'utf8' });
+  const required = require('child_process').spawnSync(process.execPath, ['-e', `require(${JSON.stringify(script)})`], { encoding: 'utf8' });
   assert.strictEqual(required.stdout, '', 'requiring the module runs nothing');
 });
 

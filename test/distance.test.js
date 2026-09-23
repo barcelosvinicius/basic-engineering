@@ -11,21 +11,14 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
+const { fixture, runScript } = require('./helpers.js');
 
 const d = require('../plugins/be/scripts/distance.js');
 const mappings = require('../plugins/be/config/stack-mappings.json');
 const JAVA = mappings.stacks.find((s) => s.id === 'java-maven').distance;
 
-function project(files) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-distance-'));
-  for (const [rel, content] of Object.entries(files)) {
-    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
-    fs.writeFileSync(path.join(root, rel), content);
-  }
-  return root;
-}
+const project = (files) => fixture(files, 'be-distance-');
 
 const controller = (name, body) => `package app;\n@RestController\n@RequestMapping("/${name.toLowerCase()}")\npublic class ${name}Controller {\n${body}\n}\n`;
 
