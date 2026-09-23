@@ -63,6 +63,26 @@ project adheres to [Semantic Versioning](https://semver.org/).
   called missing because the docs write the external path; `@GetMapping(produces
   = "…")` would have published `application/json` as an endpoint; and an
   unresolvable class prefix invented the route `/`.
+- **The entry points nothing executed now have tests.** Coverage over the whole
+  repository found five files loaded by no test at all: the hook dispatcher
+  (covered with the gate work), the Stop hook, the validator, the installer CLI
+  and the release script. Their helpers were tested; the wiring between them was
+  not — which is where a guard turns off without a word. Each now runs as a
+  process, the way it really runs: the reminder that must fire and the three
+  cases where it must not, a validator that passes here and fails on a planted
+  defect with the reason, an installer that writes `.be/`, refuses an unknown
+  command and never deletes what it did not write, and the release guard that
+  refuses a version which would not move forward.
+- **The mutation pass answers before it makes you wait.** It times the suite
+  first and prints `N mutants × Xs ÷ jobs ≈ Ym` per module, so the cost is a
+  number before the wait; `--estimate` stops there. It runs mutants in parallel
+  (`-j`, four by default, one throwaway copy per worker): the full pass went from
+  about 22 minutes to about 6. `--since <ref>` measures only the modules whose
+  file or tests changed, which is the lot that matters during a session. And a
+  recorded equivalent now carries the **hash of the file it was accepted**
+  **against** — when the file changes, the pass prints RE-CHECK instead of
+  `equivalent` and `--check` fails, because "this cannot change behaviour" was
+  a statement about a version of the code. `--stamp` records the hashes.
 - **The stack's permissions are applied, not described.** `stack-mappings.json`
   has carried `allow`/`deny` per stack since it was written — `mvn test`
   allowed, `mvn deploy` denied — and **nothing applied them**: the file was read

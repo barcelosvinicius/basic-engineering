@@ -5,30 +5,41 @@
  * were wrong?
  *
  * Why this exists: the bypass guard's suite asserted only what must block, so a
- * detector that blocked everything would have passed it (A-14, 2026-09-20).
- * Coverage said the lines ran. Nothing said the tests would notice them
- * changing. A mutant that survives is a line whose correctness no test checks.
+ * detector that blocked everything *containing the string* passed it (A-14,
+ * 2026-09-20). Coverage said the lines ran. Nothing said the tests would notice
+ * them changing. A mutant that survives is a line whose correctness no test
+ * checks.
  *
- * How: copy the repository (without .git) to a throwaway directory, apply one
+ * How: copy the repository (without .git) to throwaway directories, apply one
  * small change at a time to a target module — flip a comparison, swap && and
  * ||, force a condition true or false — and run that module's tests with
  * `node --test`, no shell. Tests fail -> the mutant is killed. Tests pass -> it
  * survived. The working tree is never touched.
  *
- * A survivor is either killed by a new test or recorded in
- * scripts/mutation-equivalents.json with the reason it cannot change behaviour.
+ * Three properties this tool earned the hard way:
+ *   - it **times itself first**, so the estimate is printed before the wait;
+ *   - it **refuses a red suite**: a failing suite kills every mutant and reports
+ *     a perfect score (measured here: 131 of 131 over a broken test);
+ *   - an **equivalent carries the hash** of the file it was accepted against, so
+ *     a recorded "this cannot change behaviour" cannot outlive the code it was
+ *     about without saying so.
  *
  * Usage:
- *   node scripts/mutation-check.js                 report per module
- *   node scripts/mutation-check.js --check         exit 1 on an unrecorded survivor
- *   node scripts/mutation-check.js --only <file>   one target
- *   node scripts/mutation-check.js --root <dir>    run against another checkout
+ *   node scripts/mutation-check.js                  report per module
+ *   node scripts/mutation-check.js --check          exit 1 on an unrecorded survivor
+ *   node scripts/mutation-check.js --only <file>    one target
+ *   node scripts/mutation-check.js --since <ref>    only modules changed since a git ref
+ *   node scripts/mutation-check.js --estimate       print the cost and stop
+ *   node scripts/mutation-check.js -j <n>           mutants in parallel (default 4)
+ *   node scripts/mutation-check.js --stamp          record the equivalents' file hashes
+ *   node scripts/mutation-check.js --root <dir>     run against another checkout
  */
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const crypto = require('crypto');
+const { spawn, execFileSync } = require('child_process');
 
 const TARGETS = [
   { file: 'plugins/be/hooks/scripts/_lib.js', tests: ['test/hooks.test.js'] },
@@ -129,13 +140,61 @@ function mutants(source) {
   return out;
 }
 
-function main(argv) {
+const hashOf = (text) => crypto.createHash('sha1').update(text).digest('hex').slice(0, 12);
+const fmt = (ms) => (ms < 60000 ? `${Math.round(ms / 1000)}s` : `${Math.floor(ms / 60000)}m${String(Math.round((ms % 60000) / 1000)).padStart(2, '0')}s`);
+
+/** Modules whose file or tests changed since a git ref — the lot worth measuring. */
+function changedSince(root, ref, targets = TARGETS) {
+  let out = '';
+  try {
+    out = execFileSync('git', ['diff', '--name-only', ref], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    out += execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+      .split(/\r?\n/).map((l) => l.trim().replace(/^\S{1,2}\s+/, '')).join('\n');
+  } catch {
+    return null; // not a repository, or an unknown ref: measure everything
+  }
+  const touched = new Set(out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
+  return targets.filter((t) => touched.has(t.file) || t.tests.some((f) => touched.has(f)));
+}
+
+/** Run one suite in `cwd`; resolves true when it passes. Never hangs. */
+function runTests(cwd, tests, env) {
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, ['--test', ...tests], { cwd, env, stdio: 'ignore' });
+    const timer = setTimeout(() => { child.kill('SIGKILL'); resolve(false); }, 120000);
+    child.on('exit', (code) => { clearTimeout(timer); resolve(code === 0); });
+    child.on('error', () => { clearTimeout(timer); resolve(false); });
+  });
+}
+
+async function main(argv, log = console.log) {
   const arg = (name) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
   const root = path.resolve(arg('--root') || path.join(__dirname, '..'));
   const only = arg('--only');
+  const jobs = Math.max(1, Number(arg('-j') || arg('--jobs') || 4));
   const eqFile = path.join(root, 'scripts', 'mutation-equivalents.json');
   const equivalents = fs.existsSync(eqFile) ? JSON.parse(fs.readFileSync(eqFile, 'utf8')) : [];
   const isEquivalent = (file, m) => equivalents.find((e) => e.file === file && e.op === m.op && e.from === m.from && e.to === m.to);
+
+  // Stamp mode: record what each equivalent was accepted against, and stop.
+  if (argv.includes('--stamp')) {
+    for (const e of equivalents) {
+      try { e.fileHash = hashOf(fs.readFileSync(path.join(root, e.file), 'utf8')); } catch { /* a file that moved */ }
+    }
+    fs.writeFileSync(eqFile, JSON.stringify(equivalents, null, 2) + '\n');
+    log(`mutation-check: ${equivalents.length} equivalent(s) stamped with the current file hash.`);
+    return 0;
+  }
+
+  let targets = TARGETS.filter((x) => !only || x.file === only);
+  const since = arg('--since');
+  if (since) {
+    const changed = changedSince(root, since, targets);
+    if (changed) {
+      targets = changed;
+      log(`mutation-check: ${targets.length} module(s) changed since ${since}`);
+    }
+  }
 
   // A test runner marks its children with NODE_TEST_CONTEXT, and a child
   // `node --test` that inherits it reports to the parent and exits 0 even when
@@ -144,52 +203,82 @@ function main(argv) {
   const env = { ...process.env };
   delete env.NODE_TEST_CONTEXT;
 
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'be-mutation-'));
-  fs.cpSync(root, tmp, { recursive: true, filter: (src) => !/[\\/](\.git|node_modules)$/.test(src) });
-
+  const copies = [];
   let unrecorded = 0;
   let failedBaseline = 0;
+  let stale = 0;
   try {
-    for (const t of TARGETS.filter((x) => !only || x.file === only)) {
-      const abs = path.join(tmp, t.file);
-      if (!fs.existsSync(abs) || !t.tests.every((f) => fs.existsSync(path.join(tmp, f)))) { console.log(`·  ${t.file}  (not in this checkout — skipped)`); continue; }
-      const original = fs.readFileSync(abs, 'utf8');
-      // The suite must be green BEFORE any mutant: a failing suite kills every
-      // mutant and reports a perfect score. Measured here — a broken test ran
-      // alongside the pass and printed 131/131.
-      const baseline = spawnSync(process.execPath, ['--test', ...t.tests], { cwd: tmp, env, stdio: 'ignore', timeout: 60000 });
-      if (baseline.status !== 0) {
+    for (const t of targets) {
+      const source = path.join(root, t.file);
+      if (!fs.existsSync(source) || !t.tests.every((f) => fs.existsSync(path.join(root, f)))) { log(`·  ${t.file}  (not in this checkout — skipped)`); continue; }
+      const original = fs.readFileSync(source, 'utf8');
+      const all = mutants(original);
+      const slots = Math.max(1, Math.min(jobs, all.length || 1));
+
+      // One throwaway copy per worker: mutants run in parallel and each needs
+      // its own file to write.
+      while (copies.length < slots) {
+        const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'be-mutation-'));
+        fs.cpSync(root, tmp, { recursive: true, filter: (src) => !/[\\/](\.git|node_modules)$/.test(src) });
+        copies.push(tmp);
+      }
+
+      // The suite must be green BEFORE any mutant, and timing it here is what
+      // makes the estimate honest: this machine, this suite, today.
+      const started = Date.now();
+      const green = await runTests(copies[0], t.tests, env);
+      const per = Date.now() - started;
+      if (!green) {
         failedBaseline++;
-        console.log(`✗ ${t.file}  NOT MEASURED — ${t.tests.join(', ')} already fails without any mutant`);
+        log(`✗ ${t.file}  NOT MEASURED — ${t.tests.join(', ')} already fails without any mutant`);
         continue;
       }
-      const all = mutants(original);
+      log(`·  ${t.file}  ${all.length} mutants × ${fmt(per)} ÷ ${slots} ≈ ${fmt((all.length * per) / slots)}`);
+      if (argv.includes('--estimate')) continue;
+
       const survivors = [];
-      try {
-        for (const m of all) {
-          fs.writeFileSync(abs, m.text);
-          const r = spawnSync(process.execPath, ['--test', ...t.tests], { cwd: tmp, env, stdio: 'ignore', timeout: 60000 });
-          if (r.status === 0) survivors.push(m);
+      let next = 0;
+      const worker = async (slot) => {
+        const dir = copies[slot];
+        const target = path.join(dir, t.file);
+        try {
+          for (;;) {
+            const i = next++;
+            if (i >= all.length) break;
+            fs.writeFileSync(target, all[i].text);
+            if (await runTests(dir, t.tests, env)) survivors.push(all[i]);
+          }
+        } finally {
+          fs.writeFileSync(target, original);
         }
-      } finally {
-        fs.writeFileSync(abs, original);
-      }
+      };
+      await Promise.all(Array.from({ length: slots }, (_, slot) => worker(slot)));
+
       const killed = all.length - survivors.length;
       const pct = all.length ? Math.round((100 * killed) / all.length) : 100;
       const open = survivors.filter((m) => !isEquivalent(t.file, m)).length;
       unrecorded += open;
       const eqNote = survivors.length > open ? `, ${survivors.length - open} equivalent` : '';
-      console.log(`${open ? '✗' : '✔'} ${t.file}  killed ${killed}/${all.length} (${pct}%)${eqNote}`);
-      for (const m of survivors) {
+      log(`${open ? '✗' : '✔'} ${t.file}  killed ${killed}/${all.length} (${pct}%)${eqNote}`);
+      const current = hashOf(original);
+      for (const m of survivors.sort((a, b) => a.line - b.line)) {
         const eq = isEquivalent(t.file, m);
-        console.log(`    ${eq ? 'equivalent' : 'SURVIVED  '} L${m.line}  ${m.op}\n        ${m.from}\n      → ${m.to}${eq ? `\n        (${eq.reason})` : ''}`);
+        const outdated = Boolean(eq && eq.fileHash && eq.fileHash !== current);
+        if (outdated) stale++;
+        log(`    ${eq ? (outdated ? 'RE-CHECK  ' : 'equivalent') : 'SURVIVED  '} L${m.line}  ${m.op}\n        ${m.from}\n      → ${m.to}` +
+          (eq ? `\n        (${eq.reason})` : '') +
+          (outdated ? '\n        (accepted against an older version of this file — confirm it still holds, then --stamp)' : ''));
       }
     }
   } finally {
-    fs.rmSync(tmp, { recursive: true, force: true });
+    for (const tmp of copies) fs.rmSync(tmp, { recursive: true, force: true });
   }
   if (argv.includes('--check') && failedBaseline) {
     console.error(`mutation-check: ${failedBaseline} module(s) could not be measured — their tests fail without any mutant.`);
+    return 1;
+  }
+  if (argv.includes('--check') && stale) {
+    console.error(`mutation-check: ${stale} equivalent(s) were accepted against an older version of their file — re-confirm them, then run --stamp.`);
     return 1;
   }
   if (argv.includes('--check') && unrecorded) {
@@ -199,6 +288,6 @@ function main(argv) {
   return 0;
 }
 
-if (require.main === module) process.exitCode = main(process.argv.slice(2));
+if (require.main === module) main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
 
-module.exports = { mask, mutants, main, TARGETS };
+module.exports = { mask, mutants, main, changedSince, hashOf, TARGETS };

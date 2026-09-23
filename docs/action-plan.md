@@ -567,14 +567,22 @@ no change. The stack detector that was copied in two scripts now lives once,
 in `scripts/_stacks.js`. Mutation: permissions 48/48, detector 17/18 with one
 equivalent.
 
-### 9.3 — The sweep the owner asked for, before the version
+### 9.3 — The sweep the owner asked for, before the version *(in progress)*
 
-Tests for the entry points no test executes — `release.js`, `bin/be.js`,
-`validate.js`, `stop.js` (`pre-tooluse.js` is now covered) — then mutation
-extended past the guard modules. Plus the three debts this session measured:
-extract `test/helpers.js`, run the mutation pass in parallel (22 min → ~6), and
-stamp each recorded equivalent with the hash of the file it was accepted
-against, so a stale equivalent announces itself.
+**Done so far:** the four remaining entry points have tests that run them as
+processes (`test/entrypoints.test.js`), and the mutation pass now estimates
+before it waits, runs in parallel (~22 min → ~6), measures only what changed
+with `--since`, and stamps each equivalent with the hash of the file it was
+accepted against — a stale one prints RE-CHECK and fails `--check`.
+
+**Found while writing those tests, and worth keeping:** a script resolves its
+paths from its own location, so running *this* repository's script with `cwd`
+pointed at a copy measures — and edits — this repository. A release dry run
+bumped this repo's version twice from inside a test before the cause was named.
+
+**Left:** extract `test/helpers.js` (ten ad-hoc fixture helpers across nine test
+files, `quiet()` duplicated verbatim), and extend the mutation targets past the
+guards once the suites are split into fast and process-based.
 
 ---
 
