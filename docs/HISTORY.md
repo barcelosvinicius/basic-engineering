@@ -13,14 +13,14 @@
 
 > ⚡ Last updated: 2026-09-24 (third checkpoint — v3.2.0 cut, nothing pushed)
 
-**Project phase:** **v3.2.0 is committed and measured on `main`, and still not
-pushed.** Phases 8 and 9 are complete, Phase 10 is written and not started, the
-history was rewritten, and the release commit plus everything after it sits
-locally. The remote still carries the old, unrewritten history, and the tags
-`v3.0.0`, `v3.1.0` and `v3.1.1` all changed SHA.
+**Project phase:** **v3.2.0 is published.** npm carries `latest: 3.2.0`, the
+marketplace follows `main`, and the rewritten history is on the remote. Phases 8
+and 9 are complete; Phase 10 is written, sourced and not started.
 
-*Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`,
-OIDC with provenance) and the marketplace.
+*Consequence for anyone who cloned before 2026-09-24:* the history was rewritten
+and `v3.0.0`, `v3.1.0` and `v3.1.1` all changed SHA. A clone made earlier cannot
+fast-forward — re-clone, or reset local `main` onto the remote. npm is
+unaffected; no published artifact changed.
 
 > **Environment note.** Three environments, not two: a Linux machine (sessions up
 > to 2026-08-19; CI runs on `ubuntu-latest`), a Windows workstation with Git
@@ -73,19 +73,18 @@ OIDC with provenance) and the marketplace.
 ### Blockers
 
 - **None for the work.** For the version: the owner's decision to push.
-- **P-09 still unmeasured:** the CI jobs added on 2026-09-20 have never run —
-  nothing has been pushed since.
+- **P-09 closed 2026-09-24** — CI run #21, green on Node 18 and 20, including
+  the lint and type-check steps added this session. `npm ci` there also proved
+  the rewritten lockfile resolves from the public registry.
 - **P-10 stands on both environments** until the development build or the
   release is installed. Measured here: the hook that fired during this session
   came from the published 3.1.1, not from the file being edited.
 
 ### Priority next steps
 
-1. **Push.** `main` force-pushed with the rewritten history, plus the three tags,
-   which all changed SHA. Everyone who cloned must re-clone; npm is unaffected.
-   CI publishes to npm and creates `v3.2.0` from `package.json`.
-2. Read the first CI run (**P-09**), reinstall the plugin here and on Windows
-   (**P-10**), `/be:session-end`.
+1. Reinstall the plugin here and on Windows (**P-10**) — this machine still runs
+   3.1.1 from the cache, which is how the config-protection fix failed to reach
+   it. Then `/be:session-end`.
 3. Delete `scratchpad/backup-antes-da-reescrita.bundle` once the push is
    confirmed good — it still holds the old, unscrubbed history.
 4. **Phase 10**, written and not started: 10.1 turns the ruler inward to
