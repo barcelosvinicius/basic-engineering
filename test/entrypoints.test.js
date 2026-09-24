@@ -168,3 +168,19 @@ test('dev:link points .claude at the working tree, unlinks cleanly, and never de
   assert.match(guarded.stdout, /real directory, not a link — left untouched/);
   assert.strictEqual(fs.readFileSync(path.join(mine, 'my-own.md'), 'utf8'), 'files I wrote\n');
 });
+
+// Found in the pre-flight of the first push of v3.2.0: adopting a linter
+// generated package-lock.json on a machine behind a corporate registry mirror,
+// and 32 `resolved` lines carried that host's name — in a repository that had
+// just scrubbed exactly that class of identifier from the tree and every commit.
+test('validate refuses a lockfile that resolves packages from a private mirror', () => {
+  const copy = copyOfRepo();
+  const lock = path.join(copy, 'package-lock.json');
+  const text = fs.readFileSync(lock, 'utf8');
+  assert.doesNotMatch(text, /"resolved":\s*"https?:\/\/(?!registry\.npmjs\.org)/, 'this repo publishes only public URLs');
+
+  fs.writeFileSync(lock, text.replace('https://registry.npmjs.org/', 'https://nexus.example.internal/repository/npm-all/'));
+  const red = runIn(copy, 'scripts/validate.js');
+  assert.strictEqual(red.status, 1);
+  assert.match(red.stderr, /nexus\.example\.internal.*private mirror must not be published/);
+});

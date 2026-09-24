@@ -354,6 +354,33 @@ function checkActivationEdges() {
 }
 
 /**
+ * A lockfile must not publish where it was built.
+ *
+ * Measured 2026-09-24, in the pre-flight of the first push of v3.2.0: adopting a
+ * linter generated package-lock.json on a machine behind a corporate registry
+ * mirror, and every `resolved` line carried that host's name — 32 of them, in a
+ * repository that had just spent a whole phase removing exactly that class of
+ * identifier from the tree and from every commit. The scrub was a one-off; this
+ * is the guard, so the next `npm install` on any mirrored network cannot put it
+ * back without the build saying so. `integrity` is a hash of the tarball, so
+ * rewriting the host is safe: same bytes, public address.
+ */
+function checkLockfileRegistry() {
+  const file = path.join(ROOT, 'package-lock.json');
+  if (!fs.existsSync(file)) return;
+  const bad = new Set();
+  const re = /"resolved":\s*"https?:\/\/([^/"]+)\//g;
+  let m;
+  const text = fs.readFileSync(file, 'utf8');
+  while ((m = re.exec(text))) {
+    if (!/^(registry\.npmjs\.org|registry\.yarnpkg\.com)$/.test(m[1])) bad.add(m[1]);
+  }
+  for (const host of bad) {
+    fail(`package-lock.json resolves packages from "${host}" — a private mirror must not be published; rewrite the resolved URLs to registry.npmjs.org`);
+  }
+}
+
+/**
  * This repo wears its own hooks: .claude/settings.json declares the same events
  * as the shipped plugins/be/hooks/hooks.json, rooted at the working tree instead
  * of an installed copy. So a hook being edited is the hook that runs.
@@ -393,6 +420,7 @@ checkConfigAndHooks();
 checkActivationEdges();
 checkInventory();
 checkSelfHooks();
+checkLockfileRegistry();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);
