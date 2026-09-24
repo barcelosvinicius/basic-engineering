@@ -5,7 +5,7 @@
     "from": "return raw && raw.trim() ? JSON.parse(raw) : {};",
     "to": "return raw || raw.trim() ? JSON.parse(raw) : {};",
     "reason": "equivalent: for empty or missing input the mutant either yields a falsy value or throws, and the surrounding try/catch returns {} in both cases — the same result as the original",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -13,7 +13,7 @@
     "from": "if (!command) return false;",
     "to": "if (false) return false;",
     "reason": "equivalent: an empty or missing command falls through to the segment loop, which finds no git segment and returns false on its own — the early return is a shortcut, not a behaviour",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "scripts/lib/edges.js",
@@ -21,7 +21,7 @@
     "from": "if (start === -1) return [];",
     "to": "if (false) return [];",
     "reason": "equivalent: without the heading, slice(-1) leaves one character, and a one-character section holds no edge row — the result is [] either way",
-    "fileHash": "be94311b9982"
+    "fileHash": "d01afb7a2624"
   },
   {
     "file": "scripts/lib/edges.js",
@@ -29,7 +29,7 @@
     "from": "} else if (state.get(t) !== 'done' && edges.has(t)) {",
     "to": "} else if (state.get(t) !== 'done' || edges.has(t)) {",
     "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; re-walking a finished node changes the cost, and at most which rotation of a cycle over the same nodes is listed",
-    "fileHash": "be94311b9982"
+    "fileHash": "d01afb7a2624"
   },
   {
     "file": "scripts/lib/edges.js",
@@ -37,7 +37,7 @@
     "from": "} else if (state.get(t) !== 'done' && edges.has(t)) {",
     "to": "} else if (true) {",
     "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; walking finished or unknown nodes again changes the cost, not whether a cycle is found",
-    "fileHash": "be94311b9982"
+    "fileHash": "d01afb7a2624"
   },
   {
     "file": "scripts/lib/edges.js",
@@ -45,7 +45,7 @@
     "from": "for (const n of edges.keys()) if (!state.has(n)) walk(n, []);",
     "to": "for (const n of edges.keys()) if (true) walk(n, []);",
     "reason": "equivalent for the contract validate.js relies on — any invoke cycle fails the build, and a graph has a cycle exactly when the walk meets an open node; restarting the walk from a finished node rediscovers what it already reported",
-    "fileHash": "be94311b9982"
+    "fileHash": "d01afb7a2624"
   },
   {
     "file": "plugins/be/hooks/scripts/pre-tooluse.js",
@@ -53,7 +53,7 @@
     "from": "if (lib.hooksDisabled()) return lib.allow();",
     "to": "if (false) return lib.allow();",
     "reason": "equivalent: every guard below calls hooksDisabled(id), which reads the global switch too — skipping the early exit changes the cost, not the outcome",
-    "fileHash": "78e7f1c1830d"
+    "fileHash": "5a36e0cfc04d"
   },
   {
     "file": "plugins/be/hooks/scripts/pre-tooluse.js",
@@ -61,7 +61,7 @@
     "from": "if (typeof input.content === 'string') texts.push(input.content);",
     "to": "if (true) texts.push(input.content);",
     "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches",
-    "fileHash": "78e7f1c1830d"
+    "fileHash": "5a36e0cfc04d"
   },
   {
     "file": "plugins/be/hooks/scripts/pre-tooluse.js",
@@ -69,7 +69,7 @@
     "from": "if (typeof input.new_string === 'string') texts.push(input.new_string);",
     "to": "if (true) texts.push(input.new_string);",
     "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches",
-    "fileHash": "78e7f1c1830d"
+    "fileHash": "5a36e0cfc04d"
   },
   {
     "file": "plugins/be/hooks/scripts/_gateguard.js",
@@ -77,55 +77,55 @@
     "from": "if (!s.checked.includes(key)) s.checked.push(key);",
     "to": "if (true) s.checked.push(key);",
     "reason": "equivalent: a duplicate entry leaves includes() true either way — the list grows, the answer does not change",
-    "fileHash": "d0dfb26836c7"
+    "fileHash": "6d8df613e5eb"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "|| → &&",
-    "from": "if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }",
-    "to": "if (two === '&&' && two === '||') { out.push(cur); cur = ''; i++; continue; }",
+    "from": "if (two === '&&' || two === '||') {",
+    "to": "if (two === '&&' && two === '||') {",
     "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "condition → false",
-    "from": "if (two === '&&' || two === '||') { out.push(cur); cur = ''; i++; continue; }",
-    "to": "if (false) { out.push(cur); cur = ''; i++; continue; }",
+    "from": "if (two === '&&' || two === '||') {",
+    "to": "if (false) {",
     "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "condition → true",
-    "from": "if (names === null) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
-    "to": "if (true) { try { names = fs.readdirSync(cwd); } catch { names = []; } }",
+    "from": "if (names === null) {",
+    "to": "if (true) {",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "|| → &&",
-    "from": "if (t === '-e' || t === '--expression' || t === '-f') { scriptGiven = true; i++; continue; }",
-    "to": "if (t === '-e' || t === '--expression' && t === '-f') { scriptGiven = true; i++; continue; }",
+    "from": "if (t === '-e' || t === '--expression' || t === '-f') {",
+    "to": "if (t === '-e' || t === '--expression' && t === '-f') {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "|| → &&",
-    "from": "if (t === \"''\" || t === '\"\"') { scriptGiven = true; continue; }",
-    "to": "if (t === \"''\" && t === '\"\"') { scriptGiven = true; continue; }",
+    "from": "if (t === \"''\" || t === '\"\"') {",
+    "to": "if (t === \"''\" && t === '\"\"') {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
     "op": "condition → false",
-    "from": "if (t === \"''\" || t === '\"\"') { scriptGiven = true; continue; }",
-    "to": "if (false) { scriptGiven = true; continue; }",
+    "from": "if (t === \"''\" || t === '\"\"') {",
+    "to": "if (false) {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "7f8564054b2c"
+    "fileHash": "3104ae63d63b"
   },
   {
     "file": "plugins/be/scripts/distance.js",
@@ -133,7 +133,7 @@
     "from": "if (names === null) { try { names = fs.readdirSync(root); } catch { names = []; } }",
     "to": "if (true) { try { names = fs.readdirSync(root); } catch { names = []; } }",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call",
-    "fileHash": "2b0a71fe43b9"
+    "fileHash": "d0b1c4b4f7fe"
   },
   {
     "file": "plugins/be/scripts/distance.js",
@@ -141,14 +141,14 @@
     "from": "if (!args.trim()) return { literal: '' };",
     "to": "if (false) return { literal: '' };",
     "reason": "equivalent: empty arguments produce no token, and the next guard returns the same { literal: '' }",
-    "fileHash": "2b0a71fe43b9"
+    "fileHash": "d0b1c4b4f7fe"
   },
   {
     "file": "plugins/be/scripts/_stacks.js",
     "op": "condition → true",
-    "from": "if (names === null) { try { names = fs.readdirSync(dir); } catch { names = []; } }",
-    "to": "if (true) { try { names = fs.readdirSync(dir); } catch { names = []; } }",
+    "from": "if (names === null) {",
+    "to": "if (true) {",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call",
-    "fileHash": "7ee5d624dd69"
+    "fileHash": "42460351e837"
   }
 ]
