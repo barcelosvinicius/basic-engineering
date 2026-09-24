@@ -11,13 +11,13 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-09-23 (second checkpoint — the session is still open)
+> ⚡ Last updated: 2026-09-24 (third checkpoint — v3.2.0 cut, nothing pushed)
 
-**Project phase:** **work sitting on `main`, unreleased, and the history was
-rewritten.** Phase 8 is complete (ten items), Phase 9 is two thirds done, and
-every identifier of a third-party project was removed from the tree **and from
-every commit**. Nothing is published: the version has not moved, and **nothing
-has been pushed** — the remote still carries the old, unrewritten history.
+**Project phase:** **v3.2.0 is committed and measured on `main`, and still not
+pushed.** Phases 8 and 9 are complete, Phase 10 is written and not started, the
+history was rewritten, and the release commit plus everything after it sits
+locally. The remote still carries the old, unrewritten history, and the tags
+`v3.0.0`, `v3.1.0` and `v3.1.1` all changed SHA.
 
 *Still true for users:* **v3.1.1 is what they have** — npm (`latest: 3.1.1`,
 OIDC with provenance) and the marketplace.
@@ -28,51 +28,69 @@ OIDC with provenance) and the marketplace.
 > have **separate `gh` tokens** — a refresh on one does not reach the other,
 > measured 2026-09-22; the WSL token now carries `workflow`. The interactive CLI
 > does not connect from this WSL (its startup check times out while `curl` and
-> `-p` mode work), so `--remote-control` and any terminal session are blocked
-> here until that is solved.
+> `-p` mode work). **WSL also drops the VS Code connection under load**: three
+> mutation runs died with it on 2026-09-23/24. Long runs go through
+> `setsid nohup`, which survives the session.
 
 ### In progress
 
-- **Phase 9.3** — the sweep. Done: the four remaining entry points have tests
-  that run them as processes; the mutation pass estimates before it waits, runs
-  in parallel (~22 min → ~6), takes `--since`, and stamps each equivalent with
-  the hash of the file it was accepted against. **Left:** extract
-  `test/helpers.js`, and extend the mutation targets once the suites are split
-  into fast and process-based.
+- **Nothing.** The scope agreed for v3.2.0 is closed. What remains is the push,
+  and what only the push can measure.
 
 ### Recently completed (this session)
 
-- **Phase 8, complete:** the proposal ledger with a command behind it (8.0), the
-  method in blocks (8.1), rules that arrive at the gesture (8.2), the narrow
-  gate (8.3), the enforcement ladder (8.4), the measured distance in
-  `/be:check` (8.6), diff-answerable checklists (8.7), `qa-test-strategy`
-  (8.8), mutation applied to ourselves (8.9).
-- **Phase 9.1 and 9.2:** continuity at `PreCompact`/`SessionEnd`, and the
-  stack's permissions written into the project's settings instead of described.
+- **v3.2.0 cut** (`23b743e`), `BASE_VERSION v20260923-193441` — the release ran
+  validate, 163 tests, both audits and a full mutation pass before writing.
+- **The base runs its own verification loop.** `qa-verification-loop` has had
+  type-check and lint as phases 2 and 3 since it was written, and this repo
+  could run neither over 7,183 lines of JavaScript. Biome and `tsc --noEmit`
+  run here and in CI now. Admitted on measured defects, not on a checklist: a
+  `runHook` declared twice (a whole session of wrong measurements), dead imports
+  left by the same day's refactor, and `install()`'s JSDoc omitting the
+  `profile` option that `bin/be.js` passes and the function reads.
+- **The config-protection guardrail learned to tell authoring from weakening.**
+  It blocked this repo's own adoption of a linter. Git decides now: a config it
+  does not track is a draft nobody has agreed to.
+- **This repo wears what it ships.** `.claude/settings.json` runs the hooks from
+  the working tree, `validate` refuses the two declarations drifting apart, and
+  `npm run dev:link` does the same locally for skills, agents and commands. The
+  reason is measured: the guardrail fix above did not reach this machine,
+  because the hook that fired came from the published 3.1.1 in the cache.
+- **Measured from outside:** harness-score 39/108 (36%) → **74/105 (70%)**. The
+  useful part was the split, not the number — 31 of the remaining points are
+  refused on purpose, each refusal written down in `CLAUDE.md`.
+- **Final mutation state, on `e2f0b4d`:** 11 of 11 targets, **682 mutants, 664
+  killed, 18 equivalents, zero survivors.** The 9 equivalents invalidated by the
+  formatter were re-confirmed against the new source, not merely re-stamped.
+- **Phases 8 and 9 closed** — the ledger with a command behind it, the method in
+  blocks, rules at the gesture, the narrow gate, the enforcement ladder, the
+  measured distance in `/be:check`, `qa-test-strategy`, mutation on ourselves,
+  continuity at `PreCompact`/`SessionEnd`, permissions as configuration, and
+  `test/helpers.js`.
 - **Privacy:** no institution, project, class, endpoint, corporate email or staff
-  id remains — in the tree or in any of the 117 commits. Verified by pickaxe over
-  every ref; the 50 commits cited as proof in the docs were repointed.
-- **Measured, and it changed what shipped:** 19 recorded sessions replayed
-  through the new gate (0 interruptions against 165), the distance report built
-  against a real Spring project (which corrected it four times), and the mutation
-  pass over eleven modules.
+  id remains — in the tree or in any commit. Verified by pickaxe over every ref.
 
 ### Blockers
 
-- **None for the work.** For the version: the README, and the owner's decision to
-  push everything at the end.
+- **None for the work.** For the version: the owner's decision to push.
 - **P-09 still unmeasured:** the CI jobs added on 2026-09-20 have never run —
   nothing has been pushed since.
-- **P-10 stands on both environments** until the development build or the release
-  is installed.
+- **P-10 stands on both environments** until the development build or the
+  release is installed. Measured here: the hook that fired during this session
+  came from the published 3.1.1, not from the file being edited.
 
 ### Priority next steps
 
-1. Finish **9.3** (`test/helpers.js`, wider mutation targets).
-2. **README**, then `npm run release`.
-3. **Push** — `main` force-pushed with the rewritten history, plus the three
-   tags, which all changed. Everyone who cloned must re-clone; npm is unaffected.
-4. Read the first CI run (P-09), reinstall here (P-10), `/be:session-end`.
+1. **Push.** `main` force-pushed with the rewritten history, plus the three tags,
+   which all changed SHA. Everyone who cloned must re-clone; npm is unaffected.
+   CI publishes to npm and creates `v3.2.0` from `package.json`.
+2. Read the first CI run (**P-09**), reinstall the plugin here and on Windows
+   (**P-10**), `/be:session-end`.
+3. Delete `scratchpad/backup-antes-da-reescrita.bundle` once the push is
+   confirmed good — it still holds the old, unscrubbed history.
+4. **Phase 10**, written and not started: 10.1 turns the ruler inward to
+   *remove* what is cosmetic; 10.1b makes an interrupted mutation pass unable to
+   look finished; 10.2 is safe mutation selection with a results ledger.
 5. The queue that waits for evidence: `be doctor <projects>`, the PR template
    with a mandatory number, proposal 13.
 

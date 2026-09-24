@@ -641,6 +641,32 @@ phase should find.
 
 **Not started.** Runs after the push, on a repository whose numbers are settled.
 
+### 10.1b — A pass that dies mid-run reports green
+
+**Measured three times on 2026-09-23/24**, when the WSL connection dropped and
+took the run with it. The report left behind looked finished: nine `✔` lines and
+two targets carrying only their `·` start marker. Counting the `✔`s, or reading
+the tail, shows green. Nothing says *how many targets were supposed to run*, and
+a killed process returns no exit code to contradict the impression.
+
+This is the base's own rule failing inside the base's own tool: **zero without a
+denominator is not a result** — and here the denominator is never printed at all.
+The final measurement of v3.2.0 is sound, but the evidence that all 11 targets
+were covered lives in a human reconciling two output files, not in the tool.
+
+**Fix:** the pass ends with an explicit roster — `N of M targets measured` — and
+exits non-zero when any target has no verdict. A run that cannot finish must be
+unable to look finished. Cheap, and it belongs with 10.2, which will make the
+roster carry *measured now* vs *inherited, at this hash, on this date*.
+
+Two smaller things the same incident surfaced: the leftover sweep only removes
+temp copies older than two hours, so an interrupted run leaves 150+ repository
+copies competing for I/O with the next one (measured: the suite went from 17s to
+23s per run); and the three tests added to `entrypoints.test.js` copy the whole
+repository, which every mutant of `_lib.js` then pays for.
+
+**Not started.**
+
 ### 10.2 — Mutation selection that is *safe*, not merely cheap
 
 The release re-measures all 677 mutants even when the commit touched only
