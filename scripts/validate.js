@@ -376,7 +376,9 @@ function checkLockfileRegistry() {
     if (!/^(registry\.npmjs\.org|registry\.yarnpkg\.com)$/.test(m[1])) bad.add(m[1]);
   }
   for (const host of bad) {
-    fail(`package-lock.json resolves packages from "${host}" — a private mirror must not be published; rewrite the resolved URLs to registry.npmjs.org`);
+    fail(
+      `package-lock.json resolves packages from "${host}" — a private mirror must not be published; rewrite the resolved URLs to registry.npmjs.org`
+    );
   }
 }
 

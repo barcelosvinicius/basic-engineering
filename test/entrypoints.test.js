@@ -177,9 +177,16 @@ test('validate refuses a lockfile that resolves packages from a private mirror',
   const copy = copyOfRepo();
   const lock = path.join(copy, 'package-lock.json');
   const text = fs.readFileSync(lock, 'utf8');
-  assert.doesNotMatch(text, /"resolved":\s*"https?:\/\/(?!registry\.npmjs\.org)/, 'this repo publishes only public URLs');
+  assert.doesNotMatch(
+    text,
+    /"resolved":\s*"https?:\/\/(?!registry\.npmjs\.org)/,
+    'this repo publishes only public URLs'
+  );
 
-  fs.writeFileSync(lock, text.replace('https://registry.npmjs.org/', 'https://nexus.example.internal/repository/npm-all/'));
+  fs.writeFileSync(
+    lock,
+    text.replace('https://registry.npmjs.org/', 'https://nexus.example.internal/repository/npm-all/')
+  );
   const red = runIn(copy, 'scripts/validate.js');
   assert.strictEqual(red.status, 1);
   assert.match(red.stderr, /nexus\.example\.internal.*private mirror must not be published/);
