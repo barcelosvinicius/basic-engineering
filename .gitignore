@@ -22,3 +22,7 @@ node_modules/
 /.claude/agents
 /.claude/commands
 /.claude/settings.local.json
+
+# Backup bundles and working notes. The bundles hold history from BEFORE a
+# privacy rewrite, so committing one would republish exactly what was removed.
+/scratchpad/
