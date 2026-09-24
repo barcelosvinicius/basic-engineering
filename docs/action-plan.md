@@ -701,6 +701,90 @@ equivalent was accepted against and prints `RE-CHECK` when it changes.
 
 ---
 
+### 10.3 — Fail-open is a decision per class, not a blanket
+
+`_lib.js` opens with *"Fail-open: any error must let the tool call proceed. A
+guardrail must never break the user's session."* For the advisory hooks that is
+right. For the four that **block** — `--no-verify`, weakening a linter config, a
+secret in written content, and the gateguard's risk classes — it means: *if the
+detector throws, the secret gets written.* The control then depends on the
+detector never failing, which is the shape of a control that is felt rather than
+had.
+
+This is the base's own rule — **"could not measure" is not a pass** — missing
+from the one place it matters most. Two goals were collapsed into one sentence:
+*never break the session* and *never let a secret through*. They are different
+goals, and today one of them always wins without the choice being written down.
+
+**The design:** advisory hooks stay fail-open. The blocking four become
+**fail-closed with a visible reason** — a detector that could not run says so
+and stops, instead of passing in silence. `BE_HOOKS=off` and the per-hook switch
+remain the deliberate way out, because an escape hatch someone chooses is not
+the same as one that fires on a crash.
+
+*Source:* [Aprovar sugestão de agente não é controle de segurança](https://www.tabnews.com.br/Centelha/aprovar-sugestao-de-agente-nao-e-controle-de-seguranca)
+(Centelha, 2026-07-30). Its test — *remove the approval screen from your head and
+look only at what the agent can do* — is the enforcement ladder arriving from the
+other direction. **Not started.**
+
+### 10.4 — The audit trail answers *what*, not *who asked*
+
+`logEvent` records kind, project-relative path and a short label per session, in
+JSONL. That answers "what was blocked". The same article's three-in-the-morning
+test asks more: *who asked, which instruction entered the session, which
+configuration allowed it.* We answer the first half.
+
+**The design:** the event carries the identifier of the turn that produced the
+tool call, so the history reads as *this action, from this request*. It stays
+within the existing rule — never a command, never file content.
+
+**Not started.**
+
+### 10.5 — Mutation asks before it spends
+
+Today the pass runs unannounced inside `npm run release` and consumes 13 to 30
+minutes. `--estimate` exists precisely so the cost is a number before the wait,
+and **nothing calls it** — not the release, not the skill.
+
+**The owner's framing, 2026-09-24:** it must be automatic in the flows where it
+belongs, *and* the person who asked must be consulted before it runs, because
+the time is theirs to spend. **Autonomy allied with the requester's management**
+— not a prompt for permission to do the work, but the cost stated before the
+wait begins, and a way to say "not now" or "only what changed".
+
+**The design:** any flow that would start a full pass first prints the estimate
+per module and the total, then asks — with `--since` (10.2) as the offered
+middle path and a recorded skip as the third. In a non-interactive run
+(CI, `--yes`) it proceeds and says so. The skill's "when" section gains the same
+rule, so it is not only the release that behaves this way.
+
+**Not started.**
+
+### 10.6 — Two things the checklist literature names and we do not
+
+*Source:* [Vibe coding: o que é de verdade e o checklist que uso pra não virar
+dívida técnica](https://www.tabnews.com.br/wildrik/vibe-coding-o-que-e-de-verdade-e-o-checklist-que-uso-pra-nao-virar-divida-tecnica)
+(wildrik, 2026-07-02). Most of it we already hold — read the whole diff, edge
+cases, auth by hand, mutation as the answer to "do these tests prove anything".
+Two items are genuinely absent, and both are cheap:
+
+- **The author of the bug is the author of the test.** `qa-test-strategy`
+  argues for mutation from coverage's weakness (*"did the line run?"*). It never
+  names the sharper reason it matters in AI-assisted work: the same model that
+  wrote the defect writes the test that passes over it, so a green suite is
+  evidence about one author's blind spot, twice. Grepped 2026-09-24: not
+  mentioned anywhere in the skill.
+- **A dependency that does not exist.** Neither
+  `proc-dependency-management` nor `sec-agent-security` mentions hallucinated
+  package names — a model importing a library that was never published, which an
+  attacker can then register. It is a supply-chain vector specific to
+  AI-assisted work and the cheapest possible check: does this name resolve on
+  the registry, and is the package older than the suggestion?
+
+**Not started.**
+
+---
+
 ## Explicitly not in this plan
 
 - **Renaming `engineering-principles`** — breaking change to every installed
