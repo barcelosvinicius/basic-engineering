@@ -64,6 +64,11 @@ Small changes to the code — flip a comparison, swap `&&` and `||`, force a
 condition true or false — then run the tests. A mutant the suite does not kill
 has **survived**: a line whose correctness nothing checks.
 
+**Why it matters more in AI-assisted work:** the model that wrote the defect
+also writes the test that passes over it. A green suite then says one thing
+twice — that one author did not think of this case — and coverage cannot tell
+you that. Mutation is the cheapest question that does not share the blind spot.
+
 - **Where:** modules whose failure is silent or expensive — guards, validation,
   money, authorization, parsers. Not the whole codebase: a report that long
   becomes a list people learn to skip.
@@ -79,14 +84,6 @@ has **survived**: a line whose correctness nothing checks.
   report survivors) and once on a strong one (it must not). A mutation tool can
   report "all survived" for a reason that has nothing to do with the tests.
 
-**Worked example — this base, 2026-09-22.** The first pass over its own guards:
-53 of 199 mutants survived a green suite. 25 were in an audit written that same
-day with tests in both directions — its command-line exit code had no test at
-all. The pass also found a design gap (a half-deleted generated block would have
-been duplicated instead of refused), and its own mirror test caught a defect in
-the tool. And it did **not** find the bug fixed two days earlier, which was a
-missing boundary case — the limit above, measured.
-
 ## Load and performance — criteria that anticipate
 
 - **A number first:** the SLO — p95/p99 latency, error rate, throughput — from
@@ -100,8 +97,27 @@ missing boundary case — the limit above, measured.
 - **Report:** SLO · load profile · measured p95/p99 and error rate · pass or fail
   against the SLO · date · evidence class.
 
+**In an asynchronous flow, latency is not the result.** When the API accepts and
+something else finishes the work — a queue, a worker, a stock check — a 200 is a
+receipt, not an outcome. Concurrency breaks *completeness*, and a load test that
+watches only p95 passes green while records vanish. So the question is not
+"did it respond?" but:
+
+> Did every accepted request reach its final state — **none lost, none
+> duplicated, none stuck** in an intermediate state?
+
+- **Count at the end, not at the door.** Cross the tool's results against the
+  store: each accepted request exists, holds what it should, and sits in the
+  expected final state.
+- **Check the evidence itself.** A reported count can be wrong in a way that
+  reads as success — the same rule as any other ruler here.
+- **One before five hundred.** Get a single request right (route, auth, payload)
+  before raising volume; a failed run at scale hides which layer broke.
+
 *Evidence class of this section: reported — the owner's history that load
-becomes the problem as systems grow. No measured case in this base yet.*
+becomes the problem as systems grow, plus a practitioner's account of an
+incident where an async order flow was validated this way (500 requests, each
+traced to its final state in the database). No measured case in this base yet.*
 
 ## Checklist — per change, answerable from the diff
 
@@ -112,17 +128,6 @@ becomes the problem as systems grow. No measured case in this base yet.*
 - [ ] A change to a hot path names its SLO and carries a load result, or says why not
 - [ ] A change to a critical module ran the mutation pass; survivors killed or recorded
 
-## Common mistakes
-
-| Mistake | Instead |
-|---|---|
-| Chasing a coverage percentage | ask whether a test would notice a wrong line |
-| Mocking the database to test a query | an integration test against a real one |
-| An end-to-end test for every screen | one per critical journey |
-| A load test with no target | the SLO first |
-| Mutation as a gate on every edit | a sweep, at release or on critical modules |
-| "Equivalent" with no reason | write the reason, or kill the mutant |
-
 ## Activation edges
 
 | Type | Target | When |
@@ -132,4 +137,5 @@ becomes the problem as systems grow. No measured case in this base yet.*
 | `consult` | `qa-verification-loop` | to prove a new check fails on a known case |
 
 Tools and commands per stack — mutation, integration, end-to-end, load — are in
-[stack-commands.md](stack-commands.md).
+[stack-commands.md](stack-commands.md). What the claims here rest on, including
+the measured passes over this base's own guards, is in [evidence.md](evidence.md).

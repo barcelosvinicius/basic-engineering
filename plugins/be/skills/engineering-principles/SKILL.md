@@ -36,6 +36,28 @@ decision at hand needs it.
 | §B | Agent behavior | Agents declare a verifiable goal, stay in scope, and delegate outside their role |
 | §C | Context as graph | Load the narrowest layer that answers the question; depth-first by default — see `proc-sdd` |
 | §D | Enforcement ladder | Every rule declares its rung — prose · recall · sweep · gate · unrepresentable. Only a rule a machine decides alone may become a gate; tree-wide debt is watched, never gated |
+| §E | Rulers that measure themselves | A number that improves when the guard weakens is not a quality number. Read it next to what produced it, and record every exclusion with its reason |
+
+### §E — a number that rises when the guard loosens
+
+"How many PRs the agent approved" grows when the automation gets more
+permissive, and it grows fastest when quality is getting worse. The shape
+generalises, and it is the one bias a metric cannot report about itself.
+
+Two of this base's own rulers have it:
+
+- **Mutation score** rises by recording more *equivalents*. The defence is the
+  rule already in `qa-test-strategy` — an equivalent without a written reason is
+  not allowed — plus the hash of the file it was accepted against, so the
+  judgment expires when the code moves.
+- **A harness or maturity score** rises by excluding more checks. The defence is
+  that every exclusion is written down with its reason, and that an excluded
+  check leaves **both sides** of the fraction — never silently hidden.
+
+So, before trusting any score: *would this number go up if I did less?* If yes,
+it must be read beside its denominator and its exclusions, never alone. The
+companion rule is already here — **zero without a denominator is not a result**
+(`qa-verification-loop`); §E is its mirror, for numbers that move the other way.
 
 ## How to use the hierarchy
 

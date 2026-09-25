@@ -7,6 +7,61 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`engineering-principles` §E — rulers that measure themselves.** A number
+  that improves when the guard weakens is not a quality number. "How many PRs
+  the agent approved" rises fastest when the automation gets more permissive,
+  and the shape generalises to two of this base's own rulers: a mutation score
+  rises by recording more equivalents, and a maturity score rises by excluding
+  more checks. The defences were already in place — an equivalent needs a
+  written reason and the hash of the file it was accepted against; an exclusion
+  needs its reason and leaves **both** sides of the fraction — but nothing said
+  they were the obligatory defence. The test is one question: *would this number
+  go up if I did less?* It is the mirror of "zero without a denominator is not a
+  result".
+- **`qa-test-strategy`: completeness under concurrency.** The load section was
+  entirely about capacity — p95/p99, error rate, throughput — and a load test
+  that watches only latency passes green while records vanish. In an
+  asynchronous flow an HTTP 200 is a receipt, not an outcome, so the question
+  becomes whether every accepted request reached its final state with none
+  lost, duplicated or stuck. Count at the end rather than at the door, cross the
+  tool's results against the store, and raise volume only after one request is
+  correct.
+- **`qa-test-strategy`: why mutation matters more in AI-assisted work.** The
+  skill argued for mutation from coverage's weakness. The sharper reason was
+  missing: the model that wrote the defect also writes the test that passes over
+  it, so a green suite says one thing twice — that one author did not think of
+  this case.
+- **`proc-dependency-management`: the package must exist, and predate the
+  suggestion.** A name proposed by a model rather than read from a doc is
+  checked on the registry first — a model that invents a plausible package name
+  invents the same one repeatedly, and anyone can register it. One lookup, and
+  it precedes every other criterion: a package that does not exist has no health
+  to assess.
+- **`sec-agent-security`: restrict outbound network, and the interface/policy
+  distinction.** A process that cannot dial out cannot be driven from outside or
+  used to ship data away — the layer that turns "the attacker ran code" into
+  "the attacker ran code and got nothing back". And on approvals: an approval
+  screen is interface, the permission is the policy. If the agent can already
+  act without asking, the button is a convenience on one path. The test is to
+  remove the approval step from your mental model and look only at what the
+  agent *can* do.
+- **`proc-release-checklist`** gains the egress question, and says plainly why
+  the upload check is about magic bytes: the extension, the `Content-Type`
+  header and a blacklist are all attacker-supplied.
+
+### Changed
+
+- **`qa-test-strategy` moved its evidence and its redundancy out of the skill.**
+  A `SKILL.md` loads in full on every activation, and the additions above pushed
+  it over the ~150-line budget this repo measures. Rather than trim by eye, the
+  three-outcome test was applied: the worked mutation passes are what you *look
+  up* to check a claim, not what you need to *decide* which tests a change
+  requires, so they moved to a sibling `evidence.md`; and the "common mistakes"
+  table restated six rules the procedure already states, so it left as
+  duplication with a traceability map kept beside the evidence. 142 lines.
+
 ## [3.2.0] — 2026-09-23
 
 > **The git history of this repository was rewritten before this version.**

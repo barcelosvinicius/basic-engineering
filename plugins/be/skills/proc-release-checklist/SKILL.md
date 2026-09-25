@@ -45,7 +45,11 @@ sections below is enough.
 - [ ] **HTTP headers**: CSP, HSTS, X-Frame-Options, X-Content-Type-Options configured
 - [ ] **CORS**: explicit origins configured (no wildcard `*` on credentialed APIs)
 - [ ] **Rate limiting**: authentication endpoints and public endpoints protected
-- [ ] **File upload**: magic-bytes validation active before processing
+- [ ] **File upload**: magic-bytes validation active before processing — the
+      extension, the `Content-Type` header and a blacklist are all attacker-supplied
+- [ ] **Outbound network**: egress restricted to a named allowlist, not the whole
+      internet — it is what stops code execution from becoming a session
+      (`sec-agent-security`). If the answer lives outside this repo, name who owns it
 - [ ] **SQL**: confirmation of parameterized queries (no input concatenation)
 - [ ] **Dependency audit**: no open critical or high CVEs (`npm audit`, `mvn dependency-check`)
 - [ ] **Minimum pentest**: IDOR tested, brute force tested, post-logout token tested

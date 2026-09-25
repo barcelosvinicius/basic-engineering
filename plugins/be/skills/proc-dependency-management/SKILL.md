@@ -17,6 +17,12 @@ Reference: `engineering-principles.md` §2.8 (Supply Chain), §8 (Simplicity).
 
 A new dependency must pay rent. Before adding, check:
 
+- [ ] **It exists, and it existed before the suggestion.** When a name was
+      proposed by a model rather than read from a doc, check it on the registry
+      first: does it resolve, and is it older than the conversation? A model
+      that invents a plausible package name invents the same one repeatedly,
+      and anyone can register it. This check costs one lookup and precedes all
+      the others — a package that does not exist has no health to assess.
 - [ ] **Need:** would < ~50 lines of own code do? Then write the code.
 - [ ] **Health:** maintained (commits/releases in the last year), responsive
       to security reports, more than one maintainer.

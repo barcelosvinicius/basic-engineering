@@ -37,7 +37,11 @@ potential command. Design for that.
    never point write tools at production.
 4. **Approval boundaries:** require explicit human confirmation for irreversible
    or outward-facing actions — deletes, force-push, prod writes, sending data
-   to third parties, money movement.
+   to third parties, money movement. **An approval screen is interface; the
+   permission is the policy.** If the agent can already perform the action
+   without asking, the button is a convenience on one path, not a boundary.
+   Test it by removing the approval step from your mental model and looking
+   only at what the agent *can* do (`engineering-principles` §D).
 5. **Secrets:** never echo, log, or hardcode secrets; redact before output;
    keep them in env/secret managers (`sec-secrets-management`). The be hook
    blocks hardcoded secrets in writes/commands.
@@ -46,6 +50,14 @@ potential command. Design for that.
    blocking automation reversible and documented.
 7. **Pin and review tools:** pin MCP/dependency versions; review what each MCP
    server sends off-machine (`mcp.recommended.json` data-boundary notes).
+8. **Restrict outbound network (egress):** a process that cannot dial out
+   cannot be driven from outside or used to ship data away. Code execution
+   becomes a dead end when the only reachable destinations are a named
+   allowlist — the database, the one API it integrates with, the registry at
+   build time. An agent sandbox and an application server are alike here: both
+   almost never need to reach an arbitrary host on an arbitrary port, and both
+   are usually configured as if they did. This is the layer that turns "the
+   attacker ran code" into "the attacker ran code and got nothing back".
 
 ## Minimum-bar checklist
 
