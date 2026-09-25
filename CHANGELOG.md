@@ -9,6 +9,52 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **A mutation pass can no longer look finished when it is not.** Three runs died
+  with a dropped connection on 2026-09-23/24, and each left a report that read as
+  green: tick lines for what completed, a bare start marker for what did not, and
+  nothing saying how many targets were supposed to run. Every target now starts
+  with no verdict, the run ends with `N of M in scope accounted for — X measured
+  now, Y inherited, Z without a verdict`, and `--check` fails when anything is
+  left without one. The four states are exhaustive, so the line always adds up —
+  that is what makes it a denominator rather than a tally.
+- **Mutation selection follows the closure, not the file.** Selecting by "did
+  this file change" under-measures, and this repository shows the shape:
+  `pre-tooluse.js` requires `_gateguard.js` and `_lib.js`, so a change to
+  `_lib.js` can turn a killed mutant of `pre-tooluse.js` into a survivor while
+  `pre-tooluse.js` itself is untouched. The retest set is now the transitive
+  closure, and a local ledger records the target hash, its tests' hashes and the
+  closure hash so `--incremental` inherits a result only while all three still
+  hold — printed with the date and commit it was measured at, never silently.
+- **Mutation states its cost before the wait.** A full pass is 13 to 30 minutes
+  and used to start unannounced inside `npm run release`. The estimate is instant
+  because the ledger records what each module cost last time; a module never
+  measured is reported as unknown rather than guessed. At a terminal you answer
+  yes, no, or incremental; without one it proceeds and says why, because a prompt
+  nobody can answer is a hang, not a safeguard.
+- **Hook events carry the request that produced them.** The log answered *what
+  was blocked* and not *what asked for it*, so a line read weeks later could not
+  be traced to an instruction. Every event now carries the `promptId`, turn id
+  and timestamp of the most recent request — identifiers only, never message
+  text, and only the tail of the transcript is read.
+
+### Fixed
+
+- **Fail-open was a blanket, and for four checks it was the wrong answer.** The
+  dispatcher ended in `try { main() } catch { exit(0) }`. For the advisory hooks
+  that is right — a reminder that crashes must never cost the session. For the
+  four that **block** it meant: if the detector throws, the secret gets written.
+  Each blocking detector now names itself while it runs, and a crash inside one
+  refuses the call and says which check could not answer, what went wrong, and
+  which switch is the deliberate way past it. The opt-outs still work, so a
+  broken check is never a dead end. This is the base's own rule — *could not
+  measure is not a pass* — applied where it matters most.
+- **`sec-agent-security` was unreachable.** Nothing in the base pointed at the
+  one skill about prompt injection, least agency and approval boundaries: zero
+  activation edges, named by no command and no agent. `engineering-principles`
+  now consults it when the work builds or operates an agent, wires tools, or
+  reads untrusted content. Found by measuring reachability across all 31 skills
+  rather than by reading them — 30 of 31 were already routed.
+
 - **`engineering-principles` §E — rulers that measure themselves.** A number
   that improves when the guard weakens is not a quality number. "How many PRs
   the agent approved" rises fastest when the automation gets more permissive,

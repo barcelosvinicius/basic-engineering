@@ -85,8 +85,15 @@ There is deliberately **no separate `rules/` directory** — it would duplicate
 this digest and `CLAUDE.md`. Put a durable, always-true rule in `CLAUDE.md`
 (project-specific) or a skill (reusable how-to) — never both.
 
+## Activation edges
+
+| Type | Target | When |
+|---|---|---|
+| `consult` | `sec-agent-security` | when the work builds or operates an agent, wires tools or MCP servers, or will read untrusted content — §2 is about the application's threat model, and an agent has its own |
+
 ## Related skills
 
-Security: `sec-secrets-management`, `be-jwt-auth-patterns` · Quality:
-`proc-code-review`, `qa-test-data-builders` · Delivery:
-`proc-release-checklist`, `infra-ci-cd` · Operations: `ops-observability`.
+Security: `sec-secrets-management`, `be-jwt-auth-patterns`,
+`sec-agent-security` · Quality: `proc-code-review`,
+`qa-test-data-builders` · Delivery: `proc-release-checklist`, `infra-ci-cd` ·
+Operations: `ops-observability`.

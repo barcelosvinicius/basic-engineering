@@ -621,27 +621,51 @@ four kinds, and **two of them were right to refuse**.
 - **Refused:** pre-commit tooling, and splitting a 60-line CLAUDE.md into scoped
   rule files. Both would add weight to raise a number.
 
-### 10.1 — Apply the same ruler inward, to subtract
+### 10.1 ✅ done 2026-09-25 — The ruler turned inward, and what it actually found
 
-**The owner's framing, 2026-09-23:** *"quantidade não é qualidade na construção
-real de software"* — and the ruler that refused two additions should also be
-able to **remove** what is cosmetic.
+**The owner's framing, 2026-09-24:** *"quantidade não é qualidade na construção
+real de software"* — the ruler that refused two additions should also be able to
+**remove** what is cosmetic. The question, per skill, agent, command and hook:
+**what measured thing goes wrong if this disappears?**
 
-So the question becomes symmetric. For every skill, agent, command and hook this
-base ships: **what measured thing goes wrong if it disappears?** Not "is it
-nice", not "does it round out the set" — what incident, what drift, what silent
-failure does it catch that nothing else catches. Anything whose answer is "it
-completes the family" is a candidate for removal under `proc-safe-removal`.
+**Nothing was removed, and that is the honest answer.** Measured: of 31 skills,
+30 are either pointed at by another skill's activation edge or named by a
+command or an agent. There is no skill here that exists only to complete a
+family. The pass found two defects instead, and both are worth more than a
+deletion would have been.
 
-The evidence already exists and is not being read: every skill carries an
-evidence class, `proc-context-budget` already measures what each one costs to
-load, and the activation graph says which are reachable at all. A skill that is
-expensive, unreachable, and justified only by symmetry is exactly what this
-phase should find.
+**1. The premise of this item was false, and it was written from memory.** It
+said *"every skill carries an evidence class"*. Grepped: **one of 31 does**
+(`qa-test-strategy`). The plan asserted a property of the repository without
+measuring it — inside a document whose whole argument is that claims carry their
+evidence. Fixed here; the broader work of giving skills an evidence class is
+recorded below as its own item rather than assumed to exist.
 
-**Not started.** Runs after the push, on a repository whose numbers are settled.
+**2. One skill was unreachable, and it was the most topical one.**
+`sec-agent-security` — prompt injection, least agency, approval boundaries, kill
+switches — had zero in-edges and was named by no command and no agent. Not a
+value defect: a wiring defect. `engineering-principles` now consults it when the
+work builds or operates an agent, wires tools, or reads untrusted content, which
+is where §2's application threat model stops and an agent's own begins. All 31
+are reachable.
 
-### 10.1b — A pass that dies mid-run reports green
+**What this says about the method:** the inward ruler is worth running, and its
+first useful output was about the ruler's own description. The removal candidates
+it was built to find did not exist. That result only counts because the
+reachability and cost numbers came from a command rather than from reading.
+
+### 10.1c — Give the claims an evidence class, since they do not have one
+
+Found by 10.1: one skill of 31 declares where its claims come from. The rest
+assert. `qa-test-strategy` shows the shape — *measured* here, *reported* there,
+with the case named — and it is the difference between a rule someone can weigh
+and a rule someone must take on faith.
+
+**Not started.** Deliberately not a sweep: a class asserted in bulk would be the
+same unmeasured claim, one per file. It belongs to whoever next edits a skill
+for another reason.
+
+### 10.1b ✅ done 2026-09-25 — A pass that dies mid-run reported green
 
 **Measured three times on 2026-09-23/24**, when the WSL connection dropped and
 took the run with it. The report left behind looked finished: nine `✔` lines and
@@ -665,9 +689,13 @@ copies competing for I/O with the next one (measured: the suite went from 17s to
 23s per run); and the three tests added to `entrypoints.test.js` copy the whole
 repository, which every mutant of `_lib.js` then pays for.
 
-**Not started.**
+**Done** in `18894fb`. Every target starts with no verdict; the run ends with
+"N of M in scope accounted for", the four states are exhaustive so the line always
+adds up, and `--check` fails when anything is left without a verdict. It also
+split two absences that were collapsed: a module not in this checkout is out of
+scope, a module here with no suite is a missing verdict.
 
-### 10.2 — Mutation selection that is *safe*, not merely cheap
+### 10.2 ✅ done 2026-09-25 — Mutation selection that is *safe*, not merely cheap
 
 The release re-measures all 677 mutants even when the commit touched only
 documentation, ~13 minutes each time. `mutation-check --since` exists and the
@@ -697,11 +725,18 @@ hash and date they were measured at. Never inherit silently. The precedent is in
 the code: `mutation-equivalents.json` already carries the hash of the file each
 equivalent was accepted against and prints `RE-CHECK` when it changes.
 
-**Not started.**
+**Done** in `18894fb`. `closureOf()` resolves local requires transitively and
+reports what it cannot resolve rather than assuming it away; a ledger records the
+target hash, the test hashes and the closure hash, and `--incremental` inherits a
+result only while all three still hold. Proven both ways: touching `_stacks.js`
+expires the inherited result of `permissions.js`, which never mentions it. The
+ledger is gitignored — inheriting another machine's measurement is a weaker claim
+than taking your own, and a ledger written mid-pass would dirty the tree the
+release requires to be clean.
 
 ---
 
-### 10.3 — Fail-open is a decision per class, not a blanket
+### 10.3 ✅ done 2026-09-25 — Fail-open is a decision per class, not a blanket
 
 `_lib.js` opens with *"Fail-open: any error must let the tool call proceed. A
 guardrail must never break the user's session."* For the advisory hooks that is
@@ -725,9 +760,16 @@ the same as one that fires on a crash.
 *Source:* [Aprovar sugestão de agente não é controle de segurança](https://www.tabnews.com.br/Centelha/aprovar-sugestao-de-agente-nao-e-controle-de-seguranca)
 (Centelha, 2026-07-30). Its test — *remove the approval screen from your head and
 look only at what the agent can do* — is the enforcement ladder arriving from the
-other direction. **Not started.**
+other direction. **Done** in `92230ce`. Each blocking detector names itself while it runs; a crash
+inside one refuses the call and says which check could not answer and which
+switch is the deliberate way past it. The gateguard is guarded only on its
+classification — the state check keeps its own deliberate fail-open, because when
+the session note cannot be written, gating once is right and gating forever is
+not. The test caught a real defect in the first version: `guard` cleared its
+marker in a `finally`, which runs before the exception reaches the handler, so
+every crash still looked advisory.
 
-### 10.4 — The audit trail answers *what*, not *who asked*
+### 10.4 ✅ done 2026-09-25 — The audit trail now answers *who asked* too
 
 `logEvent` records kind, project-relative path and a short label per session, in
 JSONL. That answers "what was blocked". The same article's three-in-the-morning
@@ -738,9 +780,13 @@ configuration allowed it.* We answer the first half.
 tool call, so the history reads as *this action, from this request*. It stays
 within the existing rule — never a command, never file content.
 
-**Not started.**
+**Done** in `92230ce`. `requestRef()` reads the transcript's most recent user
+entry and carries its `promptId`, `uuid` and timestamp into every event —
+identifiers only, never message text, which the test asserts by planting a
+private string in a fixture transcript. Only the tail of the file is read, and
+any failure returns null: an enrichment must never be why a guardrail misbehaves.
 
-### 10.5 — Mutation asks before it spends
+### 10.5 ✅ done 2026-09-25 — Mutation asks before it spends
 
 Today the pass runs unannounced inside `npm run release` and consumes 13 to 30
 minutes. `--estimate` exists precisely so the cost is a number before the wait,
@@ -758,7 +804,12 @@ middle path and a recorded skip as the third. In a non-interactive run
 (CI, `--yes`) it proceeds and says so. The skill's "when" section gains the same
 rule, so it is not only the release that behaves this way.
 
-**Not started.**
+**Done** in `18894fb`. The estimate is instant because the ledger records what
+each module cost last time, and a module never measured is reported as unknown
+rather than guessed. At a terminal the person who will wait answers yes, no or
+incremental; without one it proceeds and says why, because a prompt nobody can
+answer is a hang. `npm run release` passes `--incremental`: the gate still covers
+every target, and only what moved is re-run.
 
 ### 10.6 ✅ done 2026-09-25 — Four things four outside articles named and we did not
 
