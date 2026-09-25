@@ -181,3 +181,102 @@ test('copies left by an interrupted run are swept by age, and fresh ones are lef
   assert.ok(fs.existsSync(foreign), 'nothing else is touched');
   assert.strictEqual(mc.sweepLeftovers(path.join(dir, 'does-not-exist')), 0, 'a missing directory is not an error');
 });
+
+// ── Safe selection: the closure, the ledger, and the roster (Phase 10) ───────
+
+// Selecting by "did this file change" under-measures, and this repository shows
+// the shape: pre-tooluse.js requires _gateguard.js and _lib.js, so a change to
+// _lib.js can turn a killed mutant of pre-tooluse.js into a survivor while
+// pre-tooluse.js itself is untouched.
+test('the closure follows what a target transitively requires, and reports what it cannot resolve', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-closure-'));
+  fs.mkdirSync(path.join(root, 'a', 'b'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'a', 'top.js'),
+    "require('./mid.js');\nrequire('./b/data.json');\nrequire('./gone.js');\n"
+  );
+  fs.writeFileSync(path.join(root, 'a', 'mid.js'), "require('./leaf');\n");
+  fs.writeFileSync(path.join(root, 'a', 'leaf.js'), 'module.exports = 1;\n');
+  fs.writeFileSync(path.join(root, 'a', 'b', 'data.json'), '{}');
+
+  const { files, unresolved } = mc.closureOf(root, 'a/top.js');
+  assert.deepStrictEqual(
+    [...files].sort(),
+    ['a/b/data.json', 'a/leaf.js', 'a/mid.js', 'a/top.js'],
+    'transitive, and data files count'
+  );
+  assert.deepStrictEqual(unresolved, ['a/top.js → ./gone.js'], 'what it cannot resolve is named, not assumed away');
+  assert.deepStrictEqual([...mc.closureOf(root, 'a/leaf.js').files], ['a/leaf.js'], 'a leaf is its own closure');
+  assert.deepStrictEqual(
+    [...mc.closureOf(root, 'does/not/exist.js').files],
+    ['does/not/exist.js'],
+    'a missing file does not throw'
+  );
+});
+
+test('a cycle in the requires terminates instead of recursing forever', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-cycle-'));
+  fs.writeFileSync(path.join(root, 'x.js'), "require('./y.js');\n");
+  fs.writeFileSync(path.join(root, 'y.js'), "require('./x.js');\n");
+  assert.deepStrictEqual([...mc.closureOf(root, 'x.js').files].sort(), ['x.js', 'y.js']);
+});
+
+// A recorded result may be inherited only while the code it describes has not
+// moved -- the same rule the equivalents already follow, one level up.
+test('a ledger entry expires when the target, its tests, or anything in its closure changes', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'be-ledger-'));
+  fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'test'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'src', 'a.js'), "require('./dep.js');\n");
+  fs.writeFileSync(path.join(root, 'src', 'dep.js'), 'module.exports = 1;\n');
+  fs.writeFileSync(path.join(root, 'test', 'a.test.js'), 'test\n');
+  const target = { file: 'src/a.js', tests: ['test/a.test.js'] };
+
+  const entry = { killed: 5, total: 5, fingerprint: mc.fingerprint(root, target) };
+  assert.ok(mc.ledgerHolds(entry, mc.fingerprint(root, target)), 'nothing moved: the record still describes the code');
+
+  fs.writeFileSync(path.join(root, 'src', 'dep.js'), 'module.exports = 2;\n');
+  assert.ok(
+    !mc.ledgerHolds(entry, mc.fingerprint(root, target)),
+    'a DEPENDENCY moved, and src/a.js did not — this is the case a file-only check misses'
+  );
+
+  fs.writeFileSync(path.join(root, 'src', 'dep.js'), 'module.exports = 1;\n');
+  fs.writeFileSync(path.join(root, 'test', 'a.test.js'), 'test changed\n');
+  assert.ok(!mc.ledgerHolds(entry, mc.fingerprint(root, target)), 'the tests moved');
+
+  fs.writeFileSync(path.join(root, 'test', 'a.test.js'), 'test\n');
+  fs.writeFileSync(path.join(root, 'src', 'a.js'), "require('./dep.js');\n// edit\n");
+  assert.ok(!mc.ledgerHolds(entry, mc.fingerprint(root, target)), 'the target itself moved');
+
+  assert.ok(!mc.ledgerHolds(undefined, mc.fingerprint(root, target)), 'no record at all is not a pass');
+  assert.ok(!mc.ledgerHolds({ killed: 5 }, mc.fingerprint(root, target)), 'a record with no fingerprint is not a pass');
+});
+
+// Measured three times on 2026-09-23/24: a run killed mid-pass left nine tick
+// lines and two targets carrying only their start marker, and counting the
+// ticks read as green. A pass that cannot finish must be unable to look finished.
+test('a run that leaves a target without a verdict says so and fails --check', async () => {
+  const root = checkout(
+    "test('both branches', () => { assert.strictEqual(f(2, 1), 'big'); assert.strictEqual(f(1, 2), 'small'); });"
+  );
+  const out = [];
+  const code = await mc.main(['--check', '--root', root, '--only', 'scripts/lib/probes.js'], (s) =>
+    out.push(String(s))
+  );
+  assert.strictEqual(code, 0);
+  assert.match(
+    out.join('\n'),
+    /1 of 1 target\(s\) in scope accounted for — 1 measured now, 0 inherited, 0 without a verdict/
+  );
+
+  // Now delete the suite: the target is in scope, and nothing can measure it.
+  fs.rmSync(path.join(root, 'test', 'probes.test.js'));
+  const out2 = [];
+  const code2 = await mc.main(['--check', '--root', root, '--only', 'scripts/lib/probes.js'], (s) =>
+    out2.push(String(s))
+  );
+  assert.match(out2.join('\n'), /0 of 1 target\(s\) in scope accounted for/);
+  assert.match(out2.join('\n'), /NO VERDICT/);
+  assert.strictEqual(code2, 1, 'a target with no verdict cannot be reported as green');
+});

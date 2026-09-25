@@ -26,3 +26,9 @@ node_modules/
 # Backup bundles and working notes. The bundles hold history from BEFORE a
 # privacy rewrite, so committing one would republish exactly what was removed.
 /scratchpad/
+
+# What THIS machine measured, and at which hashes (scripts/mutation-check.js
+# --incremental). Local on purpose: inheriting another machine's measurement is
+# a weaker claim than taking your own, and a ledger written mid-pass would dirty
+# the tree that `npm run release` requires to be clean.
+/scripts/mutation-ledger.json

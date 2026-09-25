@@ -100,8 +100,13 @@ try {
 // Coverage says a line ran; this says a test would notice it changing. Too slow
 // for every push (about two minutes), so it runs where it cannot be skipped by
 // forgetting: here. The first pass found 53 survivors in five modules.
+// `--incremental`: the gate still covers every target — the roster prints all of
+// them, measured now or inherited with the hash and date they were measured at —
+// but only the ones whose code or closure moved are re-run. A documentation
+// commit used to cost a full 13-to-30-minute pass, unannounced. The estimate is
+// printed and, at a terminal, the person who will wait gets to answer.
 try {
-  execSync('node scripts/mutation-check.js --check', { cwd: ROOT, stdio: 'inherit' });
+  execSync('node scripts/mutation-check.js --check --incremental', { cwd: ROOT, stdio: 'inherit' });
 } catch {
   fail(
     'a mutant of a guard survived its tests — add the test that would notice it, ' +
