@@ -5,7 +5,7 @@
     "from": "return raw && raw.trim() ? JSON.parse(raw) : {};",
     "to": "return raw || raw.trim() ? JSON.parse(raw) : {};",
     "reason": "equivalent: for empty or missing input the mutant either yields a falsy value or throws, and the surrounding try/catch returns {} in both cases — the same result as the original",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -13,7 +13,7 @@
     "from": "if (!command) return false;",
     "to": "if (false) return false;",
     "reason": "equivalent: an empty or missing command falls through to the segment loop, which finds no git segment and returns false on its own — the early return is a shortcut, not a behaviour",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "scripts/lib/edges.js",
@@ -53,7 +53,7 @@
     "from": "if (lib.hooksDisabled()) return lib.allow();",
     "to": "if (false) return lib.allow();",
     "reason": "equivalent: every guard below calls hooksDisabled(id), which reads the global switch too — skipping the early exit changes the cost, not the outcome",
-    "fileHash": "5a36e0cfc04d"
+    "fileHash": "e045c8ad0236"
   },
   {
     "file": "plugins/be/hooks/scripts/pre-tooluse.js",
@@ -61,7 +61,7 @@
     "from": "if (typeof input.content === 'string') texts.push(input.content);",
     "to": "if (true) texts.push(input.content);",
     "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches",
-    "fileHash": "5a36e0cfc04d"
+    "fileHash": "e045c8ad0236"
   },
   {
     "file": "plugins/be/hooks/scripts/pre-tooluse.js",
@@ -69,7 +69,7 @@
     "from": "if (typeof input.new_string === 'string') texts.push(input.new_string);",
     "to": "if (true) texts.push(input.new_string);",
     "reason": "equivalent: a non-string joins as \"undefined\" or \"[object Object]\", which no secret pattern matches",
-    "fileHash": "5a36e0cfc04d"
+    "fileHash": "e045c8ad0236"
   },
   {
     "file": "plugins/be/hooks/scripts/_gateguard.js",
@@ -85,7 +85,7 @@
     "from": "if (two === '&&' || two === '||') {",
     "to": "if (two === '&&' && two === '||') {",
     "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -93,7 +93,7 @@
     "from": "if (two === '&&' || two === '||') {",
     "to": "if (false) {",
     "reason": "equivalent: without the two-character rule, the one-character rule splits on each character of && and ||, and the empty segment between them is filtered — the same segments",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -101,7 +101,7 @@
     "from": "if (names === null) {",
     "to": "if (true) {",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -109,7 +109,7 @@
     "from": "if (t === '-e' || t === '--expression' || t === '-f') {",
     "to": "if (t === '-e' || t === '--expression' && t === '-f') {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -117,7 +117,7 @@
     "from": "if (t === \"''\" || t === '\"\"') {",
     "to": "if (t === \"''\" && t === '\"\"') {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/hooks/scripts/_lib.js",
@@ -125,7 +125,7 @@
     "from": "if (t === \"''\" || t === '\"\"') {",
     "to": "if (false) {",
     "reason": "equivalent: the token is consumed anyway by the unquoted-script rule below, so the number of file operands — the only thing this function returns — does not change",
-    "fileHash": "3104ae63d63b"
+    "fileHash": "78631b6ef7d5"
   },
   {
     "file": "plugins/be/scripts/distance.js",
@@ -150,5 +150,29 @@
     "to": "if (true) {",
     "reason": "equivalent: the cache only saves re-reading the same directory within one call",
     "fileHash": "42460351e837"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "|| → &&",
+    "from": "if (!file || typeof file !== 'string') return null;",
+    "to": "if (!file && typeof file !== 'string') return null;",
+    "reason": "equivalent: the guard is a shortcut. Without it a missing or non-string path reaches fs.statSync, which throws, and the surrounding try/catch returns null — the same answer, one exception later.",
+    "fileHash": "78631b6ef7d5"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → false",
+    "from": "if (!file || typeof file !== 'string') return null;",
+    "to": "if (false) return null;",
+    "reason": "equivalent: same shortcut, removed entirely. Every path that the guard rejects also throws inside the try, and the catch returns null.",
+    "fileHash": "78631b6ef7d5"
+  },
+  {
+    "file": "plugins/be/hooks/scripts/_lib.js",
+    "op": "condition → false",
+    "from": "if (!lines[i].includes('\"type\":\"user\"')) continue;",
+    "to": "if (false) continue;",
+    "reason": "equivalent: this is a fast path, not a rule. Without it every line in the window is parsed and the `entry.type !== 'user'` test below rejects the same lines. NB: the equivalence holds ONLY while that test exists — remove it and this mutant becomes a real defect, which is why a decoy assistant line quoting the marker is pinned in test/hooks.test.js.",
+    "fileHash": "78631b6ef7d5"
   }
 ]

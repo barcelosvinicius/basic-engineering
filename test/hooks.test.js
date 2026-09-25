@@ -925,6 +925,31 @@ test('an event carries the request it came from, reads no message content, and n
   );
   assert.ok(!JSON.stringify(ref).includes('private'), 'identifiers only — no message text');
 
+  // Killed a surviving mutant: with the `entry.type !== 'user'` check forced
+  // off, an ASSISTANT line that merely contains the literal string "type":"user"
+  // would be returned as the request. That is not hypothetical -- a message
+  // discussing transcript format contains exactly that.
+  const decoy = path.join(dir, 'decoy.jsonl');
+  fs.writeFileSync(
+    decoy,
+    [
+      JSON.stringify({ type: 'user', uuid: 'u-real', promptId: 'p-real', timestamp: '2026-09-25T11:00:00Z' }),
+      // Nested, so the line really does contain the raw bytes `"type":"user"`
+      // while the ENTRY's own type is assistant. Serialising a string full of
+      // quotes does not: JSON escapes them, the includes() fast path drops the
+      // line, and the test never reaches the rule it claims to protect. The
+      // mutation pass caught exactly that -- the first version of this test
+      // passed while the mutant it was written for survived.
+      JSON.stringify({ type: 'assistant', uuid: 'a-decoy', promptId: 'p-decoy', echoed: { type: 'user' } }),
+      '',
+    ].join('\n')
+  );
+  assert.deepStrictEqual(
+    lib.requestRef({ transcript_path: decoy }),
+    { promptId: 'p-real', turn: 'u-real', askedAt: '2026-09-25T11:00:00Z' },
+    'an assistant line quoting the marker is not the request'
+  );
+
   assert.strictEqual(lib.requestRef({}), null, 'no transcript: no claim');
   assert.strictEqual(
     lib.requestRef({ transcript_path: path.join(dir, 'missing.jsonl') }),
