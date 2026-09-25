@@ -760,7 +760,7 @@ rule, so it is not only the release that behaves this way.
 
 **Not started.**
 
-### 10.6 — Two things the checklist literature names and we do not
+### 10.6 ✅ done 2026-09-25 — Four things four outside articles named and we did not
 
 *Source:* [Vibe coding: o que é de verdade e o checklist que uso pra não virar
 dívida técnica](https://www.tabnews.com.br/wildrik/vibe-coding-o-que-e-de-verdade-e-o-checklist-que-uso-pra-nao-virar-divida-tecnica)
@@ -775,13 +775,32 @@ Two items are genuinely absent, and both are cheap:
   evidence about one author's blind spot, twice. Grepped 2026-09-24: not
   mentioned anywhere in the skill.
 - **A dependency that does not exist.** Neither
-  `proc-dependency-management` nor `sec-agent-security` mentions hallucinated
+  `proc-dependency-management` nor `sec-agent-security` mentioned hallucinated
   package names — a model importing a library that was never published, which an
-  attacker can then register. It is a supply-chain vector specific to
-  AI-assisted work and the cheapest possible check: does this name resolve on
-  the registry, and is the package older than the suggestion?
+  attacker can then register.
 
-**Not started.**
+Two more came from the same batch of reading:
+
+- **Completeness under concurrency.** `qa-test-strategy`'s load section was
+  entirely capacity — p95/p99, error rate, throughput — and a load test that
+  watches only latency passes green while records vanish. In an asynchronous
+  flow an HTTP 200 is a receipt, not an outcome.
+- **A ruler that measures itself.** *"How many PRs the agent approved"* grows
+  when the automation gets more permissive, even as quality drops. It landed on
+  two of our own numbers, and became `engineering-principles` §E.
+
+**Done** in `be4035d`. The additions pushed `qa-test-strategy` past the
+~150-line budget this repo measures, so the three-outcome test ran on it: the
+worked mutation passes moved to a sibling `evidence.md` (look-up, not decision),
+and the "common mistakes" table left as duplication of six rules already stated
+above. 142 lines, budget count back to 6.
+
+**Judged and refused, from the same reading:** a repository check for restricted
+network egress. The control is real and now stated in `sec-agent-security` and
+the release checklist, but what a deterministic check could see — a Terraform
+`egress` block, a NetworkPolicy — is absent from most repositories, because that
+decision lives in a cloud console owned by someone else. A ruler that answers
+NOT MEASURED nine times out of ten is noise, and guidance is the honest rung.
 
 ---
 
