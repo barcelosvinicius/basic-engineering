@@ -6,6 +6,11 @@
   // every dispatcher call to the wrong script for a whole session (noRedeclare),
   // and the test/helpers.js extraction left dead imports behind the same day
   // (noUnusedVariables).
+  // Files git ignores are files this repo does not own: generated output, local
+  // caches, the mutation ledger. Linting them reports defects nobody can fix in
+  // a commit. Set after `check:style` failed on scripts/mutation-ledger.json,
+  // which is gitignored by design.
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "includes": [
       "**/*.js",
