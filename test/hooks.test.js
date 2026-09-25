@@ -815,3 +815,141 @@ test('a linter config is protected once committed, and editable while it is stil
   );
   assert.ok(!lib.isTrackedByGit(''), 'an empty path is not tracked');
 });
+
+// ── Fail-open is a decision per class, not a blanket (action plan 10.3) ──────
+// `_lib.js` opens with "any error must let the tool call proceed". For the
+// advisory hooks that is right. For the four that BLOCK it meant: if the
+// detector throws, the secret gets written. A control that depends on never
+// failing is a control you feel rather than have.
+test('a blocking detector that cannot run refuses the call and names itself; an advisory one costs nothing', () => {
+  const dir = gitRepo({ 'app.js': 'const a = 1;\n' }, {}, 'be-failclosed-');
+  const scripts = path.join(dir, 'hooks');
+  fs.mkdirSync(scripts, { recursive: true });
+  for (const f of ['_lib.js', '_gateguard.js', 'pre-tooluse.js']) {
+    fs.copyFileSync(path.join(__dirname, '..', 'plugins', 'be', 'hooks', 'scripts', f), path.join(scripts, f));
+  }
+  // Break ONE blocking detector, the way a real defect would: it throws.
+  const libPath = path.join(scripts, '_lib.js');
+  fs.writeFileSync(
+    libPath,
+    fs
+      .readFileSync(libPath, 'utf8')
+      .replace(
+        'function detectSecrets(text) {',
+        "function detectSecrets(text) {\n  throw new Error('detector is broken');"
+      )
+  );
+
+  const run = (input, extraEnv = {}) => {
+    const env = {
+      ...process.env,
+      BE_GATEGUARD: 'off',
+      BE_HOOK_LOG_DIR: path.join(os.tmpdir(), 'be-fc-log'),
+      ...extraEnv,
+    };
+    for (const k of Object.keys(env)) if (/^BE_HOOKS$|^BE_HOOK_(?!LOG_DIR)/.test(k) && !(k in extraEnv)) delete env[k];
+    return spawnSync(process.execPath, [path.join(scripts, 'pre-tooluse.js')], {
+      input: JSON.stringify(input),
+      env,
+      encoding: 'utf8',
+    });
+  };
+
+  const blocked = run({ tool_name: 'Bash', tool_input: { command: 'echo hello' } });
+  assert.strictEqual(blocked.status, 2, 'the call is refused rather than passed unchecked');
+  assert.match(blocked.stderr, /secret-scan check could not run/);
+  assert.match(blocked.stderr, /detector is broken/, 'and it says what went wrong');
+  assert.match(blocked.stderr, /BE_HOOK_SECRET_SCAN=off/, 'the deliberate way past it is named');
+
+  // The mirror: the opt-out still works, so a broken check is never a dead end.
+  assert.strictEqual(
+    run({ tool_name: 'Bash', tool_input: { command: 'echo hello' } }, { BE_HOOK_SECRET_SCAN: 'off' }).status,
+    0
+  );
+  assert.strictEqual(run({ tool_name: 'Bash', tool_input: { command: 'echo hello' } }, { BE_HOOKS: 'off' }).status, 0);
+
+  // And the other mirror: an ADVISORY path that throws must still cost nothing.
+  fs.writeFileSync(
+    libPath,
+    fs
+      .readFileSync(libPath, 'utf8')
+      .replace(
+        "function detectSecrets(text) {\n  throw new Error('detector is broken');",
+        'function detectSecrets(text) {'
+      )
+      .replace(
+        'function bulkGesture(command) {',
+        "function bulkGesture(command) {\n  throw new Error('reminder is broken');"
+      )
+  );
+  const advisory = run({ tool_name: 'Bash', tool_input: { command: 'sed -i s/a/b/ *.js' } });
+  assert.strictEqual(advisory.status, 0, 'a reminder that crashes never breaks the session');
+});
+
+// ── The trail answers what was blocked AND what asked for it (10.4) ──────────
+// The log recorded kind, path and label, so a line read weeks later could not be
+// traced back to the instruction that produced it. The transcript's user entries
+// carry promptId and uuid, which is exactly that — identifiers, never text.
+test('an event carries the request it came from, reads no message content, and never throws', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-reqref-'));
+  const transcript = path.join(dir, 'session.jsonl');
+  const secret = 'the user typed something private here';
+  fs.writeFileSync(
+    transcript,
+    [
+      JSON.stringify({
+        type: 'user',
+        uuid: 'u-old',
+        promptId: 'p-old',
+        timestamp: '2026-09-25T10:00:00Z',
+        message: secret,
+      }),
+      JSON.stringify({ type: 'assistant', uuid: 'a-1', timestamp: '2026-09-25T10:00:01Z' }),
+      JSON.stringify({
+        type: 'user',
+        uuid: 'u-new',
+        promptId: 'p-new',
+        timestamp: '2026-09-25T10:05:00Z',
+        message: secret,
+      }),
+      JSON.stringify({ type: 'assistant', uuid: 'a-2', timestamp: '2026-09-25T10:05:01Z' }),
+      '',
+    ].join('\n')
+  );
+
+  const ref = lib.requestRef({ transcript_path: transcript });
+  assert.deepStrictEqual(
+    ref,
+    { promptId: 'p-new', turn: 'u-new', askedAt: '2026-09-25T10:05:00Z' },
+    'the most recent request, not the first'
+  );
+  assert.ok(!JSON.stringify(ref).includes('private'), 'identifiers only — no message text');
+
+  assert.strictEqual(lib.requestRef({}), null, 'no transcript: no claim');
+  assert.strictEqual(
+    lib.requestRef({ transcript_path: path.join(dir, 'missing.jsonl') }),
+    null,
+    'unreadable: no claim'
+  );
+  assert.strictEqual(lib.requestRef({ transcript_path: 42 }), null, 'a non-string path is not a path');
+  fs.writeFileSync(path.join(dir, 'broken.jsonl'), '{"type":"user" not json\n');
+  assert.strictEqual(
+    lib.requestRef({ transcript_path: path.join(dir, 'broken.jsonl') }),
+    null,
+    'a corrupt line is not a crash'
+  );
+
+  // And it reaches the log the hooks actually write.
+  const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'be-reqlog-'));
+  const saved = process.env.BE_HOOK_LOG_DIR;
+  process.env.BE_HOOK_LOG_DIR = logDir;
+  try {
+    lib.logEvent({ session_id: 's1', cwd: dir, transcript_path: transcript }, { kind: 'gate', file: 'pom.xml' });
+    const line = JSON.parse(fs.readFileSync(path.join(logDir, 's1.jsonl'), 'utf8').trim());
+    assert.strictEqual(line.promptId, 'p-new');
+    assert.strictEqual(line.kind, 'gate', 'the event still wins over the enrichment');
+  } finally {
+    if (saved === undefined) delete process.env.BE_HOOK_LOG_DIR;
+    else process.env.BE_HOOK_LOG_DIR = saved;
+  }
+});

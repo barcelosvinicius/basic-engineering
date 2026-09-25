@@ -38,6 +38,27 @@ function remindOnce(data, kind, detail, text, keySuffix = '') {
   lib.warn('PreToolUse', text);
 }
 
+// ── fail-open is a decision per class, not a blanket (action plan 10.3) ──────
+// `_lib.js` opens with "any error must let the tool call proceed", and for the
+// advisory hooks that is right: a reminder that crashes must never cost the
+// session. For the four that BLOCK it meant "if the detector throws, the secret
+// gets written" — a control that depends on never failing is a control you feel
+// rather than have. So the four name themselves while they run, and a crash
+// inside one of them refuses the call and says which detector could not answer.
+// This base's own rule, applied where it matters most: could not measure is not
+// a pass. The deliberate way out is still the opt-out switch, because an escape
+// hatch someone chooses is not the same as one that fires on a crash.
+let guarding = null;
+const guard = (name, fn) => {
+  guarding = name;
+  // Cleared only on success. A `finally` here would run BEFORE the exception
+  // reached the handler below, so every crash would look advisory — the first
+  // version did exactly that, and the test that asserts the block caught it.
+  const result = fn();
+  guarding = null;
+  return result;
+};
+
 function stackMappings() {
   try {
     return require('../../config/stack-mappings.json');
@@ -55,13 +76,13 @@ function main() {
 
   if (tool === 'Bash') {
     const cmd = input.command || '';
-    if (!lib.hooksDisabled('no-verify') && lib.isNoVerify(cmd)) {
+    if (!lib.hooksDisabled('no-verify') && guard('no-verify', () => lib.isNoVerify(cmd))) {
       lib.block(
         '`git --no-verify` bypasses commit/push hooks. Fix the underlying failure instead of skipping verification. (BE_HOOK_NO_VERIFY=off to allow)'
       );
     }
     if (!lib.hooksDisabled('secret-scan')) {
-      const hits = lib.detectSecrets(cmd);
+      const hits = guard('secret-scan', () => lib.detectSecrets(cmd));
       if (hits.length) {
         lib.block(
           'possible hardcoded secret in the command (' +
@@ -85,9 +106,10 @@ function main() {
     // is a draft being written, not the policy the project settled on.
     if (
       !lib.hooksDisabled('config-protection') &&
-      lib.isProtectedConfig(filePath) &&
-      lib.pathExists(filePath) &&
-      lib.isTrackedByGit(filePath)
+      guard(
+        'config-protection',
+        () => lib.isProtectedConfig(filePath) && lib.pathExists(filePath) && lib.isTrackedByGit(filePath)
+      )
     ) {
       lib.block(
         'editing ' +
@@ -105,7 +127,7 @@ function main() {
           if (e && typeof e.new_string === 'string') texts.push(e.new_string);
         }
       }
-      const hits = lib.detectSecrets(texts.join('\n'));
+      const hits = guard('secret-scan', () => lib.detectSecrets(texts.join('\n')));
       if (hits.length) {
         lib.block(
           'possible hardcoded secret in ' +
@@ -124,7 +146,14 @@ function main() {
       const gp = filePath || (Array.isArray(input.edits) && input.edits[0] && input.edits[0].file_path) || '';
       const rel = lib.projectRelative(gp, data.cwd || process.cwd());
       const exists = Boolean(gp) && lib.pathExists(gp);
-      if (gate.shouldGate(rel, exists) && !gate.isChecked(data, gp) && gate.markChecked(data, gp)) {
+      // Only the classification is guarded. The state check below keeps its own
+      // deliberate fail-open: when the session note cannot be written, gating
+      // once is right and gating forever is not.
+      if (
+        guard('gateguard', () => gate.shouldGate(rel, exists)) &&
+        !gate.isChecked(data, gp) &&
+        gate.markChecked(data, gp)
+      ) {
         const why = gate.mode() === 'narrow' ? gate.riskClass(rel) : '';
         const action = tool !== 'Write' ? 'edit' : exists ? 'overwrite' : 'creation';
         lib.logEvent(data, { kind: 'gate', tool, file: rel, class: why || 'all files' });
@@ -151,7 +180,16 @@ function main() {
 
 try {
   main();
-} catch {
-  // A guardrail must never break the session.
+} catch (e) {
+  if (guarding) {
+    // A blocking detector could not answer. Passing the call through would be
+    // reporting a pass it never made (10.3). Named, so the reason is visible
+    // and the opt-out is the deliberate way past it.
+    lib.block(
+      `the ${guarding} check could not run (${(e && e.message) || 'unknown error'}), so this call is refused rather than passed unchecked. ` +
+        `Fix the check, or allow it deliberately with BE_HOOK_${guarding.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}=off.`
+    );
+  }
+  // Everything else is advisory: a reminder that crashes must never cost the session.
   process.exit(0);
 }

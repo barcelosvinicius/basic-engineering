@@ -89,12 +89,61 @@ function logEvent(data, event) {
       String((data && data.session_id) || 'no-session')
         .replace(/[^A-Za-z0-9_-]/g, '')
         .slice(0, 64) || 'no-session';
-    const line = { ts: new Date().toISOString(), session, cwd: (data && data.cwd) || process.cwd(), ...event };
+    const line = {
+      ts: new Date().toISOString(),
+      session,
+      cwd: (data && data.cwd) || process.cwd(),
+      ...(requestRef(data) || {}),
+      ...event,
+    };
     fs.appendFileSync(path.join(dir, `${session}.jsonl`), JSON.stringify(line) + '\n');
     return true;
   } catch {
     return false;
   }
+}
+
+/**
+ * Which request this tool call came from — the "who asked" half of the trail.
+ *
+ * The log answered *what was blocked* and not *what asked for it*, so a log line
+ * read weeks later could not be traced back to the instruction that produced it
+ * (action plan 10.4). The transcript's user entries carry `promptId` and `uuid`,
+ * which is exactly that, and they are identifiers: this reads no message text,
+ * keeping the existing rule that the log never holds a command or file content.
+ *
+ * Bounded on purpose — only the tail is read, because a session transcript grows
+ * without limit and this runs on every tool call. Any failure returns null; an
+ * enrichment must never be the reason a guardrail misbehaves.
+ */
+function requestRef(data) {
+  const file = data && data.transcript_path;
+  if (!file || typeof file !== 'string') return null;
+  try {
+    const size = fs.statSync(file).size;
+    const window = Math.min(size, 128 * 1024);
+    const buf = Buffer.alloc(window);
+    const fd = fs.openSync(file, 'r');
+    try {
+      fs.readSync(fd, buf, 0, window, size - window);
+    } finally {
+      fs.closeSync(fd);
+    }
+    const lines = buf.toString('utf8').split('\n');
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (!lines[i].includes('"type":"user"')) continue;
+      try {
+        const entry = JSON.parse(lines[i]);
+        if (entry.type !== 'user') continue;
+        return { promptId: entry.promptId || null, turn: entry.uuid || null, askedAt: entry.timestamp || null };
+      } catch {
+        /* a line the window cut in half */
+      }
+    }
+  } catch {
+    /* no transcript, or unreadable */
+  }
+  return null;
 }
 
 /** A path relative to the project when it lies inside it; otherwise unchanged. */
@@ -446,6 +495,7 @@ module.exports = {
   detectSecrets,
   isProtectedConfig,
   isTrackedByGit,
+  requestRef,
   pathExists,
   isNoVerify,
   commandSegments,
