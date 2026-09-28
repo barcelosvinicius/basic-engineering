@@ -280,3 +280,40 @@ test('a run that leaves a target without a verdict says so and fails --check', a
   assert.match(out2.join('\n'), /NO VERDICT/);
   assert.strictEqual(code2, 1, 'a target with no verdict cannot be reported as green');
 });
+
+// A pass printed its estimate and then went silent for twenty minutes, which is
+// indistinguishable from a pass that died -- and three of them did die that way.
+test('a pass reports progress as it runs, to stdout and to a watchable file', async () => {
+  const root = checkout(
+    "test('both branches', () => { assert.strictEqual(f(2, 1), 'big'); assert.strictEqual(f(1, 2), 'small'); });"
+  );
+  const out = [];
+  await mc.main(['--root', root, '--only', 'scripts/lib/probes.js'], (s) => out.push(String(s)));
+
+  const text = out.join('\n');
+  assert.match(
+    text,
+    /scripts\/lib\/probes\.js\s+\d+\/\d+ \(\d+%\)\s+·\s+\d+ survived so far/,
+    'a progress line names count, percent and survivors'
+  );
+  // Backreference rather than a literal count: the assertion is done === total,
+  // so it survives the fixture changing size.
+  assert.match(text, /(\d+)\/\1 \(100%\)/, 'the final tick is forced, so the last line is never a stale 90%');
+
+  const file = path.join(root, 'scripts', '.mutation-progress');
+  assert.ok(fs.existsSync(file), 'a second terminal can watch it without knowing where stdout went');
+  const progress = fs.readFileSync(file, 'utf8');
+  assert.match(
+    progress,
+    /^\d{2}:\d{2}:\d{2}\s+scripts\/lib\/probes\.js\s+(\d+)\/\1 \(100%\)/,
+    'timestamped, and holding the FINAL state'
+  );
+  assert.strictEqual(progress.trim().split('\n').length, 1, 'one line, overwritten — not a log that grows');
+});
+
+test('a progress file that cannot be written never stops the measurement', () => {
+  const blocker = fs.mkdtempSync(path.join(os.tmpdir(), 'be-prog-'));
+  fs.writeFileSync(path.join(blocker, 'scripts'), 'a file where a directory should be');
+  assert.doesNotThrow(() => mc.writeProgress(blocker, 'anything'), 'silent, because progress is not the measurement');
+  assert.doesNotThrow(() => mc.writeProgress('/nowhere/at/all', 'anything'));
+});

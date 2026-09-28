@@ -292,6 +292,23 @@ function headCommit(root) {
   }
 }
 
+const PROGRESS_EVERY_MS = 20000;
+const progressPath = (root) => path.join(root, 'scripts', '.mutation-progress');
+
+/**
+ * One line, overwritten, at a path anyone can watch from any terminal:
+ *   watch -n2 cat scripts/.mutation-progress
+ * Failure is silent on purpose — a progress file that cannot be written must
+ * never be the reason a measurement stops.
+ */
+function writeProgress(root, line) {
+  try {
+    fs.writeFileSync(progressPath(root), `${new Date().toISOString().slice(11, 19)}  ${line}\n`);
+  } catch {
+    /* read-only checkout, or a directory that vanished */
+  }
+}
+
 const ledgerPath = (root) => path.join(root, 'scripts', 'mutation-ledger.json');
 
 function readLedger(root) {
@@ -546,6 +563,26 @@ async function main(argv, log = console.log) {
 
       const survivors = [];
       let next = 0;
+      let done = 0;
+      // A pass used to print its estimate and then go silent for twenty minutes,
+      // which is indistinguishable from a pass that died. Progress goes to stdout
+      // (so `tail -f` on a redirected run shows it) AND to a fixed path (so a
+      // second terminal can watch without knowing where stdout went).
+      const startedAt = Date.now();
+      let lastTick = 0;
+      const tick = (force) => {
+        const now = Date.now();
+        if (!force && now - lastTick < PROGRESS_EVERY_MS) return;
+        lastTick = now;
+        const pct = all.length ? Math.round((100 * done) / all.length) : 100;
+        const left = done ? ((now - startedAt) / done) * (all.length - done) : 0;
+        const line =
+          `   ${t.file}  ${done}/${all.length} (${pct}%)` +
+          `  ·  ${survivors.length} survived so far` +
+          (done && done < all.length ? `  ·  ~${fmt(left)} left` : '');
+        log(line);
+        writeProgress(root, line.trim());
+      };
       const worker = async (slot) => {
         const dir = copies[slot];
         const target = path.join(dir, t.file);
@@ -555,12 +592,15 @@ async function main(argv, log = console.log) {
             if (i >= all.length) break;
             fs.writeFileSync(target, all[i].text);
             if (await runTests(dir, t.tests, env)) survivors.push(all[i]);
+            done++;
+            tick(false);
           }
         } finally {
           fs.writeFileSync(target, original);
         }
       };
       await Promise.all(Array.from({ length: slots }, (_, slot) => worker(slot)));
+      tick(true);
 
       const killed = all.length - survivors.length;
       const pct = all.length ? Math.round((100 * killed) / all.length) : 100;
@@ -679,5 +719,6 @@ module.exports = {
   readLedger,
   hashOf,
   sweepLeftovers,
+  writeProgress,
   TARGETS,
 };

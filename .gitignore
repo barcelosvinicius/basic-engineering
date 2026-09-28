@@ -32,3 +32,7 @@ node_modules/
 # a weaker claim than taking your own, and a ledger written mid-pass would dirty
 # the tree that `npm run release` requires to be clean.
 /scripts/mutation-ledger.json
+
+# Live progress of a mutation pass, overwritten as it runs — watch it with
+# `npm run mutation:watch` from any terminal, including a plain WSL shell.
+/scripts/.mutation-progress
