@@ -853,6 +853,44 @@ the release checklist, but what a deterministic check could see — a Terraform
 decision lives in a cloud console owned by someone else. A ruler that answers
 NOT MEASURED nine times out of ten is noise, and guidance is the honest rung.
 
+### 10.7 — The base records what was built and not what was asked
+
+**Measured 2026-09-28.** The session protocol mandates keeping four documents
+current — `HISTORY.md`, `structural-analysis.md`, `lessons-learned.md`,
+`INDEX.md`. All four answer *what was built*. `/be:bootstrap` creates none that
+answers *what was asked for*, and there is no requirements template among the
+eleven shipped.
+
+The capability exists as an invitation rather than a directive. `proc-sdd` has
+spec → plan → tasks in EARS, but its trigger fires **after** drift appears — "a
+project over two weeks, features in parallel, or the AI contradicting earlier
+decisions". `mgmt-product-owner` writes stories on request. `mgmt-spec-miner`
+exists *for when the spec already drifted*, which is the base admitting drift is
+expected and offering to reconstruct rather than to prevent.
+
+**This is the stale-README defect on another surface.** That one happened
+because nothing tied *what exists* to *what is described*. This is the same
+shape: nothing ties *what was asked* to *what was built*, and nothing keeps the
+first current.
+
+**The evidence is this repository.** `docs/action-plan.md` is a living
+requirements document in everything but name — each item states the problem, the
+measurement that exposed it, the design, and its state. It is the reason eight
+defects were caught in one session. The base does not teach anyone to keep one,
+and ships no template for it.
+
+**Open questions, deliberately not answered here:** what does a small change
+owe? (a commit message and a CHANGELOG line may be the honest answer, and a
+requirements file per fix would be the overhead that gets abandoned); which rung
+does this sit on — prose, recall, or a check that the intent file moved when a
+feature did? A check that demands a requirement per commit is noise; one that
+asks *once per feature* may not be.
+
+**Not started.** Decided on 2026-09-28 not to rush it into 3.3.0: a directive
+about how every project documents its intent deserves its own analysis, and
+adding it under release pressure is exactly the reflex this phase exists to
+resist.
+
 ---
 
 ## Explicitly not in this plan
