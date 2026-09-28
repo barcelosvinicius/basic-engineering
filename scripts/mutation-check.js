@@ -256,6 +256,11 @@ function fingerprint(root, t) {
     tests: t.tests.map((f) => hashOf(read(f))),
     closure: hashOf(closure.map((f) => `${f}:${hashOf(read(f))}`).join('\n')),
     closureSize: closure.length,
+    // The instrument, not only the subject. A ledger that records what the code
+    // was and forgets what measured it would inherit results taken with a
+    // different mutant generator — and say nothing. Changing this file expires
+    // every entry, which is the honest cost of changing a measuring tool.
+    tool: hashOf(fs.readFileSync(__filename, 'utf8')),
     unresolved,
   };
 }
@@ -335,6 +340,7 @@ function ledgerHolds(entry, fp) {
       entry.fingerprint &&
       entry.fingerprint.file === fp.file &&
       entry.fingerprint.closure === fp.closure &&
+      entry.fingerprint.tool === fp.tool &&
       JSON.stringify(entry.fingerprint.tests) === JSON.stringify(fp.tests)
   );
 }

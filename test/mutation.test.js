@@ -249,6 +249,16 @@ test('a ledger entry expires when the target, its tests, or anything in its clos
   fs.writeFileSync(path.join(root, 'src', 'a.js'), "require('./dep.js');\n// edit\n");
   assert.ok(!mc.ledgerHolds(entry, mc.fingerprint(root, target)), 'the target itself moved');
 
+  // The instrument, not only the subject: a result taken with a different mutant
+  // generator is not this generator's result, and inheriting it silently would
+  // be the same claim made about different measurements.
+  const current = mc.fingerprint(root, target);
+  assert.ok(current.tool, 'the fingerprint records which tool measured it');
+  assert.ok(
+    !mc.ledgerHolds({ fingerprint: { ...current, tool: 'a-different-runner' } }, current),
+    'a result measured by another version of the runner does not carry over'
+  );
+
   assert.ok(!mc.ledgerHolds(undefined, mc.fingerprint(root, target)), 'no record at all is not a pass');
   assert.ok(!mc.ledgerHolds({ killed: 5 }, mc.fingerprint(root, target)), 'a record with no fingerprint is not a pass');
 });
