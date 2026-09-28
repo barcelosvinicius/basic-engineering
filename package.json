@@ -49,7 +49,7 @@
     "check:style": "biome check .",
     "typecheck": "tsc --noEmit",
     "dev:link": "node scripts/dev-link.js",
-    "mutation:watch": "while :; do clear; cat scripts/.mutation-progress 2>/dev/null || echo 'no pass running'; sleep 2; done"
+    "mutation:watch": "node scripts/mutation-watch.js"
   },
   "engines": {
     "node": ">=18"
