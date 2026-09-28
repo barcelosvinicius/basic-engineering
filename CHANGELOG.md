@@ -9,6 +9,43 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **`/be:mutation` — the governance, not just the doctrine.** A project that
+  installed the base got `qa-test-strategy` (when to run a pass, why, what a
+  survivor becomes) and a table of per-stack tools. It got no command, no
+  mention in the release checklist, and not the runner. Everything that makes a
+  pass answerable — the cost stated before anyone waits, the choice to narrow or
+  skip, a destination for every survivor, a report that carries its denominator
+  — existed only in this repository. The command carries that discipline around
+  whatever tool the project already has: it never defaults to the whole
+  codebase, prefers the project's own script over the fallback table, offers
+  *run · narrow · skip*, records a skip with its reason rather than treating it
+  as a pass, and **never blocks**. Equivalents get a home and an expiry date in
+  `docs/mutation-equivalents.md`, because without one the next pass rediscovers
+  the same survivor from zero.
+- **The release asks whether the tests would notice.** A release changing a
+  module whose failure is silent or expensive now **states** whether a mutation
+  pass ran, over what scope, and what each survivor became — or states why not.
+  The question is required and the answer "not this time, because …" is a
+  legitimate one; the recorded reason is the point. Same design as the README
+  guard, which exists for the same reason.
+- **A mutation pass reports progress while it runs.** It printed its estimate
+  and then went silent for twenty minutes, which is indistinguishable from a
+  pass that died — and three did die that way. Progress now goes to stdout every
+  20 seconds and to `scripts/.mutation-progress`, one timestamped line,
+  overwritten, so a second terminal can watch without knowing where stdout went:
+  `npm run mutation:watch`, which works from a plain shell. The final tick is
+  forced, so the last line is the real end state rather than a stale 90%.
+
+### Fixed
+
+- **The mutation ledger recorded the subject and forgot the instrument.** An
+  entry said what the code was when a result was taken, so changing the mutant
+  generator — fixing a bug in it, or introducing one — would have carried every
+  inherited result over in silence, taken with a different instrument. The
+  fingerprint now includes the runner's own hash, so editing it expires every
+  entry. That is the honest cost of changing a measuring tool, and it is the
+  rule the equivalents already followed one level down.
+
 - **A mutation pass can no longer look finished when it is not.** Three runs died
   with a dropped connection on 2026-09-23/24, and each left a report that read as
   green: tick lines for what completed, a bare start marker for what did not, and
