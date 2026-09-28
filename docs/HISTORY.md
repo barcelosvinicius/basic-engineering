@@ -11,85 +11,75 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-09-24 (third checkpoint — v3.2.0 cut, nothing pushed)
+> ⚡ Last updated: 2026-09-28 (session closed)
 
-**Project phase:** **v3.2.0 is published.** npm carries `latest: 3.2.0`, the
-marketplace follows `main`, and the rewritten history is on the remote. Phases 8
-and 9 are complete; Phase 10 is written, sourced and not started.
+**Project phase:** **v3.3.0 is published and Phase 10 is closed.** npm carries
+`latest: 3.3.0`, the marketplace follows `main`, CI is green through run #29.
+The base now ships the governance around mutation testing, not only the doctrine.
 
-*Consequence for anyone who cloned before 2026-09-24:* the history was rewritten
-and `v3.0.0`, `v3.1.0` and `v3.1.1` all changed SHA. A clone made earlier cannot
-fast-forward — re-clone, or reset local `main` onto the remote. npm is
-unaffected; no published artifact changed.
+*For anyone who cloned before 2026-09-24:* the history was rewritten and
+`v3.0.0`, `v3.1.0` and `v3.1.1` changed SHA. An older clone cannot fast-forward
+— re-clone, or reset local `main` onto the remote. No published npm artifact
+changed.
 
-> **Environment note.** Three environments, not two: a Linux machine (sessions up
-> to 2026-08-19; CI runs on `ubuntu-latest`), a Windows workstation with Git
-> Bash, and **WSL2 on that workstation** (this session). WSL and the Windows side
-> have **separate `gh` tokens** — a refresh on one does not reach the other,
-> measured 2026-09-22; the WSL token now carries `workflow`. The interactive CLI
-> does not connect from this WSL (its startup check times out while `curl` and
-> `-p` mode work). **WSL also drops the VS Code connection under load**: three
-> mutation runs died with it on 2026-09-23/24. Long runs go through
-> `setsid nohup`, which survives the session.
+> **Environment note.** Three environments: a Linux machine (CI runs on
+> `ubuntu-latest`), a Windows workstation with Git Bash, and **WSL2 on that
+> workstation**. They hold **separate `gh` tokens and separate plugin caches** —
+> updating one says nothing about the other. The interactive CLI does not
+> connect from this WSL, and `/plugin` is unavailable in this environment, so
+> the plugin was updated by hand (see P-10). **WSL also drops the VS Code
+> connection under load**: four mutation runs died with it. Long runs go through
+> `setsid nohup`, which survives both the connection and the session.
 
 ### In progress
 
-- **Nothing.** The scope agreed for v3.2.0 is closed. What remains is the push,
-  and what only the push can measure.
+- **Nothing.** Phase 10 closed; 10.1c and 10.7 are recorded and deliberately
+  not started.
 
 ### Recently completed (this session)
 
-- **v3.2.0 cut** (`23b743e`), `BASE_VERSION v20260923-193441` — the release ran
-  validate, 163 tests, both audits and a full mutation pass before writing.
-- **The base runs its own verification loop.** `qa-verification-loop` has had
-  type-check and lint as phases 2 and 3 since it was written, and this repo
-  could run neither over 7,183 lines of JavaScript. Biome and `tsc --noEmit`
-  run here and in CI now. Admitted on measured defects, not on a checklist: a
-  `runHook` declared twice (a whole session of wrong measurements), dead imports
-  left by the same day's refactor, and `install()`'s JSDoc omitting the
-  `profile` option that `bin/be.js` passes and the function reads.
-- **The config-protection guardrail learned to tell authoring from weakening.**
-  It blocked this repo's own adoption of a linter. Git decides now: a config it
-  does not track is a draft nobody has agreed to.
-- **This repo wears what it ships.** `.claude/settings.json` runs the hooks from
-  the working tree, `validate` refuses the two declarations drifting apart, and
-  `npm run dev:link` does the same locally for skills, agents and commands. The
-  reason is measured: the guardrail fix above did not reach this machine,
-  because the hook that fired came from the published 3.1.1 in the cache.
-- **Measured from outside:** harness-score 39/108 (36%) → **74/105 (70%)**. The
-  useful part was the split, not the number — 31 of the remaining points are
-  refused on purpose, each refusal written down in `CLAUDE.md`.
-- **Final mutation state, on `e2f0b4d`:** 11 of 11 targets, **682 mutants, 664
-  killed, 18 equivalents, zero survivors.** The 9 equivalents invalidated by the
-  formatter were re-confirmed against the new source, not merely re-stamped.
-- **Phases 8 and 9 closed** — the ledger with a command behind it, the method in
-  blocks, rules at the gesture, the narrow gate, the enforcement ladder, the
-  measured distance in `/be:check`, `qa-test-strategy`, mutation on ourselves,
-  continuity at `PreCompact`/`SessionEnd`, permissions as configuration, and
-  `test/helpers.js`.
-- **Privacy:** no institution, project, class, endpoint, corporate email or staff
-  id remains — in the tree or in any commit. Verified by pickaxe over every ref.
+- **v3.3.0 published.** 187 tests, 12 of 12 mutation targets (727 mutants, 706
+  killed, 21 equivalents, **zero survivors**), validate, lint, format, typecheck
+  and both audits green.
+- **Mutation became governable, and portable.** Selection follows the transitive
+  closure rather than the file; a ledger keyed on the target, its tests, its
+  closure **and the runner's own hash** lets a result be inherited only while all
+  four still hold; a pass prints `N of M accounted for` and fails `--check` when
+  anything lacks a verdict; the cost is stated before anyone waits and the
+  person waiting can narrow or decline. `/be:mutation` carries that discipline to
+  projects using PIT, Stryker or mutmut — the runner is deliberately not shipped,
+  because imposing a JavaScript mutator on a Java project is the opposite of the
+  point.
+- **Fail-open stopped being a blanket.** A blocking detector that throws now
+  refuses the call and names itself; advisory hooks still cost nothing. Events
+  carry the `promptId` of the request that produced them.
+- **Four outside articles were triaged against what the base already held**, and
+  only what was genuinely missing was added — including
+  `engineering-principles` §E: a number that improves when the guard weakens is
+  not a quality number, which lands on two of this base's own rulers.
+- **The inward ruler found nothing to remove**, which is the honest answer: 30
+  of 31 skills were already reachable. It found instead that the item's own
+  premise was false (1 skill of 31 declares an evidence class, not all of them)
+  and that `sec-agent-security` — the most topical skill here — was reachable
+  from nothing. Now routed from the hub and from the loop that runs every change.
+- **P-09 closed** (CI green since run #21) and **P-10 closed for WSL**.
 
 ### Blockers
 
-- **None for the work.** For the version: the owner's decision to push.
-- **P-09 closed 2026-09-24** — CI run #21, green on Node 18 and 20, including
-  the lint and type-check steps added this session. `npm ci` there also proved
-  the rewritten lockfile resolves from the public registry.
-- **P-10 stands on both environments** until the development build or the
-  release is installed. Measured here: the hook that fired during this session
-  came from the published 3.1.1, not from the file being edited.
+- **None.**
+- **P-10 remains open on the Windows workstation**, which has its own cache.
 
 ### Priority next steps
 
-1. Reinstall the plugin here and on Windows (**P-10**) — this machine still runs
-   3.1.1 from the cache, which is how the config-protection fix failed to reach
-   it. Then `/be:session-end`.
-3. Delete `scratchpad/backup-antes-da-reescrita.bundle` once the push is
-   confirmed good — it still holds the old, unscrubbed history.
-4. **Phase 10**, written and not started: 10.1 turns the ruler inward to
-   *remove* what is cosmetic; 10.1b makes an interrupted mutation pass unable to
-   look finished; 10.2 is safe mutation selection with a results ledger.
+1. Update the plugin on the **Windows workstation** (P-10). That machine's cache
+   is independent; `be doctor` there should report 3.3.0.
+2. **This session's own Claude Code process still runs 3.1.1** — the plugin path
+   is resolved at start. The next session picks up 3.3.0.
+3. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
+   a sweep: a class asserted in bulk is the same unmeasured claim, once per file.
+4. **Phase 10.7** — the base records what was built and not what was asked.
+   `docs/action-plan.md` is a living requirements document in all but name, and
+   the base teaches nobody to keep one.
 5. The queue that waits for evidence: `be doctor <projects>`, the PR template
    with a mandatory number, proposal 13.
 
@@ -98,6 +88,58 @@ unaffected; no published artifact changed.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-09-28] v3.3.0 — mutation becomes governable, and the guards get guards
+
+**Owner:** vinicius · **Sessions:** 2026-09-23 → 2026-09-28 (one thread)
+
+**Goal declared at start:** verify the `be` identity on this machine, then close
+the improvement flow and ship a version. ✅ **Achieved** — v3.2.0 on 2026-09-24
+and v3.3.0 on 2026-09-28, both published to npm with provenance.
+
+**Deliveries**
+- **Phase 10, all six items** — the inward ruler (10.1), a pass that cannot look
+  finished (10.1b), safe selection with a ledger (10.2), fail-open per class
+  (10.3), the trail that says who asked (10.4), and the cost stated before the
+  wait (10.5); plus 10.6, four gaps four outside articles exposed.
+- **`/be:mutation`** — the governance a project actually receives, around
+  whatever tool its stack has.
+- **The base runs its own verification loop** — Biome and `tsc --noEmit`, absent
+  until now over 7,183 lines, in a base that sells lint and type-check as phases
+  2 and 3.
+- **This repo wears what it ships** — hooks, skills, agents and commands served
+  from the working tree, with `validate` refusing the declarations to drift.
+- **Privacy:** a second history rewrite removed a corporate address and a
+  registry mirror that a same-day `npm install` had reintroduced.
+
+**Decisions**
+- **The runner is not shipped.** `mutation-check.js` mutates JavaScript; a Java
+  project has no use for it, and shipping it would impose our tool where PIT,
+  Stryker and mutmut already exist. What is code here is agent-conducted there,
+  and the README says so rather than implying parity.
+- **No egress check.** The control is real and now stated in
+  `sec-agent-security` and the release checklist, but a repository check would
+  answer NOT MEASURED nine times in ten, because that decision lives in a cloud
+  console someone else owns. A ruler that mostly abstains is noise.
+- **Nothing was removed by the inward ruler**, and that is the result rather
+  than a failure to find one.
+- **10.1c and 10.7 recorded, not rushed** into the release.
+
+**What the session actually caught — and what it says**
+Eight defects, and **none of them was deep logic**: a function declared twice
+that sent every dispatcher call to the wrong script; dead imports from a
+refactor hours old; a parameter promising a scope it never read; a public
+JSDoc omitting an option the CLI passes; a `.gitignore` with no `.env` in a repo
+that ships a secrets skill; a lockfile publishing a corporate mirror; a decoy
+test that never reached the rule it claimed to protect; and a README badge stale
+across four releases, standing in front of two guards that could not see it.
+Attention and basic quality, every one.
+
+**Next steps**
+1. Update the plugin on the Windows workstation (P-10).
+2. 10.1c — evidence classes. 10.7 — what was asked, not only what was built.
+
+**Blockers:** none.
 
 ### [2026-09-22] The ledger got a command, and the guards were measured by mutation
 

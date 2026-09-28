@@ -451,3 +451,73 @@ moved content.
 ---
 
 *Last updated: 2026-08-20 (session close) · Reference: `engineering-principles.md` §11.2, §11.4*
+
+### [2026-09] "Did the file change?" is not "is what it says true?"
+
+**Context:** a release guard built after v3.1.0 and v3.1.1 shipped with a stale
+`README.md`. It asks whether `README.md` changed since the previous tag whenever
+a user-facing path did, and refuses the release otherwise.
+
+**Problem:** the README's version badge said `3.0.0` while the package said
+`3.3.0` — wrong across four releases. Two guards looked straight at it and
+neither could see it. The release guard's question was satisfied: the README
+*had* changed, three times that session. The inventory guard reads counts and
+dangling references, not versions. A reader found it on the repository page.
+
+**Rule:** a guard that asks whether a file *moved* is a proxy, and a proxy goes
+stale the moment someone edits the file for an unrelated reason. Where a claim
+inside the document is machine-decidable — a version, a count, a path that must
+resolve — check the **claim**, not the file's mtime. And when a claim becomes a
+gate, the thing that produces it must be updated by the same process that
+invalidates it: the release now bumps the badge and commits it, or the new gate
+would block the next release.
+
+**Evidence:** measured — `npm run validate` fails on a badge that disagrees with
+`package.json`, verified in both directions; `scripts/release.js` bumps every
+badge and commits `README.md` with the other version files.
+**Scope:** method.
+
+### [2026-09] A test can assert the right answer for the wrong reason
+
+**Context:** a mutation pass reported one survivor in `requestRef()` — forcing
+`entry.type !== 'user'` off changed nothing. A test had been written for exactly
+that mutant in the previous commit, and it passed.
+
+**Problem:** the decoy line was built with `JSON.stringify` over a string
+containing the marker `"type":"user"`, and JSON escapes the quotes. The
+serialised line held `\"type\":\"user\"`, so the `includes()` fast path above
+dropped it and execution never reached the rule the test claimed to protect.
+Green, fast, and measuring nothing — the third time in one session that a ruler
+looked right and exercised nothing.
+
+**Rule:** a test written for a specific defect must be shown to fail when that
+defect is present. Apply the mutation by hand to a copy and watch the test go
+red; passing on correct code proves only that it does not crash. This is the
+known-positive rule (`qa-verification-loop`) applied to a test rather than to a
+check, and it is the only thing that separates a regression test from a comment.
+
+**Evidence:** measured — the fixed decoy nests the marker
+(`{"type":"assistant", …, "echoed":{"type":"user"}}`) so the line really carries
+the bytes the fast path looks for while the entry's own type is not `user`.
+Verified by applying the mutant to a copy: red with it, green without.
+**Scope:** method.
+
+### [2026-09] A `finally` runs before the handler that needed the marker
+
+**Context:** making the blocking hooks fail closed. Each detector names itself
+in a module-level `guarding` variable while it runs, and the dispatcher's
+`catch` reads that name to decide whether a crash should refuse the call.
+
+**Problem:** `guard()` cleared the marker in a `finally`, which runs while the
+exception is still unwinding — before it reaches the handler. So `guarding` was
+always `null` there, every crash looked advisory, and the call went through.
+The feature was inert and looked complete.
+
+**Rule:** state a handler will read must not be cleared in a `finally` on the
+same path. Clear it on success only; the exceptional path is exactly the one
+that needs it intact.
+
+**Evidence:** measured — the test asserting the block failed on the first
+version and passes now, with the mirror asserting an advisory crash still costs
+nothing.
+**Scope:** technical.

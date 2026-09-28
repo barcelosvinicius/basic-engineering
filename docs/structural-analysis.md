@@ -226,17 +226,19 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
 
 ### 🟡 Minor
 
-#### P-09 — The CI jobs added on 2026-09-20 have never executed
+#### P-09 ✅ — The CI jobs added on 2026-09-20 have executed, green (closed 2026-09-24)
 - **Where:** `.github/workflows/ci.yml`, jobs `audits` and `sast`.
 - **State:** written and syntactically checked here; **not measured**. Semgrep is
   not installed on this machine, so `--validate` and the scan over this repo are
   unproven, and `pipx` on the runner is assumed rather than verified. By the
   taxonomy this repo is adopting, *could not measure* is not a pass.
-- **Done when:** the first push to `main` shows both jobs green — or names what
-  they found, which is equally a result.
-- **Blocked by:** nothing; the next push answers it.
+- **Answered 2026-09-24, run #21:** both jobs green on Node 18 and 20, together
+  with the lint and type-check steps added the same day. The `npm ci` on the
+  runner also proved, on a machine that is not this one, that the rewritten
+  lockfile resolves from the public registry. Green on every run since, through
+  #29 at v3.3.0.
 
-#### P-10 — *(machine-scoped: the Windows workstation **and** its WSL2)* the installed plugin still carries the guard defect fixed in A-14
+#### P-10 — *(machine-scoped)* ✅ **WSL, 2026-09-28** · ⏳ the Windows workstation
 - **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1` — in each
   environment separately. **Confirmed on WSL 2026-09-22:** the marketplace clone
   there is at `ef32f90` (v3.1.1), and its hook blocked a probe command that only
@@ -246,9 +248,19 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   mentions the bypass flag. Observed twice on 2026-09-20 — writing the analysis
   and writing the commit message that describes the fix. The workaround used was
   to pass the message through a file, never to disable the guard.
-- **Done when:** a release ships and this machine re-clones the marketplace —
-  `be doctor` reports the new version and a command mentioning the flag passes.
-- **Blocked by:** the next release.
+- **WSL closed 2026-09-28**, and not through `/plugin`: that command does not
+  exist in this environment, so the cache was updated by hand —
+  `plugins/be/` copied to `…/cache/basic-engineering/be/3.3.0`,
+  `installed_plugins.json` repointed in **both** scopes, and the marketplace
+  clone reset, because it sat at `20fd7de`, **a commit that stopped existing
+  when the history was rewritten**. Verified by grep: `isTrackedByGit`,
+  fail-closed and `requestRef` present in 3.3.0 and absent in 3.1.1; the 3.3.0
+  hook runs and blocks. Backup at `installed_plugins.json.bak-20260928-161704`.
+  **A session already running keeps the old plugin** — the path is resolved at
+  start, demonstrated live when 3.1.1 blocked a command for *mentioning* the
+  bypass flag, the defect 3.2.0 fixed.
+- **Still open on the Windows workstation**, which has its own cache.
+- **Done when:** that machine reports 3.3.0 from `be doctor`.
 
 #### P-07 — Typed activation edges are declared by 4 skills of 29 *(not a defect)*
 - **Where:** `## Activation edges` sections across `plugins/be/skills/`
@@ -315,6 +327,16 @@ Recorded because the temptation in any review is to discard what works.
 
 | # | Description | File(s) | Date |
 |---|---|---|---|
+| A-28 | **The README badge said 3.0.0 across four releases** — the release guard asks whether `README.md` *changed* and it had; the inventory guard reads counts, not versions. A machine-decidable claim is now checked as a claim, and the release bumps it so the new gate cannot block the next release | `scripts/validate.js`, `scripts/release.js`, `README.md` | 2026-09-28 |
+| A-27 | **The watcher could show a dead pass as a live one**, and only worked from inside the repo — both rules already written here and both ignored. Paths from the script's own location; a line still for 90s reads STALLED, and a finished pass never becomes one | `scripts/mutation-watch.js`, `test/mutation-watch.test.js` | 2026-09-28 |
+| A-26 | **The guard written to catch a stale README had no guard of its own** — 11 refusal sites in `release.js`, 1 exercised. Decisions extracted and *called* from the script, seven cases including BASE_VERSION's lexicographic comparison that `CLAUDE.md` warns about and nothing checked | `scripts/lib/release-guards.js`, `test/release-guards.test.js` | 2026-09-28 |
+| A-25 | **`/be:mutation`: the base shipped the doctrine and kept the governance** — a project got the skill and a tool table, no command, nothing in the release checklist, and not the runner. Scope and cost stated first, run/narrow/skip with the skip recorded, a destination per survivor, a report with its denominator, and equivalents given a home that expires | `commands/mutation.md`, `proc-release-checklist`, `qa-test-strategy` | 2026-09-28 |
+| A-24 | **Mutation selection follows the closure, not the file** — `pre-tooluse.js` requires `_gateguard.js` and `_lib.js`, so a change to `_lib.js` can revive a survivor in a file that never moved. Ledger keyed on the target, its tests, its closure **and the runner's own hash**; a pass that cannot finish prints "N of M accounted for" and fails `--check` | `scripts/mutation-check.js`, `test/mutation.test.js` | 2026-09-25 |
+| A-23 | **Fail-open was a blanket, and for four checks it was the wrong answer** — a detector that threw let the secret through. Blocking checks now refuse and name which one could not answer; advisory ones still cost nothing. Events carry the `promptId` that asked for them | `hooks/scripts/pre-tooluse.js`, `hooks/scripts/_lib.js` | 2026-09-25 |
+| A-22 | **This repo wears what it ships** — `.claude/settings.json` runs the hooks from the working tree and `validate` refuses the two declarations drifting; `npm run dev:link` does the same locally for skills, agents and commands. Written after the config-protection fix failed to reach this machine | `.claude/settings.json`, `scripts/dev-link.js`, `scripts/validate.js` | 2026-09-24 |
+| A-21 | **The base could not run the lint and type phases it sells** — Biome and `tsc --noEmit` over 7,183 lines, admitted on measured defects rather than a checklist: a `runHook` declared twice, dead imports from the same day, and `install()`'s JSDoc omitting an option `bin/be.js` passes | `biome.jsonc`, `tsconfig.json`, `.github/workflows/ci.yml` | 2026-09-24 |
+| A-20 | **The lockfile published the corporate mirror it was built behind** — 32 `resolved` lines, in a repo that had just scrubbed that class of identifier from every commit. Rewritten to the public registry, and `validate` refuses a private mirror by name | `package-lock.json`, `scripts/validate.js` | 2026-09-24 |
+| A-19 | **The config-protection guardrail could not tell authoring from weakening** — it blocked this repo's own adoption of a linter. Git decides: a config it does not track is a draft nobody agreed to | `hooks/scripts/_lib.js`, `hooks/scripts/pre-tooluse.js` | 2026-09-23 |
 | A-18 | **Release refuses to ship a user-facing change with README untouched** — the paths watched are derived from the actual miss (`commands/`, `hooks/`, `bin/`, `lib/installer.js`), and the reason for not touching it is recorded rather than assumed | `scripts/release.js` | 2026-09-20 |
 | A-17 | **This repo's workflows follow the skill it ships** — actions pinned by SHA, least-privilege `permissions:`, `timeout-minutes`, `concurrency`; `infra-ci-cd` gained the two rules it was missing, so the practice gap and the advice gap closed together | `.github/workflows/*`, `skills/infra-ci-cd` | 2026-09-20 |
 | A-16 | **CI runs the audits that already had a `--check` mode and nothing executed**, plus the Semgrep rules this base ships and never ran on itself | `.github/workflows/ci.yml`, `.github/workflows/release.yml` | 2026-09-20 |
