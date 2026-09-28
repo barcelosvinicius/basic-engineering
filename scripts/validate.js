@@ -354,6 +354,37 @@ function checkActivationEdges() {
 }
 
 /**
+ * A version badge must say the version this repository is.
+ *
+ * Measured 2026-09-28, by a reader looking at the repository page: the README
+ * badge said 3.0.0 while the package said 3.3.0 — stale across four releases.
+ * Two guards looked straight at it and neither could see it. The release guard
+ * asks "did README.md change?", and it had; the inventory guard reads counts and
+ * dangling references, not versions. The question was right at the wrong
+ * granularity: *the file moved* is not *what it says is true*.
+ *
+ * A badge is the one claim in a README that a machine can decide alone, so it
+ * is a gate rather than a reminder (`engineering-principles` §D).
+ */
+function checkVersionBadges() {
+  const pkg = readJson('package.json');
+  if (!pkg || !pkg.version) return;
+  const re = /badge\/version-(\d+\.\d+\.\d+)-/g;
+  for (const rel of ['README.md', 'plugins/be/BOOTSTRAP.md', 'docs/INDEX.md']) {
+    const file = path.join(ROOT, rel);
+    if (!fs.existsSync(file)) continue;
+    const text = fs.readFileSync(file, 'utf8');
+    let m;
+    while ((m = re.exec(text))) {
+      if (m[1] !== pkg.version) {
+        fail(`${rel}: version badge says ${m[1]}, but package.json is ${pkg.version}`);
+      }
+    }
+    re.lastIndex = 0;
+  }
+}
+
+/**
  * A lockfile must not publish where it was built.
  *
  * Measured 2026-09-24, in the pre-flight of the first push of v3.2.0: adopting a
@@ -423,6 +454,7 @@ checkActivationEdges();
 checkInventory();
 checkSelfHooks();
 checkLockfileRegistry();
+checkVersionBadges();
 
 if (errors.length) {
   console.error(`validate: ${errors.length} problem(s) found:\n`);

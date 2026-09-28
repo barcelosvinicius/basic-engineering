@@ -97,3 +97,28 @@ test('BASE_VERSION must move forward, and keep the shape that makes the comparis
     assert.strictEqual(g.versionMovesForward('v20260101-000000', bad).ok, false, `${bad} breaks the comparison`);
   }
 });
+
+// Measured 2026-09-28 by a reader looking at the repository page: the README
+// badge said 3.0.0 while the package said 3.3.0, stale across four releases.
+// Two guards looked straight at it and neither could see it -- the release guard
+// asks whether README.md changed, and it had; the inventory guard reads counts,
+// not versions. The question was right at the wrong granularity.
+test('the release bumps every version badge it finds, and leaves other versions alone', () => {
+  const bump = (text, next) => text.replace(/badge\/version-\d+\.\d+\.\d+-/g, `badge/version-${next}-`);
+
+  assert.strictEqual(
+    bump('![Version](https://img.shields.io/badge/version-3.0.0-blue)', '3.3.0'),
+    '![Version](https://img.shields.io/badge/version-3.3.0-blue)'
+  );
+  assert.match(
+    bump('badge/version-1.0.0-x badge/version-2.0.0-y', '9.9.9'),
+    /9\.9\.9-x.*9\.9\.9-y/,
+    'every badge, not just the first'
+  );
+  const prose = 'v3.1.1 is what users have, and CHANGELOG lists 3.2.0.';
+  assert.strictEqual(
+    bump(prose, '3.3.0'),
+    prose,
+    'a version in prose or history is not a badge and must not be rewritten'
+  );
+});

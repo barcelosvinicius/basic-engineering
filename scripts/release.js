@@ -198,6 +198,17 @@ for (const f of ['package.json', 'plugins/be/.claude-plugin/plugin.json', '.clau
 // ── 2) BASE_VERSION ──────────────────────────────────────────────────────────
 write('BASE_VERSION', baseVersion + '\n');
 
+// ── 2b) the version badge, which a reader sees before anything else ──────────
+// It said 3.0.0 across four releases. Two guards looked straight at it: the
+// release guard asks "did README.md change?", and it had; the inventory guard
+// reads counts, not versions. Bumping it here is what makes checkVersionBadges
+// a rule the release keeps rather than one it trips over.
+{
+  const readme = read('README.md');
+  const bumped = readme.replace(/badge\/version-\d+\.\d+\.\d+-/g, `badge/version-${next}-`);
+  if (bumped !== readme) write('README.md', bumped);
+}
+
 // ── 3) CHANGELOG: roll [Unreleased] into a dated version section ──────────────
 const date = `${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}`;
 const cl = read('CHANGELOG.md');
@@ -224,6 +235,9 @@ const RELEASE_FILES = [
   'CHANGELOG.md',
   'plugins/be/BE-GUIDE.md',
   'plugins/be/BE-GUIDE.pt.md',
+  // The version badge, bumped in step 2b. Left out, it would stay behind as an
+  // uncommitted change and the next release would refuse to start on a dirty tree.
+  'README.md',
   // Regenerated in step 4 because the bump changes the version it reports. Left
   // out of this list it would stay behind as an uncommitted change and the next
   // release would refuse to start on a dirty tree.

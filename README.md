@@ -4,7 +4,7 @@
 > as a **Claude Code plugin** (skills, agents, commands, hooks) and as an
 > **npm installer** for Copilot, Cursor, and any other AI tool.
 
-![Version](https://img.shields.io/badge/version-3.0.0-blue)
+![Version](https://img.shields.io/badge/version-3.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## What is this repository?
