@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0] — 2026-09-28
+
 ### Added
 
 - **`/be:mutation` — the governance, not just the doctrine.** A project that
