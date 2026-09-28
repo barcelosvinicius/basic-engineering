@@ -53,6 +53,13 @@ sections below is enough.
 - [ ] **SQL**: confirmation of parameterized queries (no input concatenation)
 - [ ] **Dependency audit**: no open critical or high CVEs (`npm audit`, `mvn dependency-check`)
 - [ ] **Minimum pentest**: IDOR tested, brute force tested, post-logout token tested
+- [ ] **Would the tests notice?** If this release changes a module whose failure
+      is silent or expensive — a guard, validation, money, authorization, a
+      parser — **state** whether a mutation pass was run, over what scope, and
+      what each survivor became. **Or state why it was not run.** The question is
+      required; the answer "not this time, because …" is a legitimate one, and
+      the recorded reason is the point. `/be:mutation` runs it under governance;
+      `qa-test-strategy` says when it pays
 
 ---
 

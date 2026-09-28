@@ -2,7 +2,7 @@
 
 # `be` — what this base can do for you
 
-Your project has the **basic-engineering (`be`)** base installed. It turns AI assistance into engineering partnership: 11 commands, 18 specialized agents, 31 on-demand skills, and live guardrails. This file is generated — keep it as your map.
+Your project has the **basic-engineering (`be`)** base installed. It turns AI assistance into engineering partnership: 12 commands, 18 specialized agents, 31 on-demand skills, and live guardrails. This file is generated — keep it as your map.
 
 ## Start here
 
@@ -53,6 +53,7 @@ Opt out per session with `BE_HOOKS=off`, or a single check with e.g. `BE_HOOK_SE
 | `/be:help` | Show the be capabilities guide — every command, agent, and skill the base offers, plus the live guardrails |
 | `/be:impact` | Analyze the blast radius of the current changes — risk level + targeted review checklist |
 | `/be:model-route` | Recommend which model tier (haiku / sonnet / opus) fits a task by complexity — spend capability where it pays, save cost where it doesn't |
+| `/be:mutation` | Run a mutation pass under governance — scope and cost stated first, you decide, survivors each get an answer. Reports, never blocks. |
 | `/be:release-check` | Run the pre-go-live checklist and draft the changelog entry for the release |
 | `/be:session-end` | Close a work session — update HISTORY.md, structural-analysis, lessons-learned, and commit docs with the code |
 | `/be:session-start` | Start a work session — load HISTORY.md, structural-analysis, git status, and declare a verifiable goal |

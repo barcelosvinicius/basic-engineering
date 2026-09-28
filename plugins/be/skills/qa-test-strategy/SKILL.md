@@ -77,6 +77,13 @@ you that. Mutation is the cheapest question that does not share the blind spot.
   is *equivalent*, with the reason it cannot change behaviour · removal, when it
   shows dead code (`proc-safe-removal`). "Equivalent" without a reason is not
   allowed.
+- - **Who decides, and who pays.** The base makes the **cost visible** and the
+  **result honest**; the person operating it decides **scope and timing**. State
+  the estimate before anyone waits, offer a narrower scope, and treat "not now"
+  as an answer that gets recorded — not as a failure. Automation that spends
+  someone's twenty minutes without asking is automation they will switch off.
+  `/be:mutation` is that conversation; the score is never the goal
+  (`engineering-principles` §E — a number that rises when the guard loosens).
 - **What it cannot do:** find the case nobody wrote. Mutation measures the
   tests you have; *the nearest case that must be allowed — or refused* — at each
   boundary measures the ones you do not (`qa-verification-loop`). Use both.

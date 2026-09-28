@@ -25,7 +25,7 @@ elevates AI from autocomplete to a genuine engineering partner.
 /plugin install be@basic-engineering
 ```
 
-Then, in your project: `/be:bootstrap`. Done — 31 skills, 18 agents, 11
+Then, in your project: `/be:bootstrap`. Done — 31 skills, 18 agents, 12
 commands, and the live guardrail hooks are active. Update later with
 `/plugin update be@basic-engineering`.
 
@@ -59,7 +59,7 @@ marketplace serves from `main`, and npm publishes via the OIDC CI workflow.
 |-----------|-------|------------|
 | **Skills** | 31 | Reusable technical knowledge in Agent Skills format (`skills/<name>/SKILL.md` + on-demand resources): process protocols (session continuity, SDD, ADR, code review, code documentation, impact/structural/domain analysis, dependency management), backend patterns (errors, versioning, migrations, auth, pagination), frontend (UX, accessibility), security (secrets), operations (observability), CI/CD, and testing — including `qa-test-strategy` (which layers a change needs, and mutation as the ruler of whether the tests would notice a wrong line) and `proc-analysis-blocks` (an analysis closes in blocks, each with a verdict and the command that re-runs it) |
 | **Agents** | 18 | Ready-to-use specialized subagents — dev (backend, frontend, data), mgmt (PO, PM, domain expert, architect), qa (engineer, security reviewer, pentest), infra (devops), ops (SRE). They work **without customization**: each reads the project's conventions from `CLAUDE.md` and `docs/` at runtime. Analyst/security agents are tool-restricted to read-only |
-| **Commands** | 11 | Session: `/be:session-start`, `/be:session-end`; quality: `/be:check` — build, types, lint, tests, security, diff **and the measured distance** (units of work with no test file, routes no document mentions; it reports, never blocks) — and `/be:impact`; setup & help: `/be:bootstrap`, `/be:help`; decisions & release: `/be:adr`, `/be:structural-analysis`, `/be:release-check`; context & cost: `/be:context-budget`, `/be:model-route` |
+| **Commands** | 12 | Session: `/be:session-start`, `/be:session-end`; quality: `/be:check` — build, types, lint, tests, security, diff **and the measured distance** (units of work with no test file, routes no document mentions; it reports, never blocks) — and `/be:impact`; setup & help: `/be:bootstrap`, `/be:help`; decisions & release: `/be:adr`, `/be:structural-analysis`, `/be:release-check`; context & cost: `/be:context-budget`, `/be:model-route`; test quality: `/be:mutation` — a mutation pass under governance: scope and cost stated before anyone waits, you decide whether to run it, every survivor gets a test or a written reason, and the report carries its denominator |
 | **Guardrail hooks** | live | **Opt-out** (`BE_HOOKS=off`, or `BE_HOOK_<ID>=off` per check). **Advisory hooks fail open** — a reminder that crashes never costs the session. **Blocking checks fail closed**: if a detector cannot run, the call is refused and the message names which check could not answer and which switch allows it deliberately — passing a call through unchecked would be reporting a pass that was never made. PreToolUse blocks hardcoded secrets, weakening a **committed** linter config (tuning one git does not track yet is authoring, not weakening), and `git --no-verify`; a fact-forcing gate on the first edit of a high-impact file — schema, security, API contract, build manifest, pipeline (`BE_GATEGUARD=all|off`); one-line reminders at the gesture — the stack's skills on the first code edit, the lot rule on a bulk rewrite, `proc-safe-removal` on a removal (`BE_HOOK_REMINDERS=off`); a Stop reminder for `/be:session-end`; PreCompact saves the session state before the context is compacted and SessionEnd leaves what the next session needs to know; SessionStart injects `HISTORY` state and drops the capabilities guide at the project root. Every gate and reminder leaves one line in a per-session log carrying the identifier of the request that produced it — never a command, never file content |
 | **Capabilities guide** | EN + PT | `BE-GUIDE.md` / `BE-GUIDE.pt.md` — generated catalog + scenario→action playbooks; shown by `/be:help` |
 | **Bundled extras** | — | Starter Semgrep rule (`semgrep/`), stack mappings + install profiles (`config/`), the `.be-paths.json` EN/PT doc-path map, and `scripts/` — `distance.js` (the measured distance) and `permissions.js`, which writes the detected stack's allow/deny into the project's `.claude/settings.json` without ever changing what the project already decided |
@@ -95,7 +95,7 @@ plugins/be/                       ← the canonical content (one source of truth
   ├── .claude-plugin/plugin.json
   ├── skills/<name>/SKILL.md      ← 31 skills + resources
   ├── agents/*.md                 ← 18 subagents
-  ├── commands/*.md               ← 11 slash commands
+  ├── commands/*.md               ← 12 slash commands
   ├── hooks/                      ← SessionStart + PreToolUse guardrails + Stop
   ├── semgrep/ · config/          ← SAST rules, stack mappings, install profiles
   ├── BE-GUIDE.md · BE-GUIDE.pt.md ← generated capabilities guide (EN/PT)

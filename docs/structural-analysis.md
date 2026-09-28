@@ -39,7 +39,7 @@ and no derived number is restated in prose.
 | Fact | Value |
 |------|-------|
 | Measured against | **be 3.2.0** · `BASE_VERSION v20260923-193441` |
-| Skills · agents · commands | **31 · 18 · 11** |
+| Skills · agents · commands | **31 · 18 · 12** |
 | Hook scripts · events wired | **9 · 5** (SessionStart, PreToolUse, Stop, PreCompact, SessionEnd) |
 | Doc templates · config data files | **11 · 2** |
 | Read-only agents (`tools:` restricted) | **12 / 18** |
@@ -51,9 +51,9 @@ and no derived number is restated in prose.
 | Agents delegating to another agent | **18 / 18** |
 | `proc-session-continuity` in-degree / declared out-degree | **23 / 7** |
 | Declared `invoke` cycles | **0** |
-| Skills over the ~150-line budget | **6** |
+| Skills over the ~150-line budget | **7** |
 | Skills carrying a resource file | **17 / 31** |
-| Skills payload (`SKILL.md`, LF bytes) | **159,479 B** |
+| Skills payload (`SKILL.md`, LF bytes) | **160,551 B** |
 | Agents payload (LF bytes) | **62,551 B** |
 | Living docs in this repo | **4** |
 
