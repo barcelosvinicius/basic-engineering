@@ -53,6 +53,7 @@ const TARGETS = [
   { file: 'scripts/lib/probes.js', tests: ['test/probes.test.js'] },
   { file: 'scripts/lib/edges.js', tests: ['test/graph.test.js'] },
   { file: 'scripts/lib/inventory.js', tests: ['test/inventory.test.js'] },
+  { file: 'scripts/lib/release-guards.js', tests: ['test/release-guards.test.js'] },
 ];
 
 /**

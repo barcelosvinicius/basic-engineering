@@ -20,6 +20,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { execSync } = require('node:child_process');
+const guards = require('./lib/release-guards.js');
 
 const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2);
@@ -126,7 +127,10 @@ try {
 // describes changed, and the README did not". The three capabilities that got
 // missed landed in exactly these paths — the rule is derived from the incident,
 // not guessed.
-const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/installer.js'];
+// The decision itself lives in scripts/lib/release-guards.js, with the case that
+// makes it fail. It used to be inline here, behind validate, the suite, two
+// audits and a mutation pass -- twenty minutes from any test -- which is how the
+// guard written to catch a stale README ended up with no guard of its own.
 {
   const flag = args.find((a) => a.startsWith('--readme-ok='));
   let lastTag = '';
@@ -135,19 +139,16 @@ const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/i
   } catch {
     lastTag = '';
   }
-  if (!lastTag) {
-    console.log('release: no previous version tag — README guard skipped (nothing to compare against).');
-  } else {
-    let changed;
+  let changed = null;
+  if (lastTag) {
     try {
       changed = shOut(`git diff --name-only ${lastTag}..HEAD`).split(/\r?\n/).filter(Boolean);
       // A real release runs on a clean tree, so HEAD is the whole story. A dry
-      // run is the opposite case — it exists to be run with work still
+      // run is the opposite case -- it exists to be run with work still
       // uncommitted, and a guard that answered "nothing changed" there would
       // preview a release different from the one being rehearsed.
       // NB: shOut trims, so the first line has already lost its leading status
-      // space — match the status field rather than counting columns (same
-      // reason as the `dirtyBefore` note below).
+      // space -- match the status field rather than counting columns.
       for (const line of shOut('git status --porcelain').split(/\r?\n/)) {
         const file = line
           .replace(/^[ MADRCU?!]{1,2}\s+/, '')
@@ -157,28 +158,14 @@ const USER_FACING = ['plugins/be/commands/', 'plugins/be/hooks/', 'bin/', 'lib/i
         if (file && !changed.includes(file)) changed.push(file);
       }
     } catch {
-      // Could not MEASURE. That is not a pass — see the exit-code taxonomy note
-      // in docs/lessons-learned.md.
       changed = null;
-      fail(`could not diff against ${lastTag}; the README guard could not run, and that is not a green`);
-    }
-    const touched = changed.filter((f) => USER_FACING.some((p) => f.startsWith(p)));
-    if (touched.length && !changed.includes('README.md')) {
-      if (flag) {
-        const reason = flag.slice('--readme-ok='.length).trim();
-        if (!reason) fail('--readme-ok needs a reason: it is the record of why the README stayed as it is');
-        console.log(`release: README unchanged by decision — "${reason}"`);
-      } else {
-        fail(
-          `this release changes what users see, and README.md did not change since ${lastTag}:\n` +
-            touched.map((f) => `        ${f}`).join('\n') +
-            '\n\n  Answer the question before releasing: does a README reader need to know\n' +
-            '  something new? Either edit README.md, or record why not with\n' +
-            '  `--readme-ok="<reason>"` and put the same line in the CHANGELOG entry.'
-        );
-      }
     }
   }
+  const readmeOk = flag === undefined ? undefined : flag.slice('--readme-ok='.length);
+  const verdict = guards.readmeVerdict({ lastTag, changed, readmeOk });
+  if (verdict.verdict === 'refuse') fail(verdict.reason);
+  if (verdict.verdict === 'skip') console.log(`release: README guard skipped -- ${verdict.reason}.`);
+  if (verdict.verdict === 'accepted') console.log(`release: README unchanged by decision -- "${verdict.reason}"`);
 }
 
 // ── guard: clean tree (so the release commit is pure) ────────────────────────
