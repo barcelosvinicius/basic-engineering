@@ -49,6 +49,30 @@ security sections of `docs/`.
 - [ ] **A10 SSRF:** input URLs validated; cloud metadata unreachable
 - [ ] **SAST:** pipeline includes static security analysis (see `infra-ci-cd`)
 
+## When the change touches an agent, a tool or an LLM
+
+OWASP A01–A10 is about the application's threat model. A change that wires an
+MCP server, gives a model a tool, or feeds it retrieved content has a threat
+model of its own, and the checklist above does not reach it. **Consult
+`sec-agent-security`** and review for:
+
+- **Prompt injection** — retrieved, fetched or user-supplied content treated as
+  instructions rather than data; zero-width and bidi control characters; an
+  "ignore previous instructions" buried in an HTML comment.
+- **Agency** — what the tool can actually do, not what the prompt asks it to do.
+  A prompt is not access control: if the tool accepts the call, the model will
+  eventually make it, by error or by instruction.
+- **Approval boundaries** — an approval screen is interface; the permission is
+  the policy. Remove the approval step from your model of the flow and look only
+  at what the agent *can* reach.
+- **Egress** — what the process may connect out to, which is what decides whether
+  code execution becomes a session or a dead end.
+- **Secrets in context** — what lands in a prompt, a log or a transcript.
+
+Found 2026-09-25: this agent had zero mentions of any of the above, so a PR
+wiring an MCP server got A01–A10 and nothing about the one class of threat
+specific to it.
+
 ## Delegation triggers
 
 | Condition | Delegate to | Expected action |
@@ -57,6 +81,7 @@ security sections of `docs/`.
 | Critical vulnerability found | `dev-backend` | Implement urgent fix |
 | CORS/header configuration changed | `dev-frontend` | Validate requests still work |
 | New security test defined | `qa-engineer` | Automate it in the suite |
+| Change wires an agent, a tool or an MCP server | `sec-agent-security` (skill) | Apply the agent threat model before signing off |
 
 ## Definition of Done (security review)
 

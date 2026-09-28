@@ -40,6 +40,10 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
 5. **Security scan** — no hardcoded secrets, no business data in `localStorage`,
    no `console.log`/`print` of sensitive data left in. Run Semgrep with the
    bundled rules if available (see `infra-ci-cd`), plus a quick grep.
+   **If the diff wires an agent, a tool, or an MCP server**, or feeds a model
+   content it did not write, this phase does not reach the threat: prompt
+   injection, what the tool can actually do, and what the process may connect
+   out to are `sec-agent-security`. A prompt is not access control.
 6. **Diff review** — `git diff --stat` and read each changed file for
    unintended changes, missing error handling, and edge cases (null, empty,
    zero, overflow, unauthorized).
@@ -55,6 +59,7 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
 | Type | Target | When |
 |---|---|---|
 | `consult` | `qa-test-strategy` | phase 4 — when judging whether the tests would notice a wrong line |
+| `consult` | `sec-agent-security` | phase 5 — when the change wires an agent, a tool or an MCP server, or feeds a model content it did not write |
 
 ## Before you trust a ruler, make it fail
 
