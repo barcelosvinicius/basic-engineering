@@ -20,13 +20,18 @@ concurrency:
 
 jobs:
   validate-and-test:
-    runs-on: ubuntu-latest
+    # Windows is in the matrix because the base is developed and used there:
+    # 2026-10-09 a Windows checkout of v3.3.0 failed 2 of 187 tests — a path
+    # printed with `\` and an errno only POSIX returns — while every run here
+    # was green, because "here" was only ubuntu.
+    runs-on: ${{ matrix.os }}
     # The suite takes seconds. Ten minutes is wide margin, and it exists so a
     # hung test dies instead of burning the default six-hour allowance.
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         node-version: [18, 20]
     steps:
       # Actions pinned by SHA, not by tag: a tag is mutable, so whoever controls
