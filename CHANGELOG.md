@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.1] — 2026-10-09
+
 ### Fixed
 
 - **The suite passes on Windows, and CI now proves it.** A Windows checkout of
