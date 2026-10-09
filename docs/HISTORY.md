@@ -73,9 +73,11 @@ changed.
 
 ### Priority next steps
 
-1. **Read the first CI run with `windows-latest`.** It had never run when this
-   was written; until it is green, "CI checks it" is a prediction. Then move
-   each machine to 3.3.1 (`claude plugin update be@basic-engineering`).
+1. **Move the Linux machine and WSL to 3.3.1** (`claude plugin update
+   be@basic-engineering`, then `be doctor`). The Windows workstation is on
+   3.3.1 since 2026-10-09. *Measured, no longer predicted:* the first
+   `windows-latest` run (CI #38003272764, at `73dc6e5`) was green on Node 18
+   and 20, and v3.3.1 reached npm `latest` with provenance.
 2. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
    a sweep: a class asserted in bulk is the same unmeasured claim, once per file.
 3. **Phase 10.7** — the base records what was built and not what was asked.
