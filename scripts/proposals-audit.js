@@ -82,14 +82,18 @@ function check(text) {
   return errors;
 }
 
-/** Every feedback/<dir>/SUGESTOES.md, relative to root. */
+/**
+ * Every feedback/<dir>/SUGESTOES.md, relative to root, always with `/`. The
+ * native separator made the same repository print a different report on
+ * Windows, and a report that depends on the machine is not a measurement.
+ */
 function ledgers(root = ROOT) {
   const dir = path.join(root, 'feedback');
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory() && fs.existsSync(path.join(dir, d.name, 'SUGESTOES.md')))
-    .map((d) => path.join('feedback', d.name, 'SUGESTOES.md'));
+    .map((d) => path.posix.join('feedback', d.name, 'SUGESTOES.md'));
 }
 
 const norm = (t) => t.replace(/[*`_]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
