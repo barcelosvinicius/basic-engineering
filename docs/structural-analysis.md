@@ -238,7 +238,7 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   lockfile resolves from the public registry. Green on every run since, through
   #29 at v3.3.0.
 
-#### P-10 — *(machine-scoped)* ✅ **WSL, 2026-09-28** · ⏳ the Windows workstation
+#### P-10 — *(machine-scoped)* ✅ **WSL, 2026-09-28** · ✅ **Windows workstation, 2026-10-09**
 - **Where:** `~/.claude/plugins/cache/basic-engineering/be/3.1.1` — in each
   environment separately. **Confirmed on WSL 2026-09-22:** the marketplace clone
   there is at `ef32f90` (v3.1.1), and its hook blocked a probe command that only
@@ -259,7 +259,13 @@ without a done-criterion is a feeling; one with an unreachable criterion is a tr
   **A session already running keeps the old plugin** — the path is resolved at
   start, demonstrated live when 3.1.1 blocked a command for *mentioning* the
   bypass flag, the defect 3.2.0 fixed.
-- **Still open on the Windows workstation**, which has its own cache.
+- **Windows closed 2026-10-09** — through the standalone CLI, not by hand:
+  the project clone and the marketplace clone both sat on the **pre-rewrite**
+  history (no common ancestor with `origin/main`) and were reset onto it, then
+  `claude plugin update be@basic-engineering` moved the cache 3.1.1 → 3.3.0.
+  `be doctor` reports 3.3.0 with five hook events. The reset rewrote only the
+  files that changed, so 79 kept the CRLF of the old checkout until they were
+  renormalised; the marketplace clone and the new cache came out LF.
 - **Done when:** that machine reports 3.3.0 from `be doctor`.
 
 #### P-07 — Typed activation edges are declared by 4 skills of 29 *(not a defect)*

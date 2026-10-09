@@ -11,11 +11,13 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-09-28 (session closed)
+> ⚡ Last updated: 2026-10-09 (session closed)
 
-**Project phase:** **v3.3.0 is published and Phase 10 is closed.** npm carries
-`latest: 3.3.0`, the marketplace follows `main`, CI is green through run #29.
-The base now ships the governance around mutation testing, not only the doctrine.
+**Project phase:** **v3.3.1 — the base passes on Windows, and CI checks it.**
+v3.3.0 carried the governance around mutation testing; the first Windows
+session after it found 2 of 187 tests failing and `npm ci` refusing there, all
+invisible to a CI that ran only on ubuntu. Fixed, and `windows-latest` joined
+the matrix. Phase 10 stays closed.
 
 *For anyone who cloned before 2026-09-24:* the history was rewritten and
 `v3.0.0`, `v3.1.0` and `v3.1.1` changed SHA. An older clone cannot fast-forward
@@ -66,21 +68,20 @@ changed.
 
 ### Blockers
 
-- **None.**
-- **P-10 remains open on the Windows workstation**, which has its own cache.
+- **None.** P-10 is closed on every environment (WSL 2026-09-28, Windows
+  2026-10-09).
 
 ### Priority next steps
 
-1. Update the plugin on the **Windows workstation** (P-10). That machine's cache
-   is independent; `be doctor` there should report 3.3.0.
-2. **This session's own Claude Code process still runs 3.1.1** — the plugin path
-   is resolved at start. The next session picks up 3.3.0.
-3. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
+1. **Read the first CI run with `windows-latest`.** It had never run when this
+   was written; until it is green, "CI checks it" is a prediction. Then move
+   each machine to 3.3.1 (`claude plugin update be@basic-engineering`).
+2. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
    a sweep: a class asserted in bulk is the same unmeasured claim, once per file.
-4. **Phase 10.7** — the base records what was built and not what was asked.
+3. **Phase 10.7** — the base records what was built and not what was asked.
    `docs/action-plan.md` is a living requirements document in all but name, and
    the base teaches nobody to keep one.
-5. The queue that waits for evidence: `be doctor <projects>`, the PR template
+4. The queue that waits for evidence: `be doctor <projects>`, the PR template
    with a mandatory number, proposal 13.
 
 ---
@@ -88,6 +89,31 @@ changed.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-10-09] v3.3.1 — the Windows workstation catches up, and finds what ubuntu could not
+
+**Owner:** vinicius · **Session:** 2026-10-09, Windows workstation
+
+**Goal declared at start:** bring this machine up to date in code and in use.
+✅ **Achieved**, and it widened into a patch release when updating exposed
+defects only Windows shows.
+
+**Deliveries**
+- **P-10 closed on Windows** — project and marketplace clones reset off the
+  pre-rewrite history, cache moved 3.1.1 → 3.3.0 with `claude plugin update`.
+- **Two tests that only failed on Windows** — `proposals-audit` printed paths
+  with `\` (a product fix: the report now uses `/` everywhere), and the
+  `pathExists` test relied on ENOTDIR, which Windows never returns (a test fix:
+  the guard was right).
+- **The lockfile carried Linux binaries only** since the 3.3.0 privacy
+  regeneration, so `npm ci` refused on Windows and macOS. Regenerated with every
+  platform, public registry only.
+- **CI runs `validate-and-test` on `windows-latest` too.**
+
+**Lesson confirmed, not new:** the reset rewrote only the files that changed,
+leaving 79 in CRLF from the old checkout — the 2026-08 *a pull rewrites only
+what it touches* lesson, reproduced. Biome flagging three JSON files is how it
+surfaced.
 
 ### [2026-09-28] v3.3.0 — mutation becomes governable, and the guards get guards
 
