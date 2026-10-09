@@ -73,10 +73,13 @@ test('guard helpers hold on odd input: no id, non-string text, empty command, mi
   assert.strictEqual(lib.isNoVerify(undefined), false);
   assert.strictEqual(lib.pathExists(__filename), true);
   assert.strictEqual(lib.pathExists(__filename + '.missing'), false, 'ENOENT means absent');
+  // The non-ENOENT branch needs an error every OS raises. `<file>/child` was
+  // the first trigger, but only POSIX answers it with ENOTDIR — Windows says
+  // ENOENT, so the test failed there while the guard was right on both.
   assert.strictEqual(
-    lib.pathExists(require('node:path').join(__filename, 'child')),
+    lib.pathExists('a\0b'),
     true,
-    'any other error (ENOTDIR) is treated as present'
+    'any other error (here ERR_INVALID_ARG_VALUE) is treated as present'
   );
 });
 
