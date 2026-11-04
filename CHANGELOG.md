@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.4.0] — 2026-11-04
+
 ### Added
 
 - **Findings from a parallel agent are checked before they are integrated.**
