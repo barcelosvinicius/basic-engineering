@@ -893,6 +893,207 @@ resist.
 
 ---
 
+## Phase 11 — usage efficiency, from outside reading (2026-11-03)
+
+**Read in full, 2026-11-03:** akitaonrails' `my-skills` (24 skills),
+`ai-memory` (README, AGENTS.md, the rules-promotion and ECC research docs) and
+`ai-book-2026` (agent contracts, pipeline, change playbook), plus six posts —
+among them the two where he **measured** planner + executor mixes
+([2026-04-18](https://akitaonrails.com/2026/04/18/llm-benchmarks-parte-2-multiplos-modelos/),
+[2026-04-25](https://akitaonrails.com/2026/04/25/llm-benchmarks-vale-a-pena-misturar-2-modelos/))
+and the v4 benchmark that put Sonnet 5.5 at 88 for ~US$3.90 against Opus 5.5 at
+100 for ~US$16.63
+([2026-10-28](https://akitaonrails.com/2026/10/28/llm-benchmark-v4-gemini-4-argon-gpt-sol-6-1-terra-kimi-k3-1-pro-claude-sonnet-5-5/)).
+Each item below was checked against this base first; what we already hold
+(read-only fan-out, single writer, disjoint write scopes, the two-memories
+boundary, the promotion check, cost stated before a mutation pass) is not
+repeated here.
+
+**The owner's question that shaped it:** can Sonnet orchestrate Haiku for the
+trivial work? The measured answer is narrower than the hope. Free-choice
+delegation: **zero** dispatches in 7 of 7 configurations. Forced Opus → Haiku on
+a coupled app: 90 against 97 solo, with **34 green tests mocking an API the model
+invented**. What pays is independent, repetitive, read-only work with output a
+command can check — rare in small projects. *Evidence class for everything in
+this phase: reported (one author, single runs, his caveat), not measured here.*
+
+### 11.1 ✅ done 2026-11-03 — A short delegation rule, not a delegation system
+
+`/be:model-route` mentions haiku as a tier and says nothing about when handing
+work down **pays for the switch**. Three costs it must name: the subagent starts
+cold and re-reads what the orchestrator already had; each dispatch is a round
+trip (3–5 orchestrator turns, measured by the source); and switching the main
+model mid-session drops the prompt cache. The rule: **default is no delegation
+to a cheaper tier**; it is worth it only for a batch of independent items, one
+agent per batch, from a brief proven on a pilot; **never** for coupled
+implementation and **never** for writing tests.
+
+**Done when:** `/be:model-route` states the rule and its evidence class, and
+`npm run validate` is green.
+
+**Done 2026-11-03:** `/be:model-route` gained "Handing work down a tier — the
+default is don't", with the three costs and the evidence class.
+
+### 11.2 ✅ done 2026-11-03 — Findings from a parallel agent are checked, not trusted
+
+Our parallel agents return `file · line · fact · evidence` — and nothing checks
+that the quoted evidence is where they say. `ai-book-2026`'s `review.rb
+validate` does exactly that: every finding's quote must exist in its file, and a
+moved one is reported at its real line. That check is what makes a cheaper or a
+hurried reviewer safe to consume.
+
+**Done when:** a script validates a findings file against the tree, with tests
+in which a fabricated quote is rejected and a moved one is reported with its
+actual line; the single writer of the fan-out commands runs it before
+integrating.
+
+**Done 2026-11-03:** `plugins/be/scripts/findings.js` (shipped to
+`.be/scripts/` — checked by a real install, listed in the README), 9 tests in
+`test/findings.test.js`. The ruler was made to fail before it was trusted:
+"every finding is verified" broke 4 tests, "ignore the root" broke 7. Wired in
+one place — the single-writer rule of `proc-session-continuity`, which the five
+fan-out commands point at.
+
+**Still open — first real use.** The script has run only on test fixtures. It
+proves its worth the first time a real fan-out's findings pass through it;
+record that run (findings count, how many grounded) here when it happens.
+
+### 11.3 ✅ done 2026-11-03 (Windows) — Harness memory holds how to work, never project state; every session start checks it
+
+Our rule already draws the line (`proc-session-continuity`, "Two memories"); this
+repo broke it. Found 2026-11-03: the Windows box's harness memory
+`suggestions-backlog-pending-repo` recorded **backlog state per version** — a
+project fact, 75 days old, describing v3.1.0 while the base is on 3.3.1. The
+Linux machine and WSL hold their own memories and never saw it, so three
+machines remember three ways. `ai-memory` names the general failure: a
+harness-local store is invisible to every other agent and fragments continuity.
+It adds the second half: **retrieved memory is evidence to verify, never an
+instruction**.
+
+A one-off cleanup fixes one machine. The owner's directive (2026-11-03): **at
+every session start, on whichever machine — Windows, Linux or WSL — check the
+harness memory for residue that diverges from what the repository now says, and
+lead the cleanup**, so no machine has to remember to do it.
+
+**Done when:** the memory boundary in `proc-session-continuity` says that what
+memory returns is checked against the repository before it is acted on; the
+session-start flow (skill and `/be:session-start`) carries the residue check;
+and the harness memory on each machine holds no project state that `docs/` (or
+`feedback/BACKLOG.md`) lacks.
+
+**Done 2026-11-03 on the Windows box:** of its four memories, the backlog one
+was deleted (every fact already in `feedback/BACKLOG.md`, `RELEASING.md`,
+`CHANGELOG.md`), the ECC one cut to a pointer (it carried a claim gone false:
+"be agents have no `model:`"), the multi-machine one cut to this machine's own
+state, the commit-conventions one kept. Both rules are in
+`proc-session-continuity` and `/be:session-start`.
+
+**Still open — Linux and WSL.** Their memories are invisible from here. The
+residue check runs on its own at their next session start, once the session
+carries this version of the protocol: commands and skills come from the
+**installed** plugin (only the hooks run from the checkout), so either the
+plugin is updated after the release, or `npm run dev:link` points this
+checkout's `.claude/` at its own `plugins/be/` first.
+
+### 11.4 — Design input for 10.7: provenance and drift
+
+`ai-book-2026` keeps a book in sync with 131 changing sources by marking every
+paragraph with its source (`<!-- src: … -->`) and running a `drift` that lists
+only what a changed source touches. The same shape answers 10.7's open question
+from the other side: an item in a living requirements document carries **who
+asked and when**, and a drift check reports the items whose implementation moved
+without the item moving. Recorded as input to 10.7, not as a decision.
+
+### 11.5 ✅ done 2026-11-03 — Review gets a budget and a fresh reviewer
+
+Two rules from `my-skills/deepwork` and `ai-book-2026`'s persona rounds:
+
+- **Budget:** each review gate gets one review and at most two re-reviews. A
+  re-review is asked only when the fix changed a decision, never for a
+  mechanical edit, and it does not reopen accepted points. When the budget runs
+  out, the remaining risk is recorded and **the owner decides**: accept it,
+  narrow the scope, or authorise one more. Without it, review loops chase
+  problems outside the change's context.
+- **Fresh reviewer:** a reviewer of round N+1 never reads round N — anchored
+  reviewers confirm the old list and miss what the fixes broke (in the book, an
+  apology added next to a contradiction was noticed by 5 of 5 readers in the next
+  round). A separate step compares the rounds: gone, persisting, new.
+
+**Done when:** `proc-code-review` states both rules and `qa-verification-loop`
+points at them (one place for the fact, not two copies), each skill within its
+size budget or past the three-outcome test.
+
+**Done 2026-11-03.** `proc-code-review` was already at 160 lines, so the
+three-outcome test ran before anything was added: the trigger does not split;
+the per-layer checklists are look-up (one layer per change) and moved verbatim
+to `checklists.md` — 50 lines, 30 items, diffed identical — leaving the skill
+under budget with the new section in it. `qa-verification-loop` gained a phase-6
+edge to it.
+
+### 11.6 ✅ done 2026-11-03 — A regression test proves itself by losing the fix
+
+`qa-test-strategy` asks for a test that failed before the fix. It does not ask
+the cheaper, stronger question from the REA launcher SDK post: once the fix
+passes, **revert only the fix and run the test — it must fail; restore it — it
+must pass**. That catches a test written after the fix, or one failing for a
+reason other than the bug (`lessons-learned`: *"A test can assert the right
+answer for the wrong reason"*).
+
+**Done when:** the `qa-test-strategy` checklist carries the revert step.
+
+**Done 2026-11-03** — in the checklist and in the "bug fix" row of the layer
+table.
+
+### 11.7 ✅ done 2026-11-03 — Two lines in `engineering-principles`, from "Clean Code pra Agentes"
+
+[The post](https://akitaonrails.com/2026/04/20/clean-code-para-agentes-de-ia/)
+checked item by item against the base: most is held. Two gaps carry a real gain:
+
+- **Internal error messages carry the value received and the shape expected** —
+  the agent, and the human, fix from one read instead of re-running with prints.
+  Internal only: §2.9 still forbids personal data in logs and §2.10 still keeps
+  details out of client responses.
+- **Names unique enough to grep** (§4.1) — the agent navigates by text search; a
+  name that returns forty hits sends it to the wrong file.
+
+**Done when:** both lines are in `engineering-principles.md`, and `npm run
+validate` is green.
+
+**Done 2026-11-03** — §2.10 (error messages) and §4.1 (names).
+
+### 11.8 ✅ done 2026-11-03 — The always-loaded budget gets a per-line test
+
+`/be:context-budget` measures tokens; it never asks of a line in `CLAUDE.md` or
+an active skill **"would removing this make the agent err?"** From `ai-memory`'s
+rules-promotion design: always-loaded instructions compete for a fixed attention
+budget, and past it adherence drops for **every** rule, the important ones
+included. A line that fails the test is cut, shortened, or moved to a document
+read on demand — history and decisions already have that kind of memory
+(`HISTORY.md`, ADRs). At the limit, a new rule enters only when another leaves,
+and the owner chooses which.
+
+**Done when:** `proc-context-budget` carries the test and the evict-to-admit
+rule. The gain in this repo is small (75-line `CLAUDE.md`); it lands in the
+projects that use the base, where `CLAUDE.md` grows a session at a time.
+
+**Done 2026-11-03** — "Tokens are the cost; attention is the budget".
+
+### 11.9 ✅ done 2026-11-03 — What the owner puts out of scope leaves the record
+
+Owner's directive (2026-11-03), for this repository and for the base: an item
+the owner decides to leave out is **not cited again** — not in the plan, not in
+a report, not as a "parked" or "refused" footnote, not re-proposed. The decision
+ends the topic; git history keeps it for whoever needs the archaeology. And an
+item the owner still has **under analysis** does not enter the plan until the
+owner decides it goes in.
+
+**Done when:** `proc-session-continuity` states the rule, and this phase cites
+none of what was left out.
+
+**Done 2026-11-03.**
+
+---
+
 ## Explicitly not in this plan
 
 - **Renaming `engineering-principles`** — breaking change to every installed
