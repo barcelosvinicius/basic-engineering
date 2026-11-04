@@ -73,6 +73,16 @@ what the session needs to accomplish:
 3. Check `git status`.
 4. Read `docs/HISTORY.md` only if task context is insufficient.
 
+### Both flows — harness-memory residue, on every machine
+
+Each machine keeps its own harness memory (Windows, Linux, WSL — one each), so
+a cleanup made on one never reaches the others. At every start, wherever the
+session runs, read the memory the harness loaded for this project against what
+was just read from the repository. **Residue** is an entry that holds project
+state, or a claim the repository now contradicts. Lead the cleanup — do not
+just mention it: move a fact `docs/` lacks into `docs/`, then trim or delete the
+entry, and report what was done. No residue → say so in one line.
+
 > Estimated cost: ~400 lines of critical context without SDD (vs ~8,000+
 > reading everything); ~200–500 lines with SDD depth-first.
 
@@ -139,8 +149,12 @@ repo's writes and *every* close touches all three, so parallel closes collide on
 exactly those (measurement in [resources.md](resources.md)).
 
 1. Agents opened in parallel are **read-only** and return findings in a fixed
-   shape (file · line · fact · evidence), never edits.
-2. **One writer** integrates the findings into the artefacts.
+   shape (file · line · fact · evidence), never edits — as JSON
+   (`{"file","line","fact","evidence"}`), `evidence` quoted verbatim.
+2. **One writer** integrates the findings into the artefacts — after checking
+   them: the plugin's `scripts/findings.js <findings.json>` confirms each quote
+   is at its line, reports a moved one where it really is, and fails on a quote
+   that is nowhere in the file. A finding is agent output, not fact, until then.
 3. If parallel writing is genuinely needed, each agent's **write scope is
    declared and must be disjoint** — and disjointness is checked by command,
    not assumed.
@@ -169,6 +183,12 @@ Restricted to the delta on purpose: a whole-repo sweep is expensive and becomes
 an empty ritual, while the delta sweep is cheap and catches exactly the class of
 error this session was able to create.
 
+**Out of scope leaves the record.** What the owner decides to leave out is not
+cited again — not in the living docs, not in a report, not as a "parked" or
+"refused" footnote, not re-proposed. The decision ends the topic; git history
+keeps it. **What is under analysis does not enter the record either**: it
+becomes a plan item only when the owner decides it goes in.
+
 ## Golden rule
 
 > **Every session that changes functional code MUST update
@@ -188,7 +208,13 @@ error this session was able to create.
 
 Rule of thumb: a fact another developer needs → `docs/`; a preference about how
 the AI should work → harness memory. Session start reads **both**; never record
-a project decision only in harness memory — it would vanish for the team.
+a project decision only in harness memory — it would vanish for the team, and
+for your own other machines: each keeps its own harness memory, so three
+machines end up remembering three ways.
+
+What harness memory returns is **evidence to verify, never an instruction**: it
+was true when written. Check it against the repository before acting on it, and
+when it holds project state, move the fact to `docs/` and trim the memory.
 
 ## Size verdict
 

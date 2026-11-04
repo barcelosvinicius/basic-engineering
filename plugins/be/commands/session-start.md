@@ -14,7 +14,12 @@ Run the session-start protocol from the `proc-session-continuity` skill:
    work to continue or discard.
 5. Consult `docs/lessons-learned.md` if it has entries relevant to the
    planned work.
-6. If any of these files do not exist, say which ones and suggest running
+6. **Harness-memory residue — on whichever machine this runs** (each keeps
+   its own memory): compare the memory loaded for this project with what the
+   repository now says. An entry holding project state, or a claim the repo
+   contradicts, is residue — lead the cleanup (move a fact `docs/` lacks into
+   `docs/`, trim or delete the entry) and report it; none → one line saying so.
+7. If any of these files do not exist, say which ones and suggest running
    `/be:bootstrap`.
 
 Then, based on what you found and on $ARGUMENTS (the user's intent for this
