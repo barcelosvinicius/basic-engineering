@@ -36,9 +36,12 @@ changed.
 
 ### In progress
 
-- **Phase 11 committed, release v3.4.0 next.** Function-grouped commits, each
-  verified alone in a throwaway worktree; 196/196 tests, validate, lint,
-  format, typecheck and both audits green on the final tree.
+- **Nothing.** Phase 11 shipped as **v3.4.0** — *measured, not predicted:* 11
+  function-grouped commits, each verified alone in a throwaway worktree; CI
+  (run 41756267602) green on ubuntu and windows, Node 18 and 20; `release.yml`
+  (run 41756267615) published to npm with provenance (`latest` = 3.4.0) and
+  tagged the GitHub release. This Windows box moved to plugin 3.4.0 with
+  `claude plugin update`; `be doctor`: nothing to act on.
 
 ### Recently completed (this session, 2026-11-03)
 
@@ -89,20 +92,19 @@ changed.
 
 ### Priority next steps
 
-1. **Confirm v3.4.0 landed** on npm and the marketplace (CI `release.yml`).
-2. **Linux machine and WSL: update the plugin** to the release that carries
-   Phase 11 (`claude plugin update be@basic-engineering`, then `be doctor`) — or
-   `npm run dev:link` in the checkout first. Their next `/be:session-start` then
-   runs the harness-memory residue check on its own and cleans what it finds.
-   *Expected, not observed:* their memories are invisible from Windows.
-3. **11.2's first real use** — run `findings.js` on a real fan-out's findings
+1. **Linux machine and WSL: update the plugin to 3.4.0**
+   (`claude plugin update be@basic-engineering`, then `be doctor`). Their next
+   `/be:session-start` then runs the harness-memory residue check on its own
+   and cleans what it finds. *Expected, not observed:* their memories are
+   invisible from Windows.
+2. **11.2's first real use** — run `findings.js` on a real fan-out's findings
    and record the count in the action plan; until then it is proven on fixtures
    only.
-4. **Phase 10.7** — the base records what was built and not what was asked;
+3. **Phase 10.7** — the base records what was built and not what was asked;
    11.4 holds the provenance-and-drift input for its design.
-5. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
+4. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
    a sweep: a class asserted in bulk is the same unmeasured claim, once per file.
-6. The queue that waits for evidence: `be doctor <projects>`, the PR template
+5. The queue that waits for evidence: `be doctor <projects>`, the PR template
    with a mandatory number, proposal 13.
 
 ---
