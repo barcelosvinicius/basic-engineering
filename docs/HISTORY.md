@@ -11,13 +11,14 @@
 
 ## Current State
 
-> ⚡ Last updated: 2026-10-09 (session closed)
+> ⚡ Last updated: 2026-11-03
 
-**Project phase:** **v3.3.1 — the base passes on Windows, and CI checks it.**
-v3.3.0 carried the governance around mutation testing; the first Windows
-session after it found 2 of 187 tests failing and `npm ci` refusing there, all
-invisible to a CI that ran only on ubuntu. Fixed, and `windows-latest` joined
-the matrix. Phase 10 stays closed.
+**Project phase:** **v3.3.1 released; Phase 11 (usage efficiency) delivered
+under `[Unreleased]`.** Outside reading — akitaonrails' skills, `ai-memory`,
+`ai-book-2026` and his measured model-mixing runs — was checked against the
+base, and only what was missing went in: a validator for parallel agents'
+findings, review rounds with a budget, a delegation rule that names the cost of
+the switch, and a harness-memory residue check at every session start.
 
 *For anyone who cloned before 2026-09-24:* the history was rewritten and
 `v3.0.0`, `v3.1.0` and `v3.1.1` changed SHA. An older clone cannot fast-forward
@@ -35,10 +36,25 @@ changed.
 
 ### In progress
 
-- **Nothing.** Phase 10 closed; 10.1c and 10.7 are recorded and deliberately
-  not started.
+- **Phase 11 committed, release v3.4.0 next.** Function-grouped commits, each
+  verified alone in a throwaway worktree; 196/196 tests, validate, lint,
+  format, typecheck and both audits green on the final tree.
 
-### Recently completed (this session)
+### Recently completed (this session, 2026-11-03)
+
+- **Phase 11, 8 of 9 items done** (`docs/action-plan.md`); 11.4 is design input
+  for 10.7. New: `plugins/be/scripts/findings.js` (+9 tests, made to fail before
+  trusted). `proc-code-review`'s checklists moved verbatim to `checklists.md` to
+  fit the new review-round rules under the size budget.
+- **This machine's harness memory cleaned:** a backlog memory holding project
+  state (75 days stale) deleted, the ECC one cut to a pointer (it carried a false
+  claim), the multi-machine one cut to this machine's own state.
+- **New base rules:** residue check on harness memory at every session start;
+  what the owner puts out of scope leaves the record.
+- **`graph-audit --check` named the wrong fix** (`--md` prints, `--write`
+  writes) — corrected there and in the release guard.
+
+### Completed in the session before (2026-09-28 / 2026-10-09)
 
 - **v3.3.0 published.** 187 tests, 12 of 12 mutation targets (727 mutants, 706
   killed, 21 equivalents, **zero survivors**), validate, lint, format, typecheck
@@ -73,17 +89,20 @@ changed.
 
 ### Priority next steps
 
-1. **Move the Linux machine and WSL to 3.3.1** (`claude plugin update
-   be@basic-engineering`, then `be doctor`). The Windows workstation is on
-   3.3.1 since 2026-10-09. *Measured, no longer predicted:* the first
-   `windows-latest` run (CI #38003272764, at `73dc6e5`) was green on Node 18
-   and 20, and v3.3.1 reached npm `latest` with provenance.
-2. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
+1. **Confirm v3.4.0 landed** on npm and the marketplace (CI `release.yml`).
+2. **Linux machine and WSL: update the plugin** to the release that carries
+   Phase 11 (`claude plugin update be@basic-engineering`, then `be doctor`) — or
+   `npm run dev:link` in the checkout first. Their next `/be:session-start` then
+   runs the harness-memory residue check on its own and cleans what it finds.
+   *Expected, not observed:* their memories are invisible from Windows.
+3. **11.2's first real use** — run `findings.js` on a real fan-out's findings
+   and record the count in the action plan; until then it is proven on fixtures
+   only.
+4. **Phase 10.7** — the base records what was built and not what was asked;
+   11.4 holds the provenance-and-drift input for its design.
+5. **Phase 10.1c** — 1 skill of 31 declares an evidence class. Deliberately not
    a sweep: a class asserted in bulk is the same unmeasured claim, once per file.
-3. **Phase 10.7** — the base records what was built and not what was asked.
-   `docs/action-plan.md` is a living requirements document in all but name, and
-   the base teaches nobody to keep one.
-4. The queue that waits for evidence: `be doctor <projects>`, the PR template
+6. The queue that waits for evidence: `be doctor <projects>`, the PR template
    with a mandatory number, proposal 13.
 
 ---
@@ -91,6 +110,39 @@ changed.
 ## Delivery History
 
 > Reverse chronological. Each entry is immutable.
+
+### [2026-11-03] Phase 11 — outside reading turned into usage rules, and a memory that lied
+
+**Owner:** vinicius · **Session:** 2026-11-03, Windows workstation
+
+**Goal declared at start:** a prioritised list of usage improvements, each with
+a done-criterion, recorded in `docs/action-plan.md`, no code changed before the
+owner approved it. ✅ **Achieved**, then widened at the owner's request into
+implementing the list.
+
+**Deliveries**
+- **Phase 11 in the action plan**, 8 items done: delegation rule
+  (`/be:model-route`), findings validator, harness-memory boundary and
+  residue check, review budget and fresh reviewer, regression test proven by
+  reverting the fix, two `engineering-principles` lines (error messages with
+  value and shape; greppable names), per-line test for always-loaded context,
+  out-of-scope-leaves-the-record.
+- **`findings.js`** — checks that each quoted finding is at its line; refuses
+  paths outside the root; exit 1 on a fabrication. Mutated twice before
+  trusted (4 and 7 tests failed), shipped by the installer (real install).
+- **Harness memory on this machine cleaned** — the residue that motivated 11.3.
+
+**Decisions**
+- Sonnet stays the default tier; delegating to a cheaper model is not worth it
+  for this owner's small, coupled projects.
+- What the owner leaves out of scope is not cited again — rule in
+  `proc-session-continuity`.
+- The memory residue check runs at every session start, on every machine.
+
+**Found on the way:** my own claim that this repo's session start reads the
+protocol from the checkout was false — only the hooks do; commands and skills
+come from the installed plugin unless `npm run dev:link` ran. Corrected in the
+plan before it was relied on.
 
 ### [2026-10-09] v3.3.1 — the Windows workstation catches up, and finds what ubuntu could not
 
