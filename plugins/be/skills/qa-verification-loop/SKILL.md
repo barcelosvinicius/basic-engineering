@@ -60,6 +60,7 @@ Run in order; stop and fix on the first hard failure (build/type) before moving 
 |---|---|---|
 | `consult` | `qa-test-strategy` | phase 4 — when judging whether the tests would notice a wrong line |
 | `consult` | `sec-agent-security` | phase 5 — when the change wires an agent, a tool or an MCP server, or feeds a model content it did not write |
+| `consult` | `proc-code-review` | phase 6 — when the diff review is re-run after fixes: the round budget, and a fresh reviewer each round |
 
 ## Before you trust a ruler, make it fail
 

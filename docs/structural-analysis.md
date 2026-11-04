@@ -51,9 +51,9 @@ and no derived number is restated in prose.
 | Agents delegating to another agent | **18 / 18** |
 | `proc-session-continuity` in-degree / declared out-degree | **23 / 7** |
 | Declared `invoke` cycles | **0** |
-| Skills over the ~150-line budget | **7** |
-| Skills carrying a resource file | **17 / 31** |
-| Skills payload (`SKILL.md`, LF bytes) | **160,551 B** |
+| Skills over the ~150-line budget | **6** |
+| Skills carrying a resource file | **18 / 31** |
+| Skills payload (`SKILL.md`, LF bytes) | **159,995 B** |
 | Agents payload (LF bytes) | **62,551 B** |
 | Living docs in this repo | **4** |
 

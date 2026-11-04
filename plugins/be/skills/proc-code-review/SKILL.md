@@ -48,56 +48,8 @@ never a state of the tree ("none in the project"). A tree-state item turns false
 for every later commit once one occurrence lands anywhere, so everyone ticks it
 in good faith. Tree state belongs in the debt record, with a count and a date.
 
-### Backend
-
-**Correctness:**
-- [ ] Does the implemented logic match the requirement (RF-XX)?
-- [ ] Are edge cases handled (null, empty, zero value, overflow)?
-- [ ] Are database transactions correct (readOnly on reads, rollback on failures)?
-- [ ] Is N+1 avoided (batch queries, no select loops)?
-
-**Security:**
-- [ ] Is the new endpoint mapped in SecurityConfig (public or protected)?
-- [ ] Is authorization checked on the server, not only on the client?
-- [ ] Is input validated before use (Bean Validation, sanitization)?
-- [ ] Is the JPA entity not returned directly (use DTO)?
-- [ ] Does every secret the change needs come from config or a vault, none added to the code?
-
-**Quality:**
-- [ ] Constructor injection used (not field `@Autowired`)?
-- [ ] Are custom exceptions thrown (not generic exceptions)?
-- [ ] Do unit tests cover the new behavior?
-- [ ] Was a versioned migration created if the schema changed? (see `be-db-migrations`)
-
-### Frontend
-
-**Correctness:**
-- [ ] Does the component consume the API correctly (typing, error handling)?
-- [ ] Is a loading state present for async operations?
-- [ ] Is the empty state handled for lists?
-
-**UX (see the `fe-ux-patterns` skill):**
-- [ ] Visual feedback after actions (toast, button disable)?
-- [ ] Confirmation before destructive actions?
-- [ ] Clear visual hierarchy (is the most important thing highlighted)?
-
-**Accessibility (see the `fe-accessibility-patterns` skill):**
-- [ ] Interactive elements with semantic tags?
-- [ ] Inputs with associated labels?
-- [ ] Visible focus on all interactive elements?
-
-**Performance:**
-- [ ] Chart instances destroyed in OnDestroy?
-- [ ] Subscriptions canceled in OnDestroy?
-- [ ] Debounce on search fields?
-
-### General
-
-- [ ] No `console.log` / `println` of sensitive data added?
-- [ ] Comments explain *why*, not *what*; no commented-out code added, no comment this change made stale? (see `proc-code-documentation`)
-- [ ] Naming consistent with the rest of the system?
-- [ ] Does the PR reference an issue with `Closes #N`?
-- [ ] Were docs updated if there was an architectural decision?
+The checklists themselves — **Backend**, **Frontend**, **General** — are
+look-up, one layer per change: [checklists.md](checklists.md).
 
 ---
 
@@ -140,6 +92,30 @@ security-reviewer reviews PR → finds incorrect commitment calculation
 → Trigger domain-expert: "Formula in DashboardService.calcComprometimento()
   divides expenses by gross_income. Confirm whether it should be net_income."
 ```
+
+---
+
+## Review rounds — a budget, and a fresh reviewer
+
+A review that is re-run until nothing is found does not converge: each fix
+invites the next opinion, and the loop drifts into problems outside the
+change's context. Two rules keep it finite and honest:
+
+1. **Budget.** Each review gate gets **one review and at most two re-reviews**.
+   Ask for a re-review only when a fix changed a decision or a risk — never for
+   a mechanical edit already verified. A re-review checks the open findings and
+   what the fixes introduced; it does not reopen points already accepted. When
+   the budget runs out, record the remaining risk and **the owner decides**:
+   accept it, narrow the scope, or authorise one more round.
+2. **Fresh reviewer.** The reviewer of round N+1 does not read round N's
+   findings — an anchored reviewer confirms the old list and misses what the
+   fixes broke. Give it the current diff only. A separate step then compares the
+   rounds: gone, persisting, new.
+
+*Evidence class: reported.* The budget is from a published orchestrator workflow
+(akitaonrails, `my-skills/deepwork`); the fresh reviewer from his book's reader
+rounds, where an apology added beside a contradiction was flagged by 5 of 5
+reviewers in the next round.
 
 ---
 
