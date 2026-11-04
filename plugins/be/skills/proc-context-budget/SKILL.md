@@ -45,6 +45,29 @@ always loaded). **MCP servers and CLAUDE.md are where bloat hides.**
    sections); duplicate components.
 4. **Report** ranked by token savings.
 
+## Tokens are the cost; attention is the budget
+
+Counting tokens says what a line costs, not whether it earns its place. Every
+line that is always loaded is reread on every turn, and the model follows a
+limited number of instructions well — past that, adherence drops for **every**
+rule, the important ones included. So, for each line of `CLAUDE.md` and of an
+always-on rule, ask one question:
+
+> **"If this line were gone, would the agent make a mistake?"**
+
+- **Yes, often** → keep it.
+- **Yes, but only when someone touches one thing** → shorten it to the rule and
+  move the explanation to a document read on demand (history, ADRs and
+  `lessons-learned` are already that kind of memory).
+- **No** → cut it.
+
+At the limit, **a new rule enters only when another leaves**, and the owner
+chooses which — the audit proposes, it never deletes.
+
+*Evidence class: reported* — `ai-memory`'s rules-promotion design, citing 2026
+best-practice sources (~150–200 instructions followed reliably, a measurable
+drop past it). Not measured here.
+
 ## Report format
 
 ```
