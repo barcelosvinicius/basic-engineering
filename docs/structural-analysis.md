@@ -53,7 +53,7 @@ and no derived number is restated in prose.
 | Declared `invoke` cycles | **0** |
 | Skills over the ~150-line budget | **6** |
 | Skills carrying a resource file | **18 / 31** |
-| Skills payload (`SKILL.md`, LF bytes) | **159,995 B** |
+| Skills payload (`SKILL.md`, LF bytes) | **160,196 B** |
 | Agents payload (LF bytes) | **62,551 B** |
 | Living docs in this repo | **4** |
 

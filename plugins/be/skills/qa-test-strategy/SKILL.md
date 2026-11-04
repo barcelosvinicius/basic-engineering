@@ -45,7 +45,7 @@ test('isAdult is true from 18 and false below', () => {
 | Crosses a boundary you own — database, queue, filesystem, another module | an integration test against the real thing (container, temp dir) | a mock encodes your belief about the boundary, and the defect lives in the belief |
 | A journey that makes money or loses data | one end-to-end test per critical journey | few, slow, costly — cover the journey, not every screen |
 | A hot path — a critical endpoint, a query over a growing table, a batch | a load test against the SLO, before release | capacity fails with growth, not with correctness |
-| A bug fix | a failing test first, then the fix | the test is the proof the bug was understood |
+| A bug fix | a failing test first, then the fix; then revert only the fix and watch the test fail | the test is the proof the bug was understood — and the revert proves it fails for the bug, not for a typo in the test |
 
 Mock only what you do not own: third-party APIs, the clock, randomness.
 
@@ -129,7 +129,8 @@ traced to its final state in the database). No measured case in this base yet.*
 ## Checklist — per change, answerable from the diff
 
 - [ ] Each new or changed behaviour has a test that would fail if it were wrong
-- [ ] A fixed bug has a test that failed before the fix
+- [ ] A fixed bug has a test that fails with only the fix reverted and passes
+      with it restored — run both ways, not assumed
 - [ ] New boundary code has an integration test against the real dependency
 - [ ] A new critical journey has its end-to-end test
 - [ ] A change to a hot path names its SLO and carries a load result, or says why not
