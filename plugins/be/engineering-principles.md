@@ -252,6 +252,11 @@ responsibility, not the framework's.
   to the client.
 - Internal error messages (with technical details) stay in the logs; the client
   receives only an HTTP code + a friendly message.
+- An internal error message names **the value received and the shape
+  expected** — `expected date YYYY-MM-DD, got "03/11/2026"`, not `invalid
+  date`. Whoever debugs, human or agent, fixes it from one read instead of
+  re-running with prints. §2.9 still applies: never the value of a credential
+  or of personal data — name the field and the rule it broke instead.
 - Never expose class names, SQL queries, or internal structure in error responses.
 
 ### 2.11 Privacy and Personal Data Protection
@@ -354,6 +359,9 @@ Each module (feature, package, microservice) must have a well-defined public API
 - Consistency: the same concept gets the same name throughout the system (not
   `customer` in one place and `user` in another).
 - Verbs for methods/functions, nouns for classes/variables.
+- Specific enough to search: a name that returns dozens of unrelated hits for a
+  text search (`process`, `handler`, `data`, `Manager`) sends a reader — and an
+  agent, which navigates by text search — to the wrong file.
 
 ### 4.2 DTOs and Data Transfer
 
