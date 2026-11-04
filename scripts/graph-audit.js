@@ -15,8 +15,9 @@
  * Usage:
  *   node scripts/graph-audit.js           human-readable report
  *   node scripts/graph-audit.js --json    machine-readable
- *   node scripts/graph-audit.js --md      the generated fact panel for
+ *   node scripts/graph-audit.js --md      print the generated fact panel for
  *                                         docs/structural-analysis.md
+ *   node scripts/graph-audit.js --write   write it into that document
  *   node scripts/graph-audit.js --check   exit 1 if that block is stale
  *
  * The --md/--check pair exists because a fact panel nobody re-runs becomes a
@@ -248,7 +249,7 @@ if (process.argv.includes('--check')) {
   if (missing.length) {
     console.error('graph-audit: the fact panel in docs/structural-analysis.md is out of date. Missing rows:\n');
     for (const l of missing) console.error(`  ${l}`);
-    console.error('\nRegenerate with: node scripts/graph-audit.js --md');
+    console.error('\nRegenerate with: node scripts/graph-audit.js --write');
     process.exit(1);
   }
   console.log('graph-audit: the fact panel in docs/structural-analysis.md matches the measured repo.');

@@ -93,7 +93,7 @@ try {
 } catch {
   fail(
     'the fact panel in docs/structural-analysis.md no longer matches the repo — ' +
-      'run `node scripts/graph-audit.js --md` and commit it'
+      'run `node scripts/graph-audit.js --write` and commit it'
   );
 }
 
