@@ -26,5 +26,29 @@ Steps:
    `model` (opus for `mgmt-architect`/`mgmt-domain-expert`/`qa-security-reviewer`,
    sonnet otherwise). Delegating to the right agent routes the model for you.
 
+## Handing work down a tier — the default is don't
+
+Choosing a tier for a task is cheap. **Handing part of a task to a cheaper model
+is not**, and the cost is easy to miss:
+
+- **Cold start** — the subagent re-reads what the orchestrator already had.
+- **Round trip** — writing the brief, waiting, reading and checking the result:
+  3–5 orchestrator turns per dispatch in the measurement below.
+- **Cache** — switching the *main* model mid-session drops the prompt cache.
+
+So the default is **no delegation to a cheaper tier**. It pays only for a
+**batch of independent items** (the same change across many similar files, a
+read-only sweep whose findings a command can check), with **one agent per
+batch, not per item**, and a brief proven on a pilot first. **Never** for
+coupled implementation, and **never** for writing tests: the cheaper executor's
+tests can pass while proving nothing.
+
+*Evidence class: reported, not measured here.* akitaonrails' planner + executor
+runs (April 2026): free-choice delegation happened **0 times in 7 of 7
+configurations**; forced Opus → Haiku on a coupled app scored 90 against 97
+solo, with 34 green tests mocking an API the model invented; the switch overhead
+erased most of the savings. Single runs, one task shape — his own caveat. On a
+subscription the gain is quota, not money.
+
 Advisory only — the user picks the model. Pair with `/be:context-budget` to keep
 the per-call context (and cost) lean.
