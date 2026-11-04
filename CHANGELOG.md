@@ -7,6 +7,58 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Findings from a parallel agent are checked before they are integrated.**
+  `scripts/findings.js` takes the findings a read-only agent returns (`file`,
+  `line`, `evidence`) and confirms each quote is at its line, reports a moved
+  one at its real line, and fails on a quote that is nowhere in the file — the
+  fabrication a cheaper or hurried reviewer can produce. Paths that leave the
+  project root are refused, since a finding is agent output. Exits 1 on any
+  ungrounded finding and always states N of M. Shipped to `.be/scripts/` by the
+  installer; `proc-session-continuity` makes the single writer run it.
+- **Review rounds get a budget and a fresh reviewer** (`proc-code-review`): one
+  review and at most two re-reviews per gate, a re-review only when a fix changed
+  a decision, and the owner decides when the budget runs out; the reviewer of
+  the next round never reads the previous one.
+- **`/be:model-route` says when handing work to a cheaper model pays** — by
+  default it does not: cold start, round trips and a dropped cache eat the
+  savings. Only a batch of independent items qualifies, and never coupled
+  implementation or test writing. Evidence class stated: reported, not measured
+  here.
+- **`proc-context-budget` asks of every always-loaded line whether removing it
+  would make the agent err**, and a new rule enters only when another leaves,
+  chosen by the owner.
+
+### Changed
+
+- **A regression test proves itself by losing the fix** (`qa-test-strategy`):
+  revert only the fix and the test must fail, restore it and it must pass.
+- **`engineering-principles`**: internal error messages name the value received
+  and the shape expected (never a credential or personal data); names must be
+  specific enough that a text search lands on them.
+- **Harness memory is evidence to verify, never an instruction**
+  (`proc-session-continuity`); project state found there moves to `docs/`.
+- **Every session start checks the harness memory for residue**, on whichever
+  machine it runs (`/be:session-start`, `proc-session-continuity`): each machine
+  keeps its own memory, so an entry holding project state or a claim the
+  repository now contradicts is cleaned up there — the fact moved to `docs/`,
+  the entry trimmed — and reported.
+- **What the owner puts out of scope leaves the record**
+  (`proc-session-continuity`): not cited again in living docs or reports, not
+  kept as a "parked" or "refused" footnote, not re-proposed — and what is still
+  under analysis does not enter the plan until the owner decides it does.
+- **`proc-code-review`'s per-layer checklists moved to a sibling
+  `checklists.md`**, unchanged — look-up material, one layer per change; it
+  brought the skill back under its size budget.
+
+### Fixed
+
+- **A stale fact panel now names the command that fixes it.** `graph-audit
+  --check` and the release guard said to run `--md`, which only prints the
+  panel; the command that writes it into `docs/structural-analysis.md` is
+  `--write`.
+
 ## [3.3.1] — 2026-10-09
 
 ### Fixed
